@@ -31,12 +31,19 @@
     "details": "Details",
     "relativeDays": "{days, plural, =0 {Today} =1 {Tomorrow} other {In # days}}",
     "seriesPosition": "Session {n} of {total} in the series",
-    "speakersWith": "with {names}"
+    "speakersWith": "with {names}",
+    "relativePast": "{days, plural, =1 {Yesterday} other {# days ago}}"
   },
   "season": {
     "title": "The season",
     "empty": "No events in this season yet.",
-    "legendLabel": "Legend"
+    "legendLabel": "Legend",
+    "dialLabel": "Season meetups on the dial",
+    "dialHint": "Spin the dial, or use the arrow keys",
+    "prevEvent": "Previous",
+    "nextEventButton": "Next",
+    "backToNext": "Back to next meetup",
+    "now": "Now"
   },
   "eventPage": {
     "back": "Back to the season",

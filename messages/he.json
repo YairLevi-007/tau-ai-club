@@ -31,12 +31,19 @@
     "details": "לפרטים",
     "relativeDays": "{days, plural, =0 {היום} =1 {מחר} other {בעוד # ימים}}",
     "seriesPosition": "סדנה {n} מתוך {total} בסדרה",
-    "speakersWith": "עם {names}"
+    "speakersWith": "עם {names}",
+    "relativePast": "{days, plural, =1 {אתמול} other {לפני # ימים}}"
   },
   "season": {
     "title": "העונה",
     "empty": "עוד אין אירועים בעונה הזאת.",
-    "legendLabel": "מקרא"
+    "legendLabel": "מקרא",
+    "dialLabel": "מפגשי העונה על החוגה",
+    "dialHint": "סובבו את החוגה, או השתמשו בחיצים",
+    "prevEvent": "הקודם",
+    "nextEventButton": "הבא",
+    "backToNext": "חזרה למפגש הבא",
+    "now": "עכשיו"
   },
   "eventPage": {
     "back": "חזרה לעונה",

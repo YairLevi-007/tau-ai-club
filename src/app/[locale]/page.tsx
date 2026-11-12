@@ -83,7 +83,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         )}
       </div>
 
-      {season.status === "ok" && <SeasonTimeline events={season.events} cohortName={cohort ? loc(cohort, "name", l) : null} />}
+      {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={cohort ? loc(cohort, "name", l) : null} />}
     </div>
   );
 }
