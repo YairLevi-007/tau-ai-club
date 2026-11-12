@@ -83,7 +83,7 @@
 
   /* Motion */
   --ease-out-quint: var(--ease-out);
-  --container-site: 1120px;
+  --container-site: 1200px;
 }
 
 @layer base {
@@ -108,8 +108,15 @@
     outline-offset: 2px;
   }
   ::selection {
-    background: var(--brand-purple-deeper);
-    color: var(--fg);
+    background: var(--brand-purple);
+    color: var(--on-purple);
+  }
+  html {
+    scrollbar-color: var(--border) var(--bg);
+  }
+  time,
+  bdi {
+    font-variant-numeric: tabular-nums;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -131,6 +138,127 @@
     font-weight: 500;
     font-size: 0.8125rem;
     color: var(--brand-purple-soft);
+  }
+}
+
+@layer components {
+  /* Buttons (design/home-comp.html). Values come from tokens only. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.875rem;
+    padding-inline: 1.125rem;
+    border-radius: var(--r-md);
+    border: 1px solid transparent;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      background-color var(--dur-press) var(--ease-out),
+      border-color var(--dur-press) var(--ease-out),
+      box-shadow var(--dur-ui) var(--ease-out),
+      transform 100ms var(--ease-out);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn svg {
+    width: 1.0625rem;
+    height: 1.0625rem;
+    flex: none;
+  }
+  .btn-primary {
+    background: var(--brand-purple);
+    color: var(--on-purple);
+    box-shadow: var(--btn-highlight);
+  }
+  .btn-primary:hover {
+    background: var(--brand-purple-deep);
+    box-shadow: var(--btn-highlight), var(--shadow-cta-hover);
+  }
+  .btn-ghost {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--fg);
+  }
+  .btn-ghost:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-strong);
+  }
+
+  /* Status tags: state is always written in text, never color alone. */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.5625rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--fg-subtle);
+  }
+  .tag-next {
+    background: var(--brand-purple);
+    border-color: var(--brand-purple);
+    color: var(--on-purple);
+  }
+  .tag-tentative {
+    border-style: dashed;
+    border-color: var(--border-accent);
+    color: var(--brand-purple-softer);
+  }
+  .tag-tbd {
+    border-style: dashed;
+    border-color: var(--fg-faint);
+    color: var(--fg-subtle);
+  }
+
+  /* Hero backdrop: logo grid faded by a radial mask, plus the one glow. */
+  .hero-grid {
+    background-image:
+      linear-gradient(var(--logo-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--logo-grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center top;
+    mask-image: radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 80%);
+    opacity: 0.75;
+  }
+  .hero-glow {
+    background: var(--glow-hero), var(--glow-hero-2);
+  }
+}
+
+/*
+ * First-load intro (design/motion-spec.md §2). CSS-only so it runs before
+ * hydration and with JS off. Skipped after the first view in a session
+ * (html[data-intro-seen], set by an inline script in the layout) and under
+ * reduced motion. The Next event card never carries .intro.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-intro-seen]) .intro {
+    animation: intro-rise var(--dur-intro) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * var(--stagger-intro) + 60ms);
+  }
+  html:not([data-intro-seen]) .intro-fade {
+    animation: intro-fade var(--dur-intro) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * var(--stagger-intro));
+  }
+}
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--intro-distance));
+  }
+}
+@keyframes intro-fade {
+  from {
+    opacity: 0;
   }
 }
 

@@ -24,6 +24,7 @@
   --surface-hover: rgba(246, 244, 255, 0.07);
   --border: #2a2540;
   --border-accent: rgba(138, 43, 255, 0.45);
+  --border-strong: #3a3458; /* derived: --border lifted for hover */
 
   /* Text */
   --fg: #f6f4ff;
@@ -47,11 +48,22 @@
   /* Elevation */
   --highlight-top: inset 0 1px 0 rgba(246, 244, 255, 0.06);
   --glow-featured: 0 0 0 1px rgba(138, 43, 255, 0.35), 0 8px 32px -8px rgba(138, 43, 255, 0.35);
-  --glow-hero: radial-gradient(60% 50% at 50% 0%, rgba(138, 43, 255, 0.22), transparent 70%);
+  --glow-hero: radial-gradient(55% 45% at 50% 18%, rgba(138, 43, 255, 0.22), transparent 70%);
+  --glow-hero-2: radial-gradient(35% 30% at 70% 35%, rgba(92, 28, 171, 0.18), transparent 70%);
+  /* Next event card: offset, soft-blur depth (not a zero-offset halo). */
+  --card-featured-bg: linear-gradient(180deg, rgba(138, 43, 255, 0.1), rgba(18, 11, 58, 0.55) 45%);
+  --shadow-featured: inset 0 1px 0 rgba(246, 244, 255, 0.08), 0 24px 48px -24px rgba(92, 28, 171, 0.55),
+    0 2px 6px rgba(7, 10, 28, 0.6);
+  --btn-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --shadow-cta-hover: 0 8px 20px -8px rgba(138, 43, 255, 0.7);
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-press: 150ms;
   --dur-ui: 250ms;
-  --dur-reveal: 600ms;
+  --dur-reveal: 550ms;
+  --dur-intro: 600ms;
+  --stagger-intro: 70ms;
+  --intro-distance: 10px;
+  --reveal-distance: 12px;
 }
