@@ -61,11 +61,19 @@ export async function NextEventCard({
           <span aria-hidden className="size-2 bg-brand-purple" />
           {live ? t("happeningNow") : t("nextEvent")}
         </p>
-        {event && !live && (
+        {event && !live && daysUntil(event.starts_at, now) === 0 && (
+          // Meetup is today: say it loudly (text, not just color).
+          <p className="tag tag-next gap-2 text-[0.8125rem]">
+            <span aria-hidden className="size-1.5 bg-on-purple" />
+            {t("today")}
+          </p>
+        )}
+        {event && !live && daysUntil(event.starts_at, now) > 0 && (
           <p className={cn("text-[0.8125rem] font-medium text-brand-purple-softer", locale === "en" && "font-mono")}>
             {t("relativeDays", { days: daysUntil(event.starts_at, now) })}
           </p>
         )}
+
       </div>
 
       {event ? (
