@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-11-12T15:16:48.665Z",
         "reason": "contrast table intentionally shows brand-purple 3.6:1 as a failing-for-text example"
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/components/events/next-event-card.tsx"
+        ],
+        "createdAt": "2026-11-12T16:50:51.178Z",
+        "reason": "designer: 14px corner-bracket marks from the club PDF covers (brand/brand-tokens.md, Signature effects), not a card border accent"
       }
     ]
   }
