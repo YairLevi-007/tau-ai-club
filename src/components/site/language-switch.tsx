@@ -18,8 +18,7 @@ export function LanguageSwitch() {
       locale={other}
       lang={other}
       hrefLang={other}
-      aria-label={t("switchLanguageLabel")}
-      className="rounded-md border border-border px-3 py-1.5 text-sm text-fg transition-colors duration-150 hover:bg-surface-hover"
+      className="inline-flex h-9 items-center rounded-md border border-border px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
     >
       {t("switchLanguage")}
     </Link>
