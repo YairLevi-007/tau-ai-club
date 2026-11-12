@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "brand/brand-preview.html"
+        ],
+        "createdAt": "2026-11-12T15:16:48.140Z",
+        "reason": "designer.md brief mandates subtle purple glow (raycast reference); preview demonstrates featured card/CTA hover"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "brand/brand-preview.html"
+        ],
+        "createdAt": "2026-11-12T15:16:48.665Z",
+        "reason": "contrast table intentionally shows brand-purple 3.6:1 as a failing-for-text example"
+      }
+    ]
+  }
+}

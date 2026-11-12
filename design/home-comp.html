@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TAU AI Club Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Rubik:wght@400;500;600;700;800&family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens (brand/brand-tokens.md v0.1, draft) ===== */
+:root{
+  --brand-purple:#8A2BFF;--brand-purple-deep:#6A1FD0;--brand-purple-deeper:#5C1CAB;
+  --brand-purple-soft:#A970FF;--brand-purple-softer:#B990FF;--brand-lilac:#DDD0FF;
+  --logo-indigo:#241163;--logo-block:#36167E;--logo-grid:#291666;
+  --bg:#0B0A1F;--bg-deep:#070A1C;--bg-raised:#120B3A;
+  --surface:rgba(246,244,255,.04);--surface-hover:rgba(246,244,255,.07);
+  --border:#2A2540;--border-accent:rgba(138,43,255,.45);
+  --fg:#F6F4FF;--fg-muted:#CFC8F0;--fg-subtle:#9C93C9;--fg-faint:#5B5575;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --font-sans:Rubik,system-ui,sans-serif;--font-pixel:Silkscreen,monospace;--font-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;scrollbar-color:var(--border) var(--bg);-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg-muted);font:400 16px/1.7 var(--font-sans);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--brand-purple);color:#fff}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--brand-purple);outline-offset:3px;border-radius:4px}
+bdi,.num{font-variant-numeric:tabular-nums}
+.icon{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+[dir=rtl] .icon-dir{transform:scaleX(-1)}
+.container{width:100%;max-width:1200px;margin-inline:auto;padding-inline:16px}
+@media (min-width:768px){.container{padding-inline:32px}}
+
+/* ===== Header ===== */
+.site-header{position:relative;z-index:3}
+.site-header .container{display:flex;align-items:center;justify-content:space-between;height:64px}
+.wordmark{display:flex;align-items:center;gap:10px;color:var(--fg)}
+.wordmark img{height:40px;width:auto;image-rendering:pixelated;border-radius:4px}
+.wordmark span{font:400 11px/1 var(--font-pixel);letter-spacing:.2em;color:var(--fg-subtle)}
+.header-actions{display:flex;align-items:center;gap:6px}
+.icon-btn,.lang-btn{display:inline-flex;align-items:center;justify-content:center;height:36px;min-width:36px;padding-inline:10px;border-radius:var(--r-md);color:var(--fg-muted);border:1px solid transparent;background:none;cursor:pointer;transition:background-color .15s var(--ease-out),color .15s var(--ease-out),border-color .15s var(--ease-out)}
+.icon-btn:hover,.lang-btn:hover{background:var(--surface-hover);color:var(--fg)}
+.lang-btn{font:500 13px/1 var(--font-sans);border-color:var(--border);gap:6px}
+.lang-btn .alt{color:var(--fg-subtle)}
+
+/* ===== Hero ===== */
+.hero{position:relative;isolation:isolate;padding-block:24px 32px}
+.hero-bg{position:absolute;inset:-64px 0 -120px;z-index:-1;pointer-events:none;overflow:hidden}
+.hero-bg::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(var(--logo-grid) 1px,transparent 1px),linear-gradient(90deg,var(--logo-grid) 1px,transparent 1px);
+  background-size:56px 56px;background-position:center top;
+  -webkit-mask-image:radial-gradient(70% 60% at 50% 30%,#000 30%,transparent 80%);mask-image:radial-gradient(70% 60% at 50% 30%,#000 30%,transparent 80%);opacity:.75}
+.hero-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(55% 45% at 50% 18%,rgba(138,43,255,.22),transparent 70%),radial-gradient(35% 30% at 70% 35%,rgba(92,28,171,.18),transparent 70%)}
+.px{position:absolute;width:28px;height:28px;background:var(--logo-indigo)}
+.px.b{background:var(--logo-block)}.px.p{background:var(--brand-purple);width:14px;height:14px}
+.hero-grid{display:grid;gap:28px}
+.hero h1{font:800 clamp(2.6rem,11vw,5.25rem)/1.02 var(--font-sans);color:var(--fg);letter-spacing:-.01em;text-wrap:balance}
+[lang=en] .hero h1{letter-spacing:-.025em}
+.hero h1 .l2{display:block;color:var(--brand-purple-soft)}
+.hero .pitch{margin-top:18px;max-width:46ch;font-size:1.0625rem;line-height:1.7;color:var(--fg-muted);text-wrap:pretty}
+.hero .meta-line{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:20px;font:400 13px/1.4 var(--font-mono);color:var(--fg-subtle)}
+.hero .meta-line .pix{font:400 11px/1.4 var(--font-pixel);letter-spacing:.2em;color:var(--brand-purple-soft)}
+
+/* ===== Next event card ===== */
+.next-card{position:relative;border:1px solid var(--border-accent);border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(138,43,255,.10),rgba(18,11,58,.55) 45%),var(--bg-raised);
+  box-shadow:inset 0 1px 0 rgba(246,244,255,.08),0 24px 48px -24px rgba(92,28,171,.55),0 2px 6px rgba(7,10,28,.6);
+  padding:20px}
+.next-card .corner{position:absolute;width:14px;height:14px;border:2px solid var(--brand-purple);top:-1px}
+.next-card .corner.s{inset-inline-start:-1px;border-inline-end:0;border-bottom:0;border-start-start-radius:var(--r-lg)}
+.next-card .corner.e{inset-inline-end:-1px;border-inline-start:0;border-bottom:0;border-start-end-radius:var(--r-lg)}
+.nc-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nc-label{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 var(--font-sans);color:var(--fg)}
+.nc-label .dot{width:8px;height:8px;background:var(--brand-purple)}
+.nc-rel{font:500 13px/1 var(--font-mono);color:var(--brand-purple-softer)}
+[lang=he] .nc-rel,[lang=he] .meta-line [data-t],[lang=he] .ev .date .dow{font-family:var(--font-sans)}
+@media (max-width:400px){.nc-actions .btn{padding-inline:10px;font-size:14px}}
+.nc-title{margin-top:16px;font:700 clamp(1.5rem,6vw,1.875rem)/1.15 var(--font-sans);color:var(--fg);text-wrap:balance}
+.nc-series{margin-top:6px;font-size:.9375rem;color:var(--fg-subtle)}
+.nc-facts{display:grid;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.fact{display:flex;align-items:flex-start;gap:10px;color:var(--fg-muted);font-size:.9375rem;line-height:1.5}
+.fact .icon{margin-top:2px;color:var(--brand-purple-soft)}
+.fact .mono{font-family:var(--font-mono);font-size:.875rem}
+.fact .note{color:var(--fg-subtle)}
+.tag{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--font-sans);padding:5px 9px;border-radius:999px;white-space:nowrap;vertical-align:middle}
+.tag-tbd{border:1px dashed var(--fg-faint);color:var(--fg-subtle)}
+.tag-tent{border:1px dashed var(--border-accent);color:var(--brand-purple-softer)}
+.tag-next{background:var(--brand-purple);color:#fff}
+.tag-past{border:1px solid var(--border);color:var(--fg-subtle)}
+.nc-prep{margin-top:16px;border-radius:var(--r-md);background:rgba(7,10,28,.45);border:1px solid var(--border);padding:12px 14px}
+.nc-prep h3{font:600 13px/1.3 var(--font-sans);color:var(--fg)}
+.nc-prep ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px}
+.nc-prep li{display:flex;align-items:center;gap:6px;font-size:.875rem;color:var(--fg-muted)}
+.nc-prep li .icon{width:15px;height:15px;color:var(--brand-purple-soft)}
+.nc-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding-inline:16px;border-radius:var(--r-md);font:600 15px/1 var(--font-sans);border:1px solid transparent;cursor:pointer;
+  transition:background-color .15s var(--ease-out),border-color .15s var(--ease-out),transform .1s var(--ease-out),box-shadow .2s var(--ease-out)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--brand-purple);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-primary:hover{background:var(--brand-purple-deep);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 20px -8px rgba(138,43,255,.7)}
+.btn-ghost{background:var(--surface);border-color:var(--border);color:var(--fg)}
+.btn-ghost:hover{background:var(--surface-hover);border-color:#3a3458}
+.btn .icon{width:17px;height:17px}
+
+/* ===== Season timeline ===== */
+.season{padding-block:56px 24px}
+.season-head h2{font:700 clamp(1.75rem,6vw,2.5rem)/1.1 var(--font-sans);color:var(--fg)}
+.season-head p{margin-top:8px;color:var(--fg-subtle);font-size:.9375rem}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tl{list-style:none;margin-top:28px}
+.month{display:flex;align-items:center;gap:12px;margin:28px 0 8px;font:400 11px/1 var(--font-pixel);letter-spacing:.22em;text-transform:uppercase;color:var(--fg-subtle)}
+[lang=he] .month{font:500 13px/1 var(--font-sans);letter-spacing:0}
+.month:first-child{margin-top:0}
+.month::after{content:"";flex:1;height:1px;background:var(--border)}
+.ev{display:grid;grid-template-columns:62px 22px 1fr;column-gap:12px;position:relative}
+.ev .date{padding-top:12px;display:flex;flex-direction:column;align-items:flex-end;font-family:var(--font-mono);line-height:1.25}
+[dir=rtl] .ev .date{align-items:flex-start}
+.ev .date .dow{display:block;font-size:12px;color:var(--fg-subtle)}
+.ev .date .dm{display:block;font-size:16px;font-weight:500;color:var(--fg)}
+.ev .rail{position:relative;display:flex;justify-content:center}
+.ev .rail::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--border)}
+.ev.past .rail::before{background:rgba(138,43,255,.45)}
+.ev.is-next .rail::before{background:linear-gradient(180deg,rgba(138,43,255,.45) 0 22px,var(--border) 22px)}
+.ev:first-of-type .rail::before{top:22px}
+.ev.last .rail::before{bottom:calc(100% - 22px)}
+.node{position:relative;margin-top:16px;width:12px;height:12px;background:var(--bg);border:2px solid var(--fg-faint)}
+.ev.past .node{background:var(--brand-purple-deeper);border-color:var(--brand-purple-deeper)}
+.ev.is-next .node{width:16px;height:16px;margin-top:14px;background:var(--brand-purple);border-color:var(--brand-lilac)}
+.ev.tentative .node{border-style:dashed;border-color:var(--brand-purple-soft)}
+.ev .body{padding:10px 0 18px;min-width:0}
+.ev.is-next .body{margin-block:4px 10px;padding:10px 14px 14px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border-accent)}
+.ev h3{font:600 1.0625rem/1.35 var(--font-sans);color:var(--fg);text-wrap:balance}
+.ev .who{margin-top:3px;font-size:.9375rem;color:var(--fg-muted);line-height:1.5}
+.ev .who .sep{color:var(--fg-faint);margin-inline:6px}
+.ev .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.ev.past h3{color:var(--fg-muted)}
+.ev.past .who,.ev.past .date .dm{color:var(--fg-subtle)}
+.ev .go{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font:500 14px/1 var(--font-sans);color:var(--brand-purple-soft)}
+.ev .go:hover{color:var(--brand-purple-softer)}
+.ev a.row-link{position:absolute;inset:0;z-index:1;border-radius:var(--r-md)}
+.ev a.row-link:hover~.body h3{color:var(--brand-purple-softer)}
+.ev.past a.row-link:hover~.body h3{color:var(--fg)}
+
+/* ===== Footer ===== */
+.site-footer{margin-top:56px;border-top:1px solid var(--border);background:var(--bg-deep)}
+.site-footer .container{display:grid;gap:20px;padding-block:32px 40px}
+.follow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.follow p{color:var(--fg-muted);max-width:40ch}
+.follow .btn{height:42px}
+.sign{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 32px;font:400 11px/1.6 var(--font-pixel);letter-spacing:.22em;color:var(--fg-subtle)}
+.sign .bt{color:var(--brand-purple-soft)}
+
+/* ===== Desktop ===== */
+@media (min-width:1024px){
+  .site-header .container{height:76px}
+  .hero{padding-block:72px 40px}
+  .hero-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:end}
+  .hero .pitch{font-size:1.1875rem}
+  .next-card{padding:28px}
+  .season{padding-block:96px 32px}
+  .season-grid{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:64px;align-items:start}
+  .season-head{position:sticky;top:32px}
+  .tl{margin-top:0}
+  .ev{grid-template-columns:96px 28px 1fr;column-gap:20px}
+  .ev .date .dm{font-size:18px}
+  .tl{max-width:640px}
+  .wordmark img{height:48px}
+  .site-footer .container{grid-template-columns:1fr auto;align-items:center}
+}
+
+/* ===== Intro motion (see design/motion-spec.md) ===== */
+@media (prefers-reduced-motion:no-preference){
+  .intro{animation:rise .6s var(--ease-out) both;animation-delay:calc(var(--i,0) * 70ms + 60ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .intro-fade{animation:fade .7s var(--ease-out) both;animation-delay:calc(var(--i,0) * 70ms)}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .reveal{opacity:0;transform:translateY(12px);transition:opacity .55s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--d,0) * 50ms)}
+  .reveal.in{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="wordmark intro-fade" href="#" aria-label="TAU AI Club">
+      <img id="logo" alt="" width="260" height="161" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQQAAAChCAYAAAAhrsHjAAAD50lEQVR4nO3dTW6bUBiGUajYTXbXQRaR3XWQ3VC5g4ZXyIpj/i/XnDNqpUTYVnn6XYyv2wYq8/F2ux1xnPfPtj3iOGfyq/QDgDmOisHRxzoLQQBCEIAQBCAEAQhBAEIQgBAEIAQBCEEAQhCAEAQgBAEIQQBCEIAQBCAEAQhBAEIQgBAEIAQBCEEAQhCAEAQgBAEeuOIXtQAAAABM0fZ9f7kvtFyr67pdLjad+ctFXWA7Xolz07sMTHLmWLEdQQCiK/0AYI4jJ5UrLpNMCPDAFZdJggCEIAAhCEAIAhCCAIQgACEIQAgCEIIAhCAAIQhACAIQggCEIAAhCEAIAhCCcBJX3IyD87GF2k5e8QSf85yuuP3YKzAhsItXDOIVCAIQggCEIADR7fW1ZE1T5quoBns+L3hVu04IpU5KMYBlLBmAcB9ChbZ+j99bhAxMCJXZ44YfNxExEAQgBAEIQQBCEIAQBCAEAQhBAEIQgBAEIAQBCEEAQhCAEAQgBAEIQQDCBikT2URkvrmvmX0ZyjMhTCAGXIUgIHiEJUNlPt5ut/fPtp16Eg9juJOeKQShQnNObiFgDksGIAQBCEEAQhCAEAQgBAEIQQBCEIAQBCAEAQhBAEIQgBAEIAQBfnD/adG+7w/59OhRx7nn48/wxBCF33/+Nk1T7mQ9ggkBiN03tSxR067rFj2vkpuJnH2D0Zpfm60e+zAhvDITwpea/8HDVgQBCEE4gRr2PTTFXIMgnICTjbMQBCapYYphPUEAQhCApmn+v13vTkV4MUvvw2kaEwIwIghACAIQggCEIAAhCEAIAhCCAIQgACEIQAgCEILAJPZsuAZBAEIQmMQGKdcgCEAIwhdr5J95fQAAAAAAAAAAAAAAAAAAADhQlZ9xH+/eU+Jz+sPx7RHAq6nuH/SUrbzWnqhLtgsrFYe+71dvbdZ13aTH/uhYU39/ibXH/O731z7fufZ8fbZmxyQgBAGIKkaZRyP8/Zj+3c/ttXwoef1gzRi9xwh9tSXD0td5zrFLMSE84cIhS5z9xH+k2iA4UWF7pz2p1o7qWy0fXm3JUNtxa10yrD12KdVOCMD2BAGIrvQDgNrMvWHp7MuEsaomBBcSYV9VBcE3EMO+qlsyHB2F98+2FSLG5t6YNP7z2ZcPVU0IUIuzn/iPCMITpgOupLog3F9YHP/9/bNtXXiE5aq7htA0P0dh+Lv/2b9X491zHKe6CeFoJg6upMoJ4QjPJozxNmofb7fbkeEY/4/+6Gr2kdYc99l0suS5Dr9z/zNbTULPnm/XdW1N7yyMCcI35iw3LE3Op/SyqFSYt2DJAERVQbCeh339AzjvYgBx+p76AAAAAElFTkSuQmCC">
+    </a>
+    <div class="header-actions intro-fade" style="--i:1">
+      <a class="icon-btn" href="https://www.instagram.com/tau.ai.club" aria-label="Instagram">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>
+      </a>
+      <button class="lang-btn" id="langToggle" type="button"><span data-t="langTo"></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <i class="px" style="top:120px;inset-inline-start:6%"></i>
+      <i class="px b" style="top:176px;inset-inline-start:calc(6% + 28px)"></i>
+      <i class="px p" style="top:92px;inset-inline-end:12%"></i>
+      <i class="px" style="top:300px;inset-inline-end:4%"></i>
+      <i class="px b" style="top:328px;inset-inline-end:calc(4% + 28px);width:14px;height:14px"></i>
+    </div>
+    <div class="container hero-grid">
+      <div>
+        <h1>
+          <span class="intro" style="--i:1;display:block" data-t="h1a"></span>
+          <span class="l2 intro" style="--i:2" data-t="h1b"></span>
+        </h1>
+        <p class="pitch intro" style="--i:3" data-t="pitch"></p>
+        <p class="meta-line intro" style="--i:4"><span class="pix">COHORT 02</span><bdi>2026–27</bdi><span data-t="weekly"></span></p>
+      </div>
+
+      <!-- Next event card: server-rendered, visible at first paint, never animated in -->
+      <article class="next-card" aria-labelledby="nc-title">
+        <i class="corner s" aria-hidden="true"></i><i class="corner e" aria-hidden="true"></i>
+        <div class="nc-top">
+          <span class="nc-label"><i class="dot" aria-hidden="true"></i><span data-t="nextUp"></span></span>
+          <span class="nc-rel" id="ncRel"></span>
+        </div>
+        <h2 class="nc-title" id="nc-title">Zero to Hero 1: Claude</h2>
+        <p class="nc-series" data-t="ncSeries"></p>
+        <div class="nc-facts">
+          <p class="fact"><svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <span><span data-t="ncDay"></span> <bdi class="mono">18.11.2026</bdi> · <bdi class="mono">18:00–20:00</bdi></span></p>
+          <p class="fact"><svg class="icon" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            <span><span data-t="ncVenue"></span> <span class="tag tag-tbd" data-t="roomTbd"></span></span></p>
+          <p class="fact"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+            <span data-t="ncSpeaker"></span></p>
+        </div>
+        <div class="nc-prep">
+          <h3 data-t="prepTitle"></h3>
+          <ul>
+            <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span data-t="prep1"></span></li>
+            <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span data-t="prep2"></span></li>
+            <li><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span data-t="prep3"></span></li>
+          </ul>
+        </div>
+        <div class="nc-actions">
+          <a class="btn btn-primary" href="#" id="lumaBtn"><span data-t="luma"></span><svg class="icon icon-dir" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></svg></a>
+          <a class="btn btn-ghost" href="#" id="gcalBtn" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg><span data-t="addCal"></span></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="season container" aria-labelledby="season-h">
+    <div class="season-grid">
+      <div class="season-head">
+        <h2 id="season-h" class="reveal" data-t="seasonH"></h2>
+        <p class="reveal" style="--d:1" data-t="seasonSub"></p>
+        <div class="legend reveal" style="--d:2">
+          <span class="tag tag-past" data-t="past"></span>
+          <span class="tag tag-next" data-t="next"></span>
+          <span class="tag tag-tent" data-t="tentative"></span>
+          <span class="tag tag-tbd" data-t="venueTbd"></span>
+        </div>
+      </div>
+      <ol class="tl" id="timeline"></ol>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="follow">
+      <p data-t="followText"></p>
+      <a class="btn btn-ghost" href="https://www.instagram.com/tau.ai.club"><svg class="icon" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg><bdi>@tau.ai.club</bdi></a>
+    </div>
+    <div class="sign"><span class="bt">LET'S BUILD</span><span>TAU AI CLUB · COHORT 02</span></div>
+  </div>
+</footer>
+
+<script>
+const T={
+ he:{langTo:'EN',h1a:'בונים עם AI,',h1b:'ביחד.',pitch:'מועדון ה-AI של אוניברסיטת תל אביב. הרצאות של אנשים מהתעשייה, סדנאות Zero to Hero, ואנשים שפשוט אוהבים לבנות דברים.',
+  weekly:'רביעי · 18:00',nextUp:'המפגש הבא',ncSeries:'סדנה 1 מתוך 3 בסדרת Zero to Hero',ncDay:'יום רביעי,',ncVenue:'בקמפוס',roomTbd:'החדר ייקבע',ncSpeaker:'עם עוז',
+  prepTitle:'מה להביא:',prep1:'Claude Code מותקן',prep2:'מנוי Pro',prep3:'לפטופ',luma:'הרשמה ב-Luma',addCal:'הוסיפו ליומן',
+  seasonH:'העונה',seasonSub:'מחזור 02 · נובמבר עד ינואר. כל המפגשים ב-18:00.',past:'עבר',next:'הבא',tentative:'טנטטיבי',venueTbd:'מיקום ייקבע',
+  details:'לפרטים',followText:'לא במחזור? עקבו אחרינו באינסטגרם, שם מעדכנים על אירועים פתוחים והמחזור הבא.',
+  inDays:n=>n===0?'היום':n===1?'מחר':`בעוד ${n} ימים`,
+  months:{11:'נובמבר',12:'דצמבר',1:'ינואר'},dow:{0:'א׳',3:'ד׳'}},
+ en:{langTo:'עב',h1a:'Building with AI,',h1b:'together.',pitch:'Tel Aviv University’s AI club. Talks from people in the industry, Zero to Hero workshops, and a room full of people who like building things.',
+  weekly:'Wednesdays · 18:00',nextUp:'Next up',ncSeries:'Workshop 1 of 3 in the Zero to Hero series',ncDay:'Wednesday,',ncVenue:'On campus',roomTbd:'Room TBA',ncSpeaker:'with Oz',
+  prepTitle:'Bring:',prep1:'Claude Code installed',prep2:'A Pro plan',prep3:'Your laptop',luma:'Register on Luma',addCal:'Add to calendar',
+  seasonH:'The season',seasonSub:'Cohort 02 · November to January. Every meetup starts at 18:00.',past:'Past',next:'Next',tentative:'Tentative',venueTbd:'Venue TBA',
+  details:'Details',followText:'Not in the cohort? Follow us on Instagram for open events and the next cohort.',
+  inDays:n=>n===0?'Today':n===1?'Tomorrow':`In ${n} days`,
+  months:{11:'NOV',12:'DEC',1:'JAN'},dow:{0:'Sun',3:'Wed'}}
+};
+const L=(he,en)=>({he,en});
+const EVENTS=[
+ {d:'2026-11-11',t:L('פתיחת המחזור','Cohort opening'),s:L('שי יהל','Shai Yahel'),v:L('אולם ברודקום','Broadcom Hall')},
+ {d:'2026-11-18',t:L('Zero to Hero 1: Claude','Zero to Hero 1: Claude'),s:L('עוז','Oz'),v:L('בקמפוס','On campus'),roomTbd:true},
+ {d:'2026-11-25',t:L('Zero to Hero 2: Claude','Zero to Hero 2: Claude'),s:L('עוז','Oz'),v:L('מרכז היזמות','Entrepreneurship Center')},
+ {d:'2026-12-02',t:L('יזמות וטכנולוגיה','Entrepreneurship & Tech'),s:L('אור מכבי','Or Maccabi'),v:L('משרדי MongoDB','MongoDB offices')},
+ {d:'2026-12-16',t:L('Zero to Hero 3: Claude','Zero to Hero 3: Claude'),s:L('עוז','Oz'),v:L('מחוץ לקמפוס','Off campus'),tbd:true},
+ {d:'2026-12-23',t:L('יזמות וטכנולוגיה','Entrepreneurship & Tech'),s:L('רועי מרגלית','Roee Margalit'),v:null,tbd:true},
+ {d:'2026-12-30',t:L('צמיחה והון','Growth & Capital'),s:L('תומר דיארי','Tomer Diari'),v:L('משרדי Aleph','Aleph offices')},
+ {d:'2027-01-03',t:L('אירוע משותף','Joint event'),s:L('אורי גושן','Ori Goshen'),v:L('אולם ברודקום','Broadcom Hall'),tentative:true},
+ {d:'2027-01-06',t:L('ערב סיום: Corporate, עם Google','Closing night: Corporate, with Google'),s:null,v:null,tbd:true}
+];
+const NOW=new Date(); // comp: real clock; the app computes "next" on the server
+const endOf=e=>new Date(e.d+'T20:00:00+02:00');
+let lang='he';
+let logoSrc='';
+
+function render(){
+  const t=T[lang];
+  document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';
+  document.querySelectorAll('[data-t]').forEach(el=>{const v=t[el.dataset.t];if(typeof v==='string')el.textContent=v});
+  const nextIdx=EVENTS.findIndex(e=>endOf(e)>NOW);
+  const ne=EVENTS[nextIdx];
+  const days=Math.max(0,Math.round((new Date(ne.d+'T00:00:00+02:00')-new Date(NOW.toDateString()))/864e5));
+  document.getElementById('ncRel').textContent=t.inDays(days);
+  // Google Calendar template link (same builder the app will use)
+  const q=new URLSearchParams({action:'TEMPLATE',text:ne.t[lang],dates:'20261118T160000Z/20261118T180000Z',details:'TAU AI Club',location:ne.v[lang],ctz:'Asia/Jerusalem'});
+  document.getElementById('gcalBtn').href='https://calendar.google.com/calendar/render?'+q;
+  const ol=document.getElementById('timeline');ol.innerHTML='';
+  let month=null;
+  EVENTS.forEach((e,i)=>{
+    const dt=new Date(e.d+'T12:00:00+02:00');const m=dt.getMonth()+1;
+    if(m!==month){month=m;const li=document.createElement('li');li.className='month reveal';li.textContent=t.months[m];li.setAttribute('aria-hidden','true');ol.appendChild(li)}
+    const state=i<nextIdx?'past':i===nextIdx?'is-next':'up';
+    const li=document.createElement('li');
+    li.className=`ev ${state}${e.tentative?' tentative':''}${i===EVENTS.length-1?' last':''} reveal`;
+    li.style.setProperty('--d',i%3);
+    const dm=`${dt.getDate()}.${m}`;
+    const tags=[];
+    if(state==='past')tags.push(`<span class="tag tag-past">${t.past}</span>`);
+    if(state==='is-next')tags.push(`<span class="tag tag-next">${t.next}</span>`);
+    if(e.tentative)tags.push(`<span class="tag tag-tent">${t.tentative}</span>`);
+    if(e.tbd||e.roomTbd)tags.push(`<span class="tag tag-tbd">${e.roomTbd?t.roomTbd:t.venueTbd}</span>`);
+    const who=[e.s&&e.s[lang],e.v&&e.v[lang]].filter(Boolean).join('<span class="sep">·</span>');
+    li.innerHTML=`<a class="row-link" href="#" aria-label="${e.t[lang]}"></a>
+      <div class="date"><span class="dow">${t.dow[dt.getDay()]}</span><bdi class="dm">${dm}</bdi></div>
+      <div class="rail" aria-hidden="true"><i class="node"></i></div>
+      <div class="body"><h3>${e.t[lang]}</h3>${who?`<p class="who">${who}</p>`:''}${tags.length?`<div class="tags">${tags.join('')}</div>`:''}
+      ${state==='is-next'?`<span class="go">${t.details}<svg class="icon icon-dir" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>`:''}</div>`;
+    ol.appendChild(li);
+  });
+  observe();
+}
+function observe(){
+  const els=document.querySelectorAll('.reveal:not(.in)');
+  if(!('IntersectionObserver' in window)){els.forEach(e=>e.classList.add('in'));return}
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}}),{rootMargin:'0px 0px -10% 0px'});
+  els.forEach(e=>io.observe(e));
+}
+document.getElementById('langToggle').addEventListener('click',()=>{lang=lang==='he'?'en':'he';render();document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in'))});
+if(location.hash==='#en')lang='en';
+if(location.search.includes('static'))document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in'));
+render();
+if(location.search.includes('static'))document.querySelectorAll('.reveal').forEach(e=>e.classList.add('in'));
+</script>
+</body>
+</html>
