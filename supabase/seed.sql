@@ -10,8 +10,8 @@ begin;
 -- ---------------------------------------------------------------------------
 insert into public.cohorts (slug, name_he, name_en, tagline_he, tagline_en, starts_on, ends_on) values
   ('02', 'מחזור 02', 'Cohort 02',
-   'בונים עם AI. מפגש כל יום רביעי, סדנאות Zero to Hero והרצאות מהתעשייה.', -- REVIEW copy
-   'Building with AI. Wednesday meetups, Zero to Hero workshops and talks from industry.',
+   'מועדון ה-AI של אוניברסיטת תל אביב. הרצאות של אנשים מהתעשייה, סדנאות Zero to Hero, ואנשים שפשוט אוהבים לבנות דברים.', -- REVIEW copy (designer, design/copy.md)
+   'Tel Aviv University''s AI club. Talks from people in the industry, Zero to Hero workshops, and a room full of people who like building things.',
    '2026-11-01', '2027-07-31'); -- REVIEW cohort end date
 
 -- ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ from (values
   ('zero-to-hero-1', 'workshop', 'zero-to-hero', 1,
    'Zero to Hero 1: Claude', 'Zero to Hero 1: Claude',
    'להביא לפטופ, עם Claude Code מותקן ומנוי Pro.', 'Bring a laptop with Claude Code installed and a Pro plan.',
-   '2026-11-18', null, 'בקמפוס, החדר ייקבע', 'On campus, room TBD', false), -- REVIEW room
+   '2026-11-18', null, 'בקמפוס', 'On campus', false), -- REVIEW room
 
   ('zero-to-hero-2', 'workshop', 'zero-to-hero', 2,
    'Zero to Hero 2: Claude', 'Zero to Hero 2: Claude',
