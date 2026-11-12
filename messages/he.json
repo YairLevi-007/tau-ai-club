@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "siteName": "TAU AI Club",
+    "title": "מועדון ה-AI של אוניברסיטת תל אביב",
+    "description": "מפגשים שבועיים, סדנאות Zero to Hero והרצאות מהתעשייה. מחזור 02, 2026–27."
+  },
+  "nav": {
+    "label": "ניווט ראשי",
+    "home": "דף הבית",
+    "switchLanguage": "English",
+    "switchLanguageLabel": "Switch to English",
+    "skipToContent": "דילוג לתוכן"
+  },
+  "event": {
+    "nextEvent": "האירוע הבא",
+    "today": "היום",
+    "happeningNow": "קורה עכשיו",
+    "noUpcomingTitle": "אין כרגע אירועים קרובים",
+    "noUpcomingBody": "העונה הבאה בדרך. עקבו אחרינו באינסטגרם כדי לא לפספס.",
+    "registerLuma": "הרשמה ב-Luma",
+    "registrationSoon": "ההרשמה תיפתח בקרוב",
+    "addToCalendar": "הוספה ליומן Google",
+    "venueTbd": "מיקום ייקבע",
+    "tentative": "טנטטיבי",
+    "past": "עבר",
+    "next": "הבא",
+    "upcoming": "בקרוב",
+    "with": "עם",
+    "opensInNewTab": "(נפתח בכרטיסייה חדשה)",
+    "details": "לפרטי האירוע"
+  },
+  "season": {
+    "title": "העונה",
+    "empty": "עוד אין אירועים בעונה הזאת."
+  },
+  "eventPage": {
+    "back": "חזרה לעונה",
+    "when": "מתי",
+    "where": "איפה",
+    "speakers": "מרצים"
+  },
+  "footer": {
+    "instagram": "אינסטגרם",
+    "tagline": "LET'S BUILD"
+  },
+  "errors": {
+    "dataUnavailable": "לא הצלחנו לטעון את האירועים כרגע. נסו שוב בעוד רגע.",
+    "notFoundTitle": "העמוד לא נמצא",
+    "notFoundBody": "אולי הקישור השתנה.",
+    "goHome": "לדף הבית"
+  }
+}

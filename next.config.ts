@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components is off on purpose: next-intl's static rendering is
+  // proven on the classic model (`revalidate` + setRequestLocale). See CLAUDE.md.
+  cacheComponents: false,
   turbopack: {
     rules: {
       "*.css": {
@@ -12,6 +15,9 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
+  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

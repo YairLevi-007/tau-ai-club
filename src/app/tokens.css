@@ -1,0 +1,57 @@
+/*
+ * Brand tokens, v0.1 (DRAFT, pending approval in the designer chat).
+ * Source of truth: brand/brand-tokens.md. This file is the ONLY place brand
+ * values live in code; globals.css maps them onto Tailwind + shadcn names.
+ * Once approved, a token change needs the user's OK.
+ */
+:root {
+  /* Brand core */
+  --brand-purple: #8a2bff; /* CTA fills, focus, active. Never body text. */
+  --brand-purple-deep: #6a1fd0;
+  --brand-purple-deeper: #5c1cab;
+  --brand-purple-soft: #a970ff; /* accent TEXT (6.0:1 on --bg) */
+  --brand-purple-softer: #b990ff;
+  --brand-lilac: #ddd0ff;
+  --logo-indigo: #241163;
+  --logo-block: #36167e;
+  --logo-grid: #291666;
+
+  /* Surfaces (never #000) */
+  --bg: #0b0a1f;
+  --bg-deep: #070a1c;
+  --bg-raised: #120b3a;
+  --surface: rgba(246, 244, 255, 0.04);
+  --surface-hover: rgba(246, 244, 255, 0.07);
+  --border: #2a2540;
+  --border-accent: rgba(138, 43, 255, 0.45);
+
+  /* Text */
+  --fg: #f6f4ff;
+  --fg-muted: #cfc8f0;
+  --fg-subtle: #9c93c9;
+  --fg-faint: #5b5575; /* decorative / disabled only */
+  --on-purple: #ffffff;
+  --destructive: #ff6b8a; /* not in brand v0.1: placeholder for error states */
+
+  /* Type scale */
+  --text-display: clamp(2.75rem, 7vw, 5rem);
+  --text-h1: clamp(2rem, 5vw, 3.25rem);
+  --text-h2: clamp(1.5rem, 3.5vw, 2.25rem);
+
+  /* Shape */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --radius: var(--r-md); /* shadcn base radius */
+
+  /* Elevation */
+  --highlight-top: inset 0 1px 0 rgba(246, 244, 255, 0.06);
+  --glow-featured: 0 0 0 1px rgba(138, 43, 255, 0.35), 0 8px 32px -8px rgba(138, 43, 255, 0.35);
+  --glow-hero: radial-gradient(60% 50% at 50% 0%, rgba(138, 43, 255, 0.22), transparent 70%);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-press: 150ms;
+  --dur-ui: 250ms;
+  --dur-reveal: 600ms;
+}
