@@ -9,17 +9,18 @@
     "home": "דף הבית",
     "switchLanguage": "English",
     "switchLanguageLabel": "Switch to English",
-    "skipToContent": "דילוג לתוכן"
+    "skipToContent": "דילוג לתוכן",
+    "instagramLabel": "TAU AI Club באינסטגרם"
   },
   "event": {
-    "nextEvent": "האירוע הבא",
+    "nextEvent": "המפגש הבא",
     "today": "היום",
     "happeningNow": "קורה עכשיו",
     "noUpcomingTitle": "אין כרגע אירועים קרובים",
     "noUpcomingBody": "העונה הבאה בדרך. עקבו אחרינו באינסטגרם כדי לא לפספס.",
     "registerLuma": "הרשמה ב-Luma",
     "registrationSoon": "ההרשמה תיפתח בקרוב",
-    "addToCalendar": "הוספה ליומן Google",
+    "addToCalendar": "הוסיפו ליומן",
     "venueTbd": "מיקום ייקבע",
     "tentative": "טנטטיבי",
     "past": "עבר",
@@ -27,11 +28,15 @@
     "upcoming": "בקרוב",
     "with": "עם",
     "opensInNewTab": "(נפתח בכרטיסייה חדשה)",
-    "details": "לפרטי האירוע"
+    "details": "לפרטים",
+    "relativeDays": "{days, plural, =0 {היום} =1 {מחר} other {בעוד # ימים}}",
+    "seriesPosition": "סדנה {n} מתוך {total} בסדרה",
+    "speakersWith": "עם {names}"
   },
   "season": {
     "title": "העונה",
-    "empty": "עוד אין אירועים בעונה הזאת."
+    "empty": "עוד אין אירועים בעונה הזאת.",
+    "legendLabel": "מקרא"
   },
   "eventPage": {
     "back": "חזרה לעונה",
@@ -41,12 +46,17 @@
   },
   "footer": {
     "instagram": "אינסטגרם",
-    "tagline": "LET'S BUILD"
+    "tagline": "LET'S BUILD",
+    "follow": "לא במחזור? עקבו אחרינו באינסטגרם, שם מעדכנים על אירועים פתוחים והמחזור הבא."
   },
   "errors": {
     "dataUnavailable": "לא הצלחנו לטעון את האירועים כרגע. נסו שוב בעוד רגע.",
     "notFoundTitle": "העמוד לא נמצא",
     "notFoundBody": "אולי הקישור השתנה.",
     "goHome": "לדף הבית"
+  },
+  "home": {
+    "heroLine1": "בונים עם AI,",
+    "heroLine2": "ביחד."
   }
 }

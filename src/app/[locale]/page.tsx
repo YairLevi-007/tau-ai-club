@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { getSeason } from "@/lib/events";
 import { loc } from "@/lib/event-format";
+import { cn } from "@/lib/utils";
 import { NextEventCard } from "@/components/events/next-event-card";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 
@@ -11,46 +12,78 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 // route segment config must be a literal).
 export const revalidate = 300;
 
+/** "2026–27" from the cohort's start/end dates. */
+function cohortYears(startsOn: string, endsOn: string) {
+  const a = startsOn.slice(0, 4);
+  const b = endsOn.slice(0, 4);
+  return a === b ? a : `${a}–${b.slice(2)}`;
+}
+
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const l = locale as Locale;
 
-  const [season, t, te] = await Promise.all([getSeason(), getTranslations("meta"), getTranslations("errors")]);
+  const [season, t, te] = await Promise.all([getSeason(), getTranslations("home"), getTranslations("errors")]);
   const cohort = season.status === "ok" ? season.cohort : null;
+  const tagline = cohort ? loc(cohort, "tagline", l) : null;
+  const next = season.status === "ok" ? season.next : null;
+  const seriesTotal =
+    season.status === "ok" && next?.series ? season.events.filter((e) => e.series === next.series).length : undefined;
 
   return (
-    <div className="relative">
-      {/* One glow per viewport, behind the hero. */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[480px] [background:var(--glow-hero)]" />
+    <div className="relative isolate">
+      {/* Backdrop: logo grid + the one glow + a few pixel blocks. Decorative, static. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[46rem] overflow-hidden">
+        <div className="hero-grid absolute inset-0" />
+        <div className="hero-glow absolute inset-0" />
+        <i className="absolute hidden lg:block start-[6%] top-[11rem] size-7 bg-logo-indigo" />
+        <i className="absolute hidden lg:block start-[calc(6%+1.75rem)] top-[12.75rem] size-7 bg-logo-block" />
+        <i className="absolute end-[12%] top-[9.5rem] size-3.5 bg-brand-purple" />
+        <i className="absolute hidden lg:block end-[4%] top-[22rem] size-7 bg-logo-indigo" />
+        <i className="absolute hidden lg:block end-[calc(4%+1.75rem)] top-[24rem] size-3.5 bg-logo-block" />
+      </div>
 
-      <div className="relative mx-auto grid max-w-site gap-12 px-4 pt-12 sm:px-6 sm:pt-20">
-        <section aria-labelledby="hero-heading" className="grid gap-4">
-          {cohort && (
-            <p className="eyebrow-pixel">
-              <bdi lang="en">{cohort.name_en}</bdi>
+      <div className="mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14 lg:pt-16">
+        <section aria-labelledby="hero-heading">
+          <h1
+            id="hero-heading"
+            className={cn(
+              "text-[clamp(2.6rem,11vw,5.25rem)] leading-[1.02] font-extrabold text-balance text-fg",
+              l === "en" ? "tracking-[-0.025em]" : "tracking-[-0.01em]",
+            )}
+          >
+            <span className="intro block [--i:1]">{t("heroLine1")}</span>
+            <span className="intro block text-brand-purple-soft [--i:2]">{t("heroLine2")}</span>
+          </h1>
+          {tagline && (
+            <p className="intro mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-pretty text-fg-muted [--i:3] lg:text-[1.1875rem]">
+              {tagline}
             </p>
           )}
-          <h1 id="hero-heading" className="max-w-[18ch] text-display font-extrabold text-fg">
-            {t("title")}
-          </h1>
-          {cohort && loc(cohort, "tagline", l) && (
-            <p className="max-w-[60ch] text-body-lg text-fg-muted">{loc(cohort, "tagline", l)}</p>
+          {cohort && (
+            <p className="intro mt-5 flex flex-wrap items-center gap-x-3.5 gap-y-2 [--i:4]">
+              <span lang="en" className="eyebrow-pixel text-[0.6875rem]">
+                {cohort.name_en}
+              </span>
+              <bdi dir="ltr" className="font-mono text-[0.8125rem] text-fg-subtle">
+                {cohortYears(cohort.starts_on, cohort.ends_on)}
+              </bdi>
+            </p>
           )}
         </section>
 
         {season.status === "ok" ? (
-          <>
-            <NextEventCard event={season.next} />
-            <SeasonTimeline events={season.events} />
-          </>
+          <NextEventCard event={next} now={season.now} seriesTotal={seriesTotal} />
         ) : (
           <p role="status" data-testid="data-unavailable" className="rounded-lg border border-border bg-surface p-5">
             {te("dataUnavailable")}
           </p>
         )}
       </div>
+
+      {season.status === "ok" && <SeasonTimeline events={season.events} cohortName={cohort ? loc(cohort, "name", l) : null} />}
     </div>
   );
 }

@@ -28,6 +28,9 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const INTRO_ONCE_SCRIPT =
+  "try{var k='tau-intro-seen';if(sessionStorage.getItem(k))document.documentElement.setAttribute('data-intro-seen','');sessionStorage.setItem(k,'1')}catch(e){}";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -70,7 +73,13 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       lang={locale}
       dir={localeDir[locale as Locale]}
       className={`dark ${rubik.variable} ${silkscreen.variable} ${plexMono.variable} h-full`}
+      // The intro script below may add data-intro-seen before hydration.
+      suppressHydrationWarning
     >
+      <head>
+        {/* Play the home intro once per session (design/motion-spec.md §2). Runs before paint. */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_ONCE_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <a
           href="#main"

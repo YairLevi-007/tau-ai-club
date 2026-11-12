@@ -9,17 +9,18 @@
     "home": "Home",
     "switchLanguage": "עברית",
     "switchLanguageLabel": "החלפה לעברית",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "instagramLabel": "TAU AI Club on Instagram"
   },
   "event": {
-    "nextEvent": "Next event",
+    "nextEvent": "Next up",
     "today": "Today",
     "happeningNow": "Happening now",
     "noUpcomingTitle": "No upcoming events right now",
     "noUpcomingBody": "The next season is on its way. Follow us on Instagram so you don't miss it.",
     "registerLuma": "Register on Luma",
     "registrationSoon": "Registration opens soon",
-    "addToCalendar": "Add to Google Calendar",
+    "addToCalendar": "Add to calendar",
     "venueTbd": "Venue TBD",
     "tentative": "Tentative",
     "past": "Past",
@@ -27,11 +28,15 @@
     "upcoming": "Upcoming",
     "with": "with",
     "opensInNewTab": "(opens in a new tab)",
-    "details": "Event details"
+    "details": "Details",
+    "relativeDays": "{days, plural, =0 {Today} =1 {Tomorrow} other {In # days}}",
+    "seriesPosition": "Session {n} of {total} in the series",
+    "speakersWith": "with {names}"
   },
   "season": {
     "title": "The season",
-    "empty": "No events in this season yet."
+    "empty": "No events in this season yet.",
+    "legendLabel": "Legend"
   },
   "eventPage": {
     "back": "Back to the season",
@@ -41,12 +46,17 @@
   },
   "footer": {
     "instagram": "Instagram",
-    "tagline": "LET'S BUILD"
+    "tagline": "LET'S BUILD",
+    "follow": "Not in the cohort? Follow us on Instagram for open events and the next cohort."
   },
   "errors": {
     "dataUnavailable": "We couldn't load the events right now. Try again in a moment.",
     "notFoundTitle": "Page not found",
     "notFoundBody": "The link may have changed.",
     "goHome": "Go home"
+  },
+  "home": {
+    "heroLine1": "Building with AI,",
+    "heroLine2": "together."
   }
 }
