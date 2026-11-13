@@ -1,6 +1,6 @@
-# TAU AI Club: Brand Tokens (v0.1, draft for approval)
+# TAU AI Club: Brand Tokens (v1.0, approved)
 
-Status: **DRAFT, waiting for approval.** Once approved, these tokens are frozen. Changing one needs the user's OK.
+Status: **APPROVED by the user on 2026-11-13.** These tokens are frozen. Changing one needs the user's OK.
 
 ## Sources (where every value comes from)
 
