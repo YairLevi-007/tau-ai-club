@@ -11,6 +11,8 @@ import {
   venueLabel,
 } from "@/lib/event-format";
 import { dayToDate, jlmDay, monthStarts } from "@/lib/season-ruler";
+import { CalendarSync } from "lucide-react";
+import { calendarFeedLinks } from "@/lib/ics";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import { Tag } from "./event-bits";
 import { SeasonDial, type DialEvent } from "./season-dial";
@@ -58,6 +60,7 @@ export async function SeasonTimeline({
     };
   });
 
+  const feed = calendarFeedLinks(locale);
   const nowDay = jlmDay(now);
   const startDay = (dialEvents[0]?.day ?? nowDay) - PAD_DAYS;
   const endDay = (dialEvents.at(-1)?.day ?? nowDay) + PAD_DAYS;
@@ -119,6 +122,34 @@ export async function SeasonTimeline({
             months={months}
             rtl={locale === "he"}
           />
+        </div>
+      )}
+
+      {events.length > 0 && (
+        <div
+          data-reveal
+          data-testid="season-subscribe"
+          className="mt-12 flex flex-col gap-5 rounded-lg border border-border bg-bg-raised p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6"
+        >
+          <div className="flex items-start gap-3.5">
+            <CalendarSync aria-hidden className="mt-0.5 size-6 shrink-0 text-brand-purple-soft" />
+            <div>
+              <h3 className="text-lg font-semibold text-fg">{t("subscribeTitle")}</h3>
+              <p className="mt-1 max-w-[52ch] text-[0.9375rem] text-fg-muted">{t("subscribeBody")}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            <a href={feed.google} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+              {t("subscribeGoogle")}
+              <span className="sr-only"> {te("opensInNewTab")}</span>
+            </a>
+            <a
+              href={feed.webcal}
+              className="rounded-sm text-[0.9375rem] font-medium text-brand-purple-soft underline-offset-4 hover:underline"
+            >
+              {t("subscribeOther")}
+            </a>
+          </div>
         </div>
       )}
     </section>

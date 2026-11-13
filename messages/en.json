@@ -43,7 +43,11 @@
     "prevEvent": "Previous",
     "nextEventButton": "Next",
     "backToNext": "Back to next meetup",
-    "now": "Now"
+    "now": "Now",
+    "subscribeTitle": "The whole season in your calendar",
+    "subscribeBody": "Subscribe once; new meetups and changes show up in your calendar on their own.",
+    "subscribeGoogle": "Add to Google Calendar",
+    "subscribeOther": "Other calendar (Apple, Outlook)"
   },
   "eventPage": {
     "back": "Back to the season",
@@ -65,5 +69,8 @@
   "home": {
     "heroLine1": "Building with AI,",
     "heroLine2": "together."
+  },
+  "calendarFeed": {
+    "description": "Every meetup of the TAU AI Club season. Updates on its own."
   }
 }

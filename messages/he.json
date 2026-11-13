@@ -43,7 +43,11 @@
     "prevEvent": "הקודם",
     "nextEventButton": "הבא",
     "backToNext": "חזרה למפגש הבא",
-    "now": "עכשיו"
+    "now": "עכשיו",
+    "subscribeTitle": "כל העונה ביומן שלכם",
+    "subscribeBody": "נרשמים פעם אחת, ומפגשים חדשים או שינויים מופיעים ביומן לבד.",
+    "subscribeGoogle": "הוספה לגוגל קלנדר",
+    "subscribeOther": "יומן אחר (Apple, Outlook)"
   },
   "eventPage": {
     "back": "חזרה לעונה",
@@ -65,5 +69,8 @@
   "home": {
     "heroLine1": "בונים עם AI,",
     "heroLine2": "ביחד."
+  },
+  "calendarFeed": {
+    "description": "כל מפגשי העונה של מועדון ה-AI של אוניברסיטת תל אביב. מתעדכן לבד."
   }
 }
