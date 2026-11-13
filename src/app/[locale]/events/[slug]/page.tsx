@@ -6,7 +6,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { getEventBySlug, getEventSlugs } from "@/lib/events";
-import { loc } from "@/lib/event-format";
+import { formatEventDate, formatTimeRange, loc, speakerNames, venueLabel } from "@/lib/event-format";
+import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { EventActions, EventMeta, EventPills } from "@/components/events/event-bits";
 
 export const revalidate = 300;
@@ -21,17 +22,30 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/events/[
   if (!hasLocale(routing.locales, locale)) return {};
   const event = await getEventBySlug(slug);
   if (!event) return {};
-  // Public fields only. Never put speaker contact data in metadata.
+  // Public fields only (title, date, venue, speaker names, blurb). Never speaker contact data.
+  const [t, te] = await Promise.all([
+    getTranslations({ locale, namespace: "meta" }),
+    getTranslations({ locale, namespace: "event" }),
+  ]);
   const title = loc(event, "title", locale) ?? "";
-  const description = loc(event, "blurb", locale) ?? undefined;
+  const when = `${formatEventDate(event.starts_at, locale)} · ${formatTimeRange(event.starts_at, event.ends_at)}`;
+  const where = venueLabel(event, locale) ?? te("venueTbd");
+  const who = speakerNames(event, locale).join(", ");
+  const description = [when, where, who, loc(event, "blurb", locale)].filter(Boolean).join(" · ");
+  const path = `/events/${slug}`;
   return {
     title,
     description,
-    alternates: {
-      canonical: locale === routing.defaultLocale ? `/events/${slug}` : `/${locale}/events/${slug}`,
-      languages: { he: `/events/${slug}`, en: `/en/events/${slug}` },
-    },
-    openGraph: { title, description },
+    alternates: alternatesFor(locale, path),
+    ...shareMetadata({
+      locale,
+      path,
+      title: `${title} · ${t("siteName")}`,
+      description,
+      siteName: t("siteName"),
+      imageAlt: t("ogAlt"),
+      type: "article",
+    }),
   };
 }
 

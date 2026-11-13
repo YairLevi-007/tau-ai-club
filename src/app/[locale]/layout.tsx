@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { localeDir, routing, type Locale } from "@/i18n/routing";
-import { SITE_URL } from "@/config/site";
+import { IS_PRODUCTION, SITE_URL } from "@/config/site";
+import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import "../globals.css";
@@ -46,19 +47,20 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const t = await getTranslations({ locale, namespace: "meta" });
   return {
     metadataBase: new URL(SITE_URL),
+    applicationName: t("siteName"),
     title: { default: t("title"), template: `%s · ${t("siteName")}` },
     description: t("description"),
-    alternates: {
-      canonical: locale === routing.defaultLocale ? "/" : `/${locale}`,
-      languages: { he: "/", en: "/en", "x-default": "/" },
-    },
-    openGraph: {
-      type: "website",
-      siteName: t("siteName"),
+    alternates: alternatesFor(locale, "/"),
+    ...shareMetadata({
+      locale,
+      path: "/",
       title: t("title"),
       description: t("description"),
-      locale: locale === "he" ? "he_IL" : "en_US",
-    },
+      siteName: t("siteName"),
+      imageAlt: t("ogAlt"),
+    }),
+    // Preview deployments must not be indexed; only production is.
+    robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
   };
 }
 

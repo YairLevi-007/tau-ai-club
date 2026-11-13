@@ -2,7 +2,8 @@
   "meta": {
     "siteName": "TAU AI Club",
     "title": "מועדון ה-AI של אוניברסיטת תל אביב",
-    "description": "מפגשים שבועיים, סדנאות Zero to Hero והרצאות מהתעשייה. מחזור 02, 2026–27."
+    "description": "מפגשים שבועיים, סדנאות Zero to Hero והרצאות מהתעשייה. מחזור 02, 2026–27.",
+    "ogAlt": "הלוגו של TAU AI Club על רקע כהה"
   },
   "nav": {
     "label": "ניווט ראשי",

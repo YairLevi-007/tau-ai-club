@@ -2,7 +2,8 @@
   "meta": {
     "siteName": "TAU AI Club",
     "title": "TAU AI Club, Tel Aviv University",
-    "description": "Weekly meetups, Zero to Hero workshops and talks from industry. Cohort 02, 2026–27."
+    "description": "Weekly meetups, Zero to Hero workshops and talks from industry. Cohort 02, 2026–27.",
+    "ogAlt": "TAU AI Club logo on a dark background"
   },
   "nav": {
     "label": "Main",
