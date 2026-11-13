@@ -66,19 +66,39 @@ for (const L of locales) {
       await expect(page.locator('[data-testid=timeline-item][data-tentative="true"]')).toHaveCount(1);
     });
 
-    test("1.5 timeline rail is on the inline-start side (mirrors in RTL)", async ({ page }) => {
+    test("1.5 dial: next item has aria-current and is the roving tab stop; no horizontal scroll", async ({ page }) => {
       await page.goto(L.path);
-      const rail = await page.locator("[data-testid=season-timeline] ol").evaluate((el) => {
-        const s = getComputedStyle(el);
-        return { left: parseFloat(s.borderLeftWidth), right: parseFloat(s.borderRightWidth) };
-      });
-      if (L.dir === "rtl") {
-        expect(rail.right).toBeGreaterThan(0);
-        expect(rail.left).toBe(0);
-      } else {
-        expect(rail.left).toBeGreaterThan(0);
-        expect(rail.right).toBe(0);
-      }
+      await expect(page.getByTestId("season-dial")).toBeVisible();
+      const cur = page.locator('[data-testid=timeline-item][aria-current="true"]');
+      await expect(cur).toHaveCount(1);
+      await expect(cur).toHaveAttribute("data-state", "next");
+      await expect(cur.locator("a")).toHaveAttribute("tabindex", "0");
+      await expect(page.locator('[data-testid=timeline-item] a[tabindex="0"]')).toHaveCount(1);
+      const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(over).toBeLessThanOrEqual(0);
+    });
+
+    test("1.5 dial: arrow keys move selection (mirrored in RTL), Home/End jump", async ({ page }) => {
+      await page.goto(L.path);
+      const items = page.getByTestId("timeline-item");
+      const selIndex = async () =>
+        items.evaluateAll((els) => els.findIndex((e) => e.querySelector("a")?.getAttribute("tabindex") === "0"));
+      const fwd = L.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+      const back = L.dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+      expect(await selIndex()).toBe(1); // next event at BASE_NOW
+      await items.nth(1).locator("a").focus();
+      await page.keyboard.press(fwd);
+      expect(await selIndex()).toBe(2);
+      await page.keyboard.press(back);
+      await page.keyboard.press(back);
+      expect(await selIndex()).toBe(0);
+      await page.keyboard.press("End");
+      expect(await selIndex()).toBe(8);
+      await page.keyboard.press("Home");
+      expect(await selIndex()).toBe(0);
+      // Selection is reflected in the details panel (live region).
+      await page.keyboard.press(fwd);
+      await expect(page.locator('[aria-live="polite"]').first()).toContainText(/Zero to Hero 1/);
     });
 
     test("1.8 axe: no serious/critical violations", async ({ page }) => {
@@ -146,6 +166,22 @@ test("1.7 reduced motion: content visible, no infinite animations", async ({ bro
     );
     expect(running, "infinite animations still running under reduced motion").toBe(0);
   }
+  await ctx.close();
+});
+
+test("1.7 reduced motion: dial snaps instantly on key press", async ({ browser, baseURL }) => {
+  const ctx = await browser.newContext({ reducedMotion: "reduce", baseURL });
+  const page = await ctx.newPage();
+  await page.goto("/en");
+  const link = page.locator('[data-testid=timeline-item] a[tabindex="0"]');
+  await link.focus();
+  await page.keyboard.press("End");
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  const sel = page.locator('[data-testid=timeline-item] a[tabindex="0"]');
+  const early = await sel.boundingBox();
+  await page.waitForTimeout(900);
+  const late = await sel.boundingBox();
+  expect(Math.abs(early!.x - late!.x) + Math.abs(early!.y - late!.y), "dial still spinning under reduced motion").toBeLessThan(1);
   await ctx.close();
 });
 
