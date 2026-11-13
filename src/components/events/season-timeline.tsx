@@ -57,6 +57,21 @@ export async function SeasonTimeline({
       fullDate: formatEventDate(e.starts_at, locale),
       timeRange: formatTimeRange(e.starts_at, e.ends_at),
       who,
+      venue,
+      speakers: e.event_speakers.map(({ speaker: sp }) => {
+        const name = loc(sp, "name", locale) ?? "";
+        return {
+          name,
+          role: [loc(sp, "role", locale), loc(sp, "company", locale)].filter(Boolean).join(" · ") || null,
+          photoUrl: sp.photo_url,
+          initials: name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((w) => w[0])
+            .join(""),
+        };
+      }),
     };
   });
 

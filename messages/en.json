@@ -47,7 +47,8 @@
     "subscribeTitle": "The whole season in your calendar",
     "subscribeBody": "Subscribe once; new meetups and changes show up in your calendar on their own.",
     "subscribeGoogle": "Add to Google Calendar",
-    "subscribeOther": "Other calendar (Apple, Outlook)"
+    "subscribeOther": "Other calendar (Apple, Outlook)",
+    "close": "Close"
   },
   "eventPage": {
     "back": "Back to the season",

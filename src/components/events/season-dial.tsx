@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
-import { animate, MotionConfig, motion, useMotionValue, useMotionValueEvent, useReducedMotion } from "motion/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { animate, AnimatePresence, MotionConfig, motion, useMotionValue, useMotionValueEvent, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, MapPin, RotateCcw, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { dur, ease } from "@/lib/motion";
@@ -22,7 +23,28 @@ export type DialEvent = {
   fullDate: string;
   timeRange: string;
   who: string | null;
+  venue: string | null;
+  speakers: DialSpeaker[];
 };
+
+export type DialSpeaker = { name: string; role: string | null; photoUrl: string | null; initials: string };
+
+/** Speaker face: the photo when there is one, else initials on a brand tile (never a broken image). */
+function Face({ speaker, size }: { speaker: DialSpeaker; size: number }) {
+  return (
+    <span
+      aria-hidden
+      className="relative grid shrink-0 place-items-center overflow-hidden rounded-md border border-border-accent bg-brand-purple-deeper font-bold text-fg"
+      style={{ width: size, height: size, fontSize: size * 0.36 }}
+    >
+      {speaker.photoUrl ? (
+        <Image src={speaker.photoUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
+      ) : (
+        speaker.initials
+      )}
+    </span>
+  );
+}
 
 type Props = {
   events: DialEvent[];
@@ -75,9 +97,12 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
   const rot = useMotionValue(-angleOf(events[homeIndex]?.day ?? startDay));
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const dialRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ lastAngle: number; lastT: number; vel: number; moved: boolean } | null>(null);
+  const drag = useRef<{ lastAngle: number; lastT: number; vel: number; moved: boolean; id: number } | null>(null);
   const suppressClick = useRef(false);
   const [interacted, setInteracted] = useState(false);
+  /** The pop-up card over the dial, opened by tapping a meetup. */
+  const [open, setOpen] = useState(false);
+  const popRef = useRef<HTMLDivElement>(null);
 
   const minRot = -angleOf(events.at(-1)?.day ?? endDay);
   const maxRot = -angleOf(events[0]?.day ?? startDay);
@@ -127,9 +152,10 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
   const onPointerDown = (ev: React.PointerEvent) => {
     const { deg, dist } = pointerAngle(ev);
     if (dist < 0.5) return; // the center is for reading (and page scroll on touch)
-    dialRef.current!.setPointerCapture(ev.pointerId);
+    setOpen(false);
     rot.stop();
-    drag.current = { lastAngle: deg, lastT: performance.now(), vel: 0, moved: false };
+    // Pointer capture waits for real movement: capturing on press would retarget a tap's click away from the node.
+    drag.current = { lastAngle: deg, lastT: performance.now(), vel: 0, moved: false, id: ev.pointerId };
   };
   const onPointerMove = (ev: React.PointerEvent) => {
     const d = drag.current;
@@ -140,7 +166,10 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
     d.vel = delta / Math.max(1, now - d.lastT);
     d.lastAngle = deg;
     d.lastT = now;
-    if (Math.abs(delta) > 0.3) d.moved = true;
+    if (!d.moved && Math.abs(delta) > 0.3) {
+      d.moved = true;
+      dialRef.current!.setPointerCapture(d.id);
+    }
     rot.set(clampRot(rot.get() + delta));
   };
   const onPointerUp = () => {
@@ -148,6 +177,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
     if (!d) return;
     drag.current = null;
     suppressClick.current = d.moved;
+    if (!d.moved) return; // a tap: the node's click handler takes it from here
     const projected = clampRot(rot.get() + (reduce ? 0 : d.vel * 180));
     choose(nearest(projected));
     window.setTimeout(() => (suppressClick.current = false), 0);
@@ -164,8 +194,31 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
     else if (ev.key === "End") i = events.length - 1;
     if (i === null) return;
     ev.preventDefault();
+    setOpen(false);
     choose(i, { focus: true });
   };
+
+  // Pop-up: move focus into it, close on Escape or a press outside, then return focus to the node.
+  useEffect(() => {
+    if (!open) return;
+    popRef.current?.focus({ preventScroll: true });
+    const close = (refocus: boolean) => {
+      setOpen(false);
+      if (refocus) linkRefs.current[selRef.current]?.focus({ preventScroll: true });
+    };
+    const onKey = (ev: KeyboardEvent) => ev.key === "Escape" && close(true);
+    const onDown = (ev: PointerEvent) => {
+      const target = ev.target as Node;
+      if (popRef.current?.contains(target) || dialRef.current?.contains(target)) return;
+      close(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [open]);
 
   const ticks = useMemo(() => {
     const out: { a: number; long: boolean; now: boolean }[] = [];
@@ -272,11 +325,14 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                         href={`/events/${e.slug}`}
                         tabIndex={isSel ? 0 : -1}
                         draggable={false}
+                        aria-haspopup="dialog"
+                        aria-expanded={isSel && open}
                         onClick={(ev) => {
-                          if (suppressClick.current || i !== selRef.current) {
-                            ev.preventDefault();
-                            if (!suppressClick.current) choose(i);
-                          }
+                          // With JS this opens the pop-up; without JS it's a plain link to the event page.
+                          ev.preventDefault();
+                          if (suppressClick.current) return;
+                          choose(i);
+                          setOpen(true);
                         }}
                         onFocus={() => i !== selRef.current && choose(i)}
                         className="absolute -top-3 -left-3 grid size-6 place-items-center rounded-[3px] outline-offset-2"
@@ -319,6 +375,75 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
             </div>
           </div>
           <p className="mt-3 text-center text-[0.8125rem] text-fg-subtle">{t("dialHint")}</p>
+
+          {/* ---------------- Pop-up card (tap a meetup) ---------------- */}
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                key={selected.slug}
+                ref={popRef}
+                role="dialog"
+                aria-labelledby="dial-pop-title"
+                tabIndex={-1}
+                data-testid="dial-popup"
+                initial={{ opacity: 0, scale: 0.92, y: "-46%" }}
+                animate={{ opacity: 1, scale: 1, y: "-50%" }}
+                exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+                transition={{ duration: dur.ui, ease: [...ease.out] }}
+                className="absolute inset-x-0 top-1/2 z-20 mx-auto w-[min(100%,20rem)] rounded-lg border border-border-accent bg-bg-raised p-5 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] outline-none"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    linkRefs.current[selRef.current]?.focus({ preventScroll: true });
+                  }}
+                  className="absolute end-2.5 top-2.5 grid size-9 place-items-center rounded-md text-fg-subtle transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+                >
+                  <X aria-hidden className="size-4" />
+                  <span className="sr-only">{t("close")}</span>
+                </button>
+
+                {selected.speakers.length > 0 && (
+                  <ul className="mb-4 grid gap-3 pe-8">
+                    {selected.speakers.map((sp) => (
+                      <li key={sp.name} className="flex items-center gap-3">
+                        <Face speaker={sp} size={selected.speakers.length > 1 ? 48 : 64} />
+                        <div className="min-w-0">
+                          <p className="leading-tight font-semibold text-fg">{sp.name}</p>
+                          {sp.role && <p className="mt-0.5 text-sm text-fg-subtle">{sp.role}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <h3
+                  id="dial-pop-title"
+                  className={cn("text-lg leading-snug font-bold text-balance text-fg", selected.speakers.length === 0 && "pe-8")}
+                >
+                  {selected.title}
+                </h3>
+                <p className="mt-1.5 text-sm text-fg-muted">
+                  {selected.fullDate}
+                  <span aria-hidden className="mx-1.5 text-fg-faint">
+                    ·
+                  </span>
+                  <bdi dir="ltr" className="font-mono text-[0.8125rem]">
+                    {selected.timeRange}
+                  </bdi>
+                </p>
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-fg-muted">
+                  <MapPin aria-hidden className="size-3.5 shrink-0 text-brand-purple-soft" />
+                  {selected.venue ?? te("venueTbd")}
+                </p>
+                <Link href={`/events/${selected.slug}`} className="btn btn-ghost mt-4 h-10 w-full">
+                  {te("details")}
+                  <DetailsArrow aria-hidden />
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* ---------------- Selected meetup ---------------- */}
@@ -353,7 +478,17 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                 {selected.timeRange}
               </bdi>
             </p>
-            {selected.who && <p className="mt-1 text-fg-muted">{selected.who}</p>}
+            {selected.speakers.length > 0 && (
+              <div className="mt-3 flex items-center gap-2.5">
+                <span className="flex -space-x-2">
+                  {selected.speakers.map((sp) => (
+                    <Face key={sp.name} speaker={sp} size={36} />
+                  ))}
+                </span>
+                <span className="text-fg-muted">{selected.speakers.map((sp) => sp.name).join(", ")}</span>
+              </div>
+            )}
+            {selected.venue && <p className="mt-1.5 text-fg-muted">{selected.venue}</p>}
             <Link
               href={`/events/${selected.slug}`}
               tabIndex={-1}

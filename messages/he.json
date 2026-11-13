@@ -47,7 +47,8 @@
     "subscribeTitle": "כל העונה ביומן שלכם",
     "subscribeBody": "נרשמים פעם אחת, ומפגשים חדשים או שינויים מופיעים ביומן לבד.",
     "subscribeGoogle": "הוספה לגוגל קלנדר",
-    "subscribeOther": "יומן אחר (Apple, Outlook)"
+    "subscribeOther": "יומן אחר (Apple, Outlook)",
+    "close": "סגירה"
   },
   "eventPage": {
     "back": "חזרה לעונה",
