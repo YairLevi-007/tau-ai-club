@@ -5,6 +5,7 @@ Status: **proposal**. Written 2026-11-12. Deadline: Milestone 1 live by end of *
 Decided so far:
 - **Hosting:** Vercel Hobby, `tau-ai-club.vercel.app`, no custom domain for now. `docs/hosting-options.md` covers moving to Cloudflare + `tauaiclub.com` later.
 - **Events:** 18:00–20:00 Asia/Jerusalem. Past events are shown as past. Unknown venues show as TBD.
+- **Lecture summaries (2026-11-13):** no Claude API on the site. A club member writes each summary, and an admin pastes it (Markdown, he/en) or attaches the PDF, then publishes. The site never calls Claude, so there's no API key and no AI cost.
 - **Copy:** casual, Hebrew first.
 - **Brand:** tokens v0.1 in `brand/brand-tokens.md`, pending approval in the designer chat.
 
@@ -40,7 +41,7 @@ All content lives in the database. The design covers every milestone, and Milest
   - Fields: `id, slug, cohort_id, kind (opening | lecture | workshop | joint | closing | other), series (e.g. 'zero-to-hero'), series_no, title_he, title_en, blurb_he, blurb_en, starts_at timestamptz, ends_at timestamptz, venue_id (null = TBD), venue_note_he/en ("off campus"), luma_url (nullable), is_tentative bool, status (draft | published), created_at, updated_at, updated_by`
   - Planned for the backlog: `og_image_url`, `checkin_code`.
 - **event_speakers** ✱: `event_id, speaker_id, sort`
-- **event_content** (M3): `event_id, locale, section (summary | takeaways | commands | exercises | resources | prep), body_md, visibility (public | members), status (draft | published), source ('manual' | 'ai_draft')`
+- **event_content** (M3): `event_id, locale, section (summary | takeaways | commands | exercises | resources | prep), body_md, visibility (public | members), status (draft | published), updated_by`. Summaries are written by people (the club's lecture-summary initiative) and pasted or uploaded by an admin. No AI generation on the site.
 
 ### People and access (M2)
 - **members**

@@ -13,7 +13,6 @@ Keep this file current: whoever adds a service or env var updates it in the same
 | Google Cloud | OAuth client for "Sign in with Google" (M2) | Project `tau-ai-club`, owned by the club Google account | Free | M2 |
 | Luma | Event registration (we only link to it) | Club's Luma calendar | Free | exists |
 | Domain `tauaiclub.com` | Future custom domain | GoDaddy, registered 2026-11-10, expires 2027-11-10. **Owner to confirm** | Paid yearly | not in use (see `docs/hosting-options.md`) |
-| Anthropic API | AI summaries (M3+) | Club Console org | Pay-as-you-go | later |
 
 Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@…` Google account), with at least two current board members as admins. Personal accounts are only a bootstrap.
 
@@ -27,7 +26,6 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
 | `SUPABASE_SECRET_KEY` | **M2+, server only**, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
-| `ANTHROPIC_API_KEY` | M3+, server only | | **Yes** |
 
 The template is in `.env.example`. Real values live only in Vercel and in each developer's `.env.local`.
 
