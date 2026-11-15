@@ -55,7 +55,12 @@
     "back": "חזרה לעונה",
     "when": "מתי",
     "where": "איפה",
-    "speakers": "מרצים"
+    "speakers": "מרצים",
+    "pastNote": "המפגש הזה כבר התקיים.",
+    "openMaps": "פתיחה במפות",
+    "prevMeetup": "המפגש הקודם",
+    "nextMeetup": "המפגש הבא",
+    "seasonNav": "מפגשים נוספים בעונה"
   },
   "footer": {
     "instagram": "אינסטגרם",

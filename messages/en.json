@@ -55,7 +55,12 @@
     "back": "Back to the season",
     "when": "When",
     "where": "Where",
-    "speakers": "Speakers"
+    "speakers": "Speakers",
+    "pastNote": "This meetup already took place.",
+    "openMaps": "Open in Maps",
+    "prevMeetup": "Previous meetup",
+    "nextMeetup": "Next meetup",
+    "seasonNav": "More meetups this season"
   },
   "footer": {
     "instagram": "Instagram",
