@@ -3,7 +3,7 @@
 Status: **proposal**. Written 2026-11-12. Deadline: Milestone 1 live by end of **Nov 17** (Zero to Hero 1 is Nov 18).
 
 Decided so far:
-- **Hosting:** Vercel Hobby, `tau-ai-club.vercel.app`, no custom domain for now. `docs/hosting-options.md` covers moving to Cloudflare + `tauaiclub.com` later.
+- **Hosting:** Vercel Hobby. Production URL **`https://tauaiclub.com`** (bought by the club 2026-11-15); `www` redirects to the apex, and `tau-ai-club.vercel.app` stays as a fallback. Setup: `HANDOVER.md` §3 B2. `docs/hosting-options.md` keeps the Cloudflare option for later.
 - **Events:** 18:00–20:00 Asia/Jerusalem. Past events are shown as past. Unknown venues show as TBD.
 - **Lecture summaries (2026-11-13):** no Claude API on the site. A club member writes each summary, and an admin pastes it (Markdown, he/en) or attaches the PDF, then publishes. The site never calls Claude, so there's no API key and no AI cost.
 - **Copy:** casual, Hebrew first.
@@ -102,7 +102,7 @@ All content lives in the database. The design covers every milestone, and Milest
 | Nov 16 | Motion pass, copy pass in Hebrew and English, `HANDOVER.md` v1. | designer, builder |
 | Nov 16–17 | QA run from `qa/TEST-PLAN.md` on the Vercel preview. Fix. Promote to production, seed prod, QA on prod. | qa, builder |
 
-Done means it's live on `tau-ai-club.vercel.app`, both languages, desktop and mobile, the QA checklist is green, and there's no Vercel toolbar on production.
+Done means it's live on `https://tauaiclub.com` (with `tau-ai-club.vercel.app` as fallback), both languages, desktop and mobile, the QA checklist is green, and there's no Vercel toolbar on production.
 
 ### Seed data (all editable later; ⚠ = tentative or TBD)
 | Date | Event | Speaker | Venue |

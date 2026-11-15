@@ -1,6 +1,6 @@
 # Hosting options: Vercel Hobby vs Cloudflare Workers (OpenNext)
 
-**Decision 2026-11-12: Vercel Hobby** at `tau-ai-club.vercel.app`, no custom domain for now. The rest of this page stays as the note for a later move to Cloudflare + `tauaiclub.com`.
+**Decision 2026-11-12: Vercel Hobby.** **Update 2026-11-15:** the club bought `tauaiclub.com`, and it becomes the production URL on Vercel: apex `https://tauaiclub.com`, `www` → apex, fallback `tau-ai-club.vercel.app`. DNS stays at the registrar, with an A + CNAME to Vercel (`HANDOVER.md` §3 B2). The rest of this page is the note for a possible later move to Cloudflare.
 
 Researched 2026-11-12 against current docs.
 

@@ -1,4 +1,4 @@
-# HANDOVER (v1.1, 2026-11-13)
+# HANDOVER (v1.2, 2026-11-15)
 
 How the TAU AI Club site runs, what it depends on, and how to hand it to the next club team.
 Keep this file current: whoever adds a service or env var updates it in the same PR.
@@ -8,11 +8,11 @@ Keep this file current: whoever adds a service or env var updates it in the same
 | Service | What for | Account / owner (target) | Plan | Status |
 |---|---|---|---|---|
 | GitHub | Code, PRs, Vercel's git source | Org `tau-ai-club`, repo `tau-ai-club/site` (**public**: Vercel Hobby can't deploy private org repos) | Free | ⏳ to create |
-| Vercel | Hosting, preview deploys | Hobby account of a club admin, project `tau-ai-club` → `tau-ai-club.vercel.app` | Hobby (non-commercial only: no ads, no paid work on the site) | ⏳ to create |
+| Vercel | Hosting, preview deploys | Hobby account of a club admin, project `tau-ai-club`. Production: **`https://tauaiclub.com`** (`www` → apex), fallback `tau-ai-club.vercel.app` | Hobby (non-commercial only: no ads, no paid work on the site) | ⏳ to create |
 | Supabase | Postgres, RLS, Auth (M2) | Dedicated org "TAU AI Club", projects `tau-ai-club-dev` and `tau-ai-club-prod` | Free (projects pause after ~7 days without traffic; dev may pause, prod gets daily traffic) | ⏳ to create |
 | Google Cloud | OAuth client for "Sign in with Google" (M2) | Project `tau-ai-club`, owned by the club Google account | Free | M2 |
 | Luma | Event registration (we only link to it) | Club's Luma calendar | Free | exists |
-| Domain `tauaiclub.com` | Future custom domain | GoDaddy, registered 2026-11-10, expires 2027-11-10. **Owner to confirm** | Paid yearly | not in use (see `docs/hosting-options.md`) |
+| Domain `tauaiclub.com` | Production domain (apex), `www` redirects to it | Registrar: **GoDaddy** (from public RDAP/DNS: nameservers `ns21/ns22.domaincontrol.com`; confirm). Account owner: **TBD** (should be the club account). Renewal: **TBD** (RDAP shows registered 2026-11-10, expires 2027-11-10; turn on auto-renew) | Paid yearly | bought by the club; DNS ⏳ to point at Vercel (runbook B2) |
 
 Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@…` Google account), with at least two current board members as admins. Personal accounts are only a bootstrap.
 
@@ -22,7 +22,7 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Vercel (Production → prod project; Preview + Development → dev project), `.env.local` | `https://<ref>.supabase.co` | No |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | same | `sb_publishable_…` (Supabase → Project Settings → API Keys) | No (RLS protects data) |
-| `NEXT_PUBLIC_SITE_URL` | Vercel Production (optional) | `https://tau-ai-club.vercel.app` | No |
+| `NEXT_PUBLIC_SITE_URL` | Vercel **Production only**; `.env.local` | Production: **`https://tauaiclub.com`** (no trailing slash). Local: `http://localhost:3000`. Leave unset on Preview. It drives metadataBase, canonical/hreflang, OG URLs, `sitemap.xml`, `robots.txt` and calendar links | No |
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
@@ -32,7 +32,7 @@ The template is in `.env.example`. Real values live only in Vercel and in each d
 
 ## 3. Deploy runbook (first time, Milestone 1)
 
-Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** can come later; the site deploys before Supabase exists and shows "we couldn't load the events" until D is done.
+Order: **A GitHub → B Vercel → B2 domain** can happen now. **C Supabase → D connect** can come later; the site deploys before Supabase exists and shows "we couldn't load the events" until D is done.
 
 ### A. GitHub: org + public repo + push (~10 min)
 1. Sign in at github.com → avatar (top right) → **Your organizations** → **New organization** → **Free**.
@@ -60,11 +60,11 @@ Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** ca
 1. Go to vercel.com → **Sign Up** → **Hobby** → **Continue with GitHub** (use the same GitHub account as step A).
 2. **Add New… → Project**. Under "Import Git Repository", open the account dropdown → **Add GitHub Account**. Install the Vercel app on the **`tau-ai-club`** org, choose **Only select repositories → `site`**, then **Install**.
 3. Back in Vercel, click **Import** next to `tau-ai-club/site`.
-   - Project name: `tau-ai-club`. This gives `tau-ai-club.vercel.app`; if the name is taken, Vercel adds a suffix. Note the final URL.
+   - Project name: `tau-ai-club`. This gives the fallback URL `tau-ai-club.vercel.app`; if the name is taken, Vercel adds a suffix. Note it. The real production URL is `https://tauaiclub.com` (step B2).
    - Framework preset: **Next.js** (auto-detected). Root directory: `./`. Leave the build and install commands at their defaults.
    - **Environment Variables** (you can also add them later under Settings):
      - `ENABLE_EXPERIMENTAL_COREPACK` = `1` for all environments. This makes Vercel use the exact pnpm from `package.json` (`pnpm@12.18.0`).
-     - `NEXT_PUBLIC_SITE_URL` = `https://tau-ai-club.vercel.app` (your final URL), **Production only**.
+     - `NEXT_PUBLIC_SITE_URL` = `https://tauaiclub.com` (no trailing slash), **Production only**. Leave it unset for Preview and Development.
      - *Optional until step D:* `USE_FIXTURES` = `1` for **Preview only**, so preview links show the seed season. Production ignores it.
    - Click **Deploy**. The first build takes ~1–2 min.
 4. If the build fails at the install step with a pnpm/Corepack error: Settings → Environment Variables → delete `ENABLE_EXPERIMENTAL_COREPACK`, then Deployments → ⋯ → **Redeploy**. Vercel's own pnpm reads our v9 lockfile fine.
@@ -72,7 +72,23 @@ Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** ca
 6. **Settings → General → Vercel Toolbar:** set **Production → Off** (Preview may stay On). Nothing in the code injects the toolbar (`@vercel/toolbar` is not installed), so this setting is the only switch.
 7. **Settings → Deployment Protection:** Hobby defaults to **Standard Protection**: preview URLs need a Vercel login, and the production domain is public. Keep it. QA runs against production or locally, or the previews owner shares a link.
 8. **Settings → Git:** Production Branch = `main`. Every other branch gets a Preview deploy automatically.
-9. Open the production URL. You should see the site, with the "couldn't load the events" message until step D.
+9. Open `https://tau-ai-club.vercel.app`. You should see the site, with the "couldn't load the events" message until step D.
+
+### B2. Custom domain `tauaiclub.com` (~10 min + DNS wait)
+Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects to it, and `tau-ai-club.vercel.app` keeps working as a fallback.
+1. Vercel → project → **Settings → Domains** → **Add Domain**. Enter `tauaiclub.com` → **Add**.
+2. When Vercel offers the recommended setup, choose **"Add `www.tauaiclub.com` and redirect it to `tauaiclub.com`"**. If it doesn't offer it, add `www.tauaiclub.com` separately, then edit it and set **Redirect to** `tauaiclub.com` (308, permanent).
+3. Both domains now show **Invalid Configuration**, with the DNS records to set. Copy the **exact** values Vercel shows; they can be project-specific:
+   - `tauaiclub.com` (apex): an **A** record, Name `@`, Value = the IP Vercel shows.
+   - `www.tauaiclub.com`: a **CNAME**, Name `www`, Value = the target Vercel shows (ends in `vercel-dns…com`).
+4. At the registrar (GoDaddy: **My Products → Domains → `tauaiclub.com` → DNS → DNS Records**), signed in with the account that bought the domain:
+   - Delete the existing **A `@`** record (GoDaddy's "Parked" page) and the existing **CNAME `www` → `@`**.
+   - Add the A record and the CNAME from step 3. TTL: 600 seconds (or the lowest offered).
+   - Make sure **Forwarding** (Domain → Forwarding) is **off**, and leave the nameservers as they are (GoDaddy's).
+   - If there is an existing **CAA** record, it must allow `letsencrypt.org`, or Vercel can't issue the certificate. With no CAA record, nothing needs doing.
+5. Back in Vercel → Domains: within minutes (occasionally up to a few hours) both domains turn **Valid Configuration**, and Vercel issues HTTPS certificates automatically.
+6. Make sure `NEXT_PUBLIC_SITE_URL` = `https://tauaiclub.com` is set for Production (B.3), then **Redeploy** production. Canonical links, the sitemap, `robots.txt` and share cards use this value, and it is baked in at build time.
+7. Check that `https://tauaiclub.com` loads, `https://www.tauaiclub.com` redirects to it, and `https://tau-ai-club.vercel.app` still loads (its canonical points at `tauaiclub.com`).
 
 ### C. Supabase: org + two projects + schema + seed (~25 min)
 **Free-plan limit:** a free account can own only **2 active free projects**. The user's personal account already has 2, so:
@@ -101,9 +117,10 @@ Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** ca
    - **Project URL**: `https://<ref>.supabase.co`
    - **Publishable key**: `sb_publishable_…`. If the project only shows legacy keys, use the **anon public** key; it works the same.
    - Never copy the **secret** / **service_role** key into Vercel for M1.
-9. **Authentication → URL Configuration** (needed in M2, harmless now):
-   - **prod**: Site URL = `https://tau-ai-club.vercel.app`.
-   - **dev**: Site URL = `http://localhost:3000`, and add `https://tau-ai-club-*.vercel.app/**` to Redirect URLs.
+9. **Authentication → URL Configuration** (needed for Google sign-in in M2, harmless to set now):
+   - **prod**: Site URL = `https://tauaiclub.com`. Redirect URLs: `https://tauaiclub.com/**` and `https://tau-ai-club.vercel.app/**` (fallback domain).
+   - **dev**: Site URL = `http://localhost:3000`. Redirect URLs: `http://localhost:3000/**` and `https://tau-ai-club-*.vercel.app/**` (preview deploys).
+   - Google Cloud OAuth client (M2): Authorized JavaScript origins `https://tauaiclub.com`, `https://tau-ai-club.vercel.app` and `http://localhost:3000`. Authorized redirect URI: each project's `https://<ref>.supabase.co/auth/v1/callback`.
 
 ### D. Connect Vercel to Supabase (~5 min)
 1. Vercel → project → **Settings → Environment Variables**. Add each variable with the right environment checkboxes:
@@ -120,12 +137,13 @@ Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** ca
 3. Local dev: create `.env.local` from `.env.example` with the **dev** values, or run `npx vercel env pull .env.local` after `npx vercel link`.
 
 ### E. Verify (~5 min)
-- The production URL shows the hero, the **Next event** card (the next Wednesday meetup) and the season dial, in Hebrew. `/en` shows English.
+- `https://tauaiclub.com` shows the hero, the **Next event** card (the next Wednesday meetup) and the season dial, in Hebrew. `/en` shows English.
 - `/robots.txt` shows `Allow: /` on production (previews show `Disallow: /`). `/sitemap.xml` lists the events.
-- Paste the production URL into a WhatsApp chat: the preview shows the TAU AI Club card.
+- `https://www.tauaiclub.com` redirects to `https://tauaiclub.com`, and the page's `<link rel="canonical">` starts with `https://tauaiclub.com`.
+- Paste `https://tauaiclub.com` into a WhatsApp chat: the preview shows the TAU AI Club card.
 - No Vercel toolbar on production (open it in a private window).
 - Edit one event title in Supabase **prod**: the site updates within 5 minutes.
-- Tell QA the production URL, so they can run `qa/TEST-PLAN.md` against it.
+- Tell QA the production URL (`https://tauaiclub.com`), so they can run `qa/TEST-PLAN.md` against it.
 
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.
@@ -136,11 +154,17 @@ Order: **A GitHub → B Vercel** can happen now. **C Supabase → D connect** ca
 
 ## 5. Transfer to the next team (yearly)
 1. **GitHub:** add the new board members as org owners, then remove the outgoing ones. The repo stays in the org.
-2. **Vercel (Hobby is single-user):** the new owner creates their own Vercel Hobby account and imports `tau-ai-club/site`, copying the env vars from §2. Ask the old owner to delete their project, or change its name so the new owner can claim `tau-ai-club.vercel.app`. If a custom domain is used later, move it in Vercel → Domains. If the club ever upgrades to Pro, use **Project → Settings → Transfer** instead.
+2. **Vercel (Hobby is single-user):** the new owner creates their own Vercel Hobby account and imports `tau-ai-club/site`, copying the env vars from §2. Ask the old owner to delete their project, or change its name so the new owner can claim `tau-ai-club.vercel.app`. Then move the domain:
+   - The old owner removes `tauaiclub.com` and `www.tauaiclub.com` from their project (Settings → Domains → ⋯ → Remove).
+   - The new owner adds them to the new project (runbook B2). Vercel may ask for a **TXT verification record** at the registrar, because the domain was used by another account. Add it, wait for "Valid", then remove it.
+   - The A/CNAME records usually stay the same. If Vercel shows different values, update them at the registrar.
+   - Expect a short gap of minutes; do it outside event hours.
+
+   If the club ever upgrades to Pro, use **Project → Settings → Transfer** instead (the domains move with the project).
 3. **Supabase:** Organization → Team → invite the new owners as Owner, then remove the outgoing ones. Rotate the database password and the secret API key afterwards.
 4. **Google Cloud (M2):** add the new owners to the project IAM as Owner. The OAuth client stays the same.
 5. **Shared club Google account + password manager:** hand them over in person, and rotate the passwords.
-6. **Domain (if used):** change the GoDaddy account owner, or move the domain to the club's registrar account.
+6. **Domain `tauaiclub.com`:** make sure it sits in a **club-owned** registrar account. If it was bought on a personal GoDaddy account, use GoDaddy's **Transfer to another GoDaddy account** (account change, not a registrar transfer). Check that auto-renew is on and that the renewal card or credit belongs to the club. Note the renewal date in §1. Moving to another registrar is possible only 60 days after purchase (from ~2027-01-09), and the DNS records must be recreated there first.
 7. Update §1 of this file with the new owners and date.
 
 ## 6. Where things are documented
