@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { animate, AnimatePresence, MotionConfig, motion, useMotionValue, useMotionValueEvent, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, MapPin, RotateCcw, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { dur, ease } from "@/lib/motion";
+import { SpeakerFace as Face, type FaceSpeaker } from "./speaker-face";
 
 export type DialEvent = {
   slug: string;
@@ -27,24 +27,7 @@ export type DialEvent = {
   speakers: DialSpeaker[];
 };
 
-export type DialSpeaker = { name: string; role: string | null; photoUrl: string | null; initials: string };
-
-/** Speaker face: the photo when there is one, else initials on a brand tile (never a broken image). */
-function Face({ speaker, size }: { speaker: DialSpeaker; size: number }) {
-  return (
-    <span
-      aria-hidden
-      className="relative grid shrink-0 place-items-center overflow-hidden rounded-md border border-border-accent bg-brand-purple-deeper font-bold text-fg"
-      style={{ width: size, height: size, fontSize: size * 0.36 }}
-    >
-      {speaker.photoUrl ? (
-        <Image src={speaker.photoUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
-      ) : (
-        speaker.initials
-      )}
-    </span>
-  );
-}
+export type DialSpeaker = FaceSpeaker & { role: string | null };
 
 type Props = {
   events: DialEvent[];

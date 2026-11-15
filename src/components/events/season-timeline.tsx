@@ -16,6 +16,7 @@ import { calendarFeedLinks } from "@/lib/ics";
 import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import { Tag } from "./event-bits";
 import { SeasonDial, type DialEvent } from "./season-dial";
+import { initialsOf } from "./speaker-face";
 
 const intlLocale: Record<Locale, string> = { he: "he-IL", en: "en-GB" };
 /** Days of padding before the first and after the last meetup on the dial. */
@@ -64,12 +65,7 @@ export async function SeasonTimeline({
           name,
           role: [loc(sp, "role", locale), loc(sp, "company", locale)].filter(Boolean).join(" · ") || null,
           photoUrl: sp.photo_url,
-          initials: name
-            .split(/\s+/)
-            .filter(Boolean)
-            .slice(0, 2)
-            .map((w) => w[0])
-            .join(""),
+          initials: initialsOf(name),
         };
       }),
     };
