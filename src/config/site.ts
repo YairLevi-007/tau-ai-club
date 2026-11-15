@@ -1,11 +1,20 @@
 // Site-level constants that are configuration, not content (content lives in Supabase).
 
-/** Public URL of the deployment, used for absolute links (OG, calendar details). */
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
+/**
+ * Canonical public origin (no trailing slash). Drives metadataBase, canonical +
+ * hreflang URLs, Open Graph URLs, sitemap.xml, robots.txt and calendar links.
+ *
+ *   Production: NEXT_PUBLIC_SITE_URL=https://tauaiclub.com  (set in Vercel, Production only)
+ *   Preview:    unset → VERCEL_PROJECT_PRODUCTION_URL (Vercel's production domain), so
+ *               previews point canonicals at the real site and stay noindex (see IS_PRODUCTION)
+ *   Local:      http://localhost:3000
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000");
+    : "http://localhost:3000")
+).replace(/\/+$/, "");
 
 /**
  * True only on the Vercel Production deployment. Previews and local builds are
