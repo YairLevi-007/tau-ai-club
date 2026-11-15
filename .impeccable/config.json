@@ -25,7 +25,8 @@
         "rule": "border-accent-on-rounded",
         "value": "*",
         "files": [
-          "src/components/events/next-event-card.tsx"
+          "src/components/events/next-event-card.tsx",
+          "src/app/[locale]/events/[slug]/page.tsx"
         ],
         "createdAt": "2026-11-12T16:50:51.178Z",
         "reason": "designer: 14px corner-bracket marks from the club PDF covers (brand/brand-tokens.md, Signature effects), not a card border accent"
