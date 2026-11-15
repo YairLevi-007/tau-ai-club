@@ -10,7 +10,7 @@ Plan and scope: `docs/PLAN.md`. Hosting: `docs/hosting-options.md`. Handover: `H
 - Tailwind CSS 4 + shadcn/ui (`base-nova` style on Base UI, RTL enabled). Icons: lucide-react.
 - next-intl 4: Hebrew (default, RTL) and English (LTR).
 - Supabase: Postgres + RLS, Auth from Milestone 2. Access through `@supabase/ssr`.
-- Hosting: Vercel Hobby (`tau-ai-club.vercel.app`). Package manager: **pnpm** (`packageManager` is pinned in package.json).
+- Hosting: Vercel Hobby. Production: `https://tauaiclub.com` (www redirects to apex), fallback `tau-ai-club.vercel.app`; site URL comes from `NEXT_PUBLIC_SITE_URL`. Package manager: **pnpm** (`packageManager` is pinned in package.json).
 
 Next 16 differs from older versions. Read `node_modules/next/dist/docs/` before using an API you're unsure of. `middleware.ts` is now `src/proxy.ts`.
 
