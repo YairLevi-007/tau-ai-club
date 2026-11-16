@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ArrowUpRight, Link2, LockKeyhole, Mail, Phone } from "lucide-react";
 import type { SpeakerContact, SpeakerContacts } from "@/app/api/events/[slug]/speaker-contacts/route";
 
 // One request per page, shared by every speaker on it.
@@ -37,31 +38,45 @@ export function SpeakerContactLinks({ slug, speakerId, labels }: { slug: string;
   }, [slug, speakerId]);
 
   if (!contact) return null;
-  const link = "text-brand-purple-soft underline underline-offset-4 hover:text-fg";
+  // Chips, so a long email never breaks the card; icons carry the field, the sr-only label names it.
+  const chip =
+    "inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-bg-deep/45 px-2.5 py-1.5 text-sm text-fg transition-colors duration-150 hover:border-border-accent";
+  const icon = "size-3.5 shrink-0 text-brand-purple-soft";
   return (
-    <div className="mt-2" data-testid="speaker-contact">
-      <p className="text-xs text-fg-subtle">{labels.title}</p>
-      <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+    <div className="mt-3 border-t border-border pt-3" data-testid="speaker-contact">
+      <p className="flex items-center gap-1.5 text-xs text-fg-subtle">
+        <LockKeyhole aria-hidden className="size-3.5 shrink-0" />
+        {labels.title}
+      </p>
+      <ul className="mt-2 flex flex-wrap gap-2">
         {contact.email && (
-          <li>
-            <span className="sr-only">{labels.email}: </span>
-            <a href={`mailto:${contact.email}`} className={link}>
-              <bdi dir="ltr">{contact.email}</bdi>
+          <li className="min-w-0">
+            <a href={`mailto:${contact.email}`} className={chip}>
+              <Mail aria-hidden className={icon} />
+              <span className="sr-only">{labels.email}: </span>
+              <bdi dir="ltr" className="truncate">
+                {contact.email}
+              </bdi>
             </a>
           </li>
         )}
         {contact.phone && (
           <li>
-            <span className="sr-only">{labels.phone}: </span>
-            <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className={link}>
-              <bdi dir="ltr">{contact.phone}</bdi>
+            <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className={chip}>
+              <Phone aria-hidden className={icon} />
+              <span className="sr-only">{labels.phone}: </span>
+              <bdi dir="ltr" className="font-mono text-[0.8125rem]">
+                {contact.phone}
+              </bdi>
             </a>
           </li>
         )}
         {contact.linkedin && (
           <li>
-            <a href={contact.linkedin} target="_blank" rel="noopener noreferrer" className={link}>
+            <a href={contact.linkedin} target="_blank" rel="noopener noreferrer" className={chip}>
+              <Link2 aria-hidden className={icon} />
               {labels.linkedin}
+              <ArrowUpRight aria-hidden className="size-3.5 shrink-0 text-fg-subtle rtl:-scale-x-100" />
             </a>
           </li>
         )}

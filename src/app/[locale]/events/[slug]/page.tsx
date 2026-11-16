@@ -259,7 +259,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                 </h2>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                   {speakers.map((sp) => (
-                    <li key={sp.key} className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4">
+                    <li key={sp.key} className="flex items-start gap-4 rounded-lg border border-border bg-surface p-4">
                       <SpeakerFace speaker={sp} size={64} className={cn(past && "opacity-80")} />
                       <div className="min-w-0">
                         <p className="text-lg leading-tight font-semibold text-fg">{sp.name}</p>
