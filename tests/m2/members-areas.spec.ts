@@ -105,3 +105,34 @@ test("event pages ship no contact links or contact values in HTML, bundle names 
     expect(ics, f).not.toMatch(/mailto:|tel:|ATTENDEE|ORGANIZER|[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}/);
   }
 });
+
+test("merged admin: /admin/speakers is only a guarded redirect; contact status lives on the event page", async ({ request }) => {
+  for (const prefix of ["", "/en"]) {
+    // A guest must be sent to sign-in FIRST, not bounced to /admin/events (which would expose that the page exists).
+    const r = await get(request, `${prefix}/admin/speakers`);
+    expect([303, 307, 308].includes(r.status()), `${prefix}/admin/speakers -> ${r.status()}`).toBe(true);
+    expect(r.headers()["location"] ?? "", prefix).toMatch(/\/login|\/members-only/);
+    // The event editor and the events list refuse guests too and carry no contact-status data.
+    for (const p of ["/admin/events", `/admin/events/${UUID}`]) {
+      const e = await finalAnswer(request, prefix + p);
+      expect([303, 307, 308, 403, 404], `${prefix}${p}`).toContain(e.status());
+      const body = await e.text();
+      expect(body, p).not.toMatch(/admin_speaker_contact_status|has_email|has_phone|link_expires_at|speaker-contacts-panel/i);
+    }
+  }
+});
+
+test("guest bundles and HTML do not contain the admin contact panel", async ({ page, request }) => {
+  const seen = new Set<string>();
+  page.on("response", (r) => {
+    if (/\/_next\/static\/.*\.js/.test(r.url())) seen.add(r.url());
+  });
+  for (const p of ["/", "/en", "/en/events/zero-to-hero-1", "/en/login", "/en/members-only"]) {
+    await page.goto(p);
+    await page.waitForLoadState("networkidle");
+  }
+  for (const url of seen) {
+    const js = await (await request.get(url)).text();
+    expect(js.match(/admin_speaker_contact_status|speaker-contacts-panel|SpeakerContactsPanel|admin_revoke_speaker_tokens|admin_delete_speaker_contact|admin_create_speaker_token/g) ?? [], url).toEqual([]);
+  }
+});

@@ -12,7 +12,8 @@ export default defineConfig({
   testDir: "m2",
   timeout: 90_000,
   fullyParallel: true,
-  retries: 1, // next dev can 500 once when parallel cold requests compile the same route (dev-only race, see QA notes)
+  retries: 0, // deterministic: m2/warmup.ts pre-compiles every route sequentially (dev cold-compile race)
+  globalSetup: "./m2/warmup.ts",
   reporter: [["list"]],
   use: { baseURL: `http://localhost:${PORT}`, timezoneId: "Asia/Jerusalem" },
   webServer: {

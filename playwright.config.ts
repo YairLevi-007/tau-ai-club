@@ -32,6 +32,8 @@ export default defineConfig({
       use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
     },
     // Edge-case clock tests start their own `next dev` servers one at a time (helpers/server.ts).
-    { name: "clock", testMatch: /clock\.spec/, workers: 1, fullyParallel: false, timeout: 180_000 },
+    // Runs AFTER desktop/mobile (dependencies) so the dev servers never compete with the suite for CPU, and in a
+    // serial file so there is exactly one dev server at a time (Next allows one per checkout).
+    { name: "clock", testMatch: /clock\.spec/, dependencies: ["desktop", "mobile"], fullyParallel: false, timeout: 180_000 },
   ],
 });
