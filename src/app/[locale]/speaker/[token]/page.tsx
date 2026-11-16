@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Clock, Handshake, Unlink } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { createPublicClient } from "@/lib/supabase/public";
 import { formatShortDate, loc } from "@/lib/event-format";
@@ -22,6 +23,11 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/speaker/
 
 type Info = { name_he: string; name_en: string; expires_at: string };
 
+/**
+ * The speaker's consent form. The reader is an outside guest who got a link by
+ * message, so the page leads with who is asking and why, shows the link's limits,
+ * and makes every choice explicit (see SpeakerContactForm).
+ */
 export default async function SpeakerFormPage({ params }: PageProps<"/[locale]/speaker/[token]">) {
   const { locale: l, token } = await params;
   const locale = l as Locale;
@@ -35,7 +41,7 @@ export default async function SpeakerFormPage({ params }: PageProps<"/[locale]/s
 
   if (!info) {
     return (
-      <AuthPanel testId="speaker-form-invalid" title={t("invalidTitle")}>
+      <AuthPanel testId="speaker-form-invalid" title={t("invalidTitle")} icon={<Unlink aria-hidden />}>
         <p>{t("invalidBody")}</p>
       </AuthPanel>
     );
@@ -43,12 +49,17 @@ export default async function SpeakerFormPage({ params }: PageProps<"/[locale]/s
 
   return (
     <AuthPanel
+      wide
       testId="speaker-form"
+      icon={<Handshake aria-hidden />}
       eyebrow={<p className={locale === "he" ? "eyebrow-he" : "eyebrow-pixel text-[0.6875rem]"}>{t("eyebrow")}</p>}
       title={t("title", { name: loc(info, "name", locale) ?? "" })}
     >
-      <p>{t("intro")}</p>
-      <p className="text-sm text-fg-subtle">{t("expires", { date: formatShortDate(info.expires_at, locale) })}</p>
+      <p className="max-w-[60ch]">{t("intro")}</p>
+      <p className="flex w-fit items-center gap-2 rounded-md border border-border bg-bg-deep/45 px-3 py-2 text-sm text-fg-muted">
+        <Clock aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+        <span>{t("expires", { date: formatShortDate(info.expires_at, locale) })}</span>
+      </p>
       <SpeakerContactForm
         action={submitSpeakerContact}
         token={token}
@@ -62,12 +73,14 @@ export default async function SpeakerFormPage({ params }: PageProps<"/[locale]/s
           linkedin: t("linkedin"),
           linkedinHint: t("linkedinHint"),
           membersOnlyNote: t("membersOnlyNote"),
+          visibleMembers: t("visibleMembers"),
           consent: t("consent"),
           submit: t("submit"),
           doneTitle: t("doneTitle"),
           doneBody: t("doneBody"),
         }}
       />
+      <p className="border-t border-border pt-4 text-sm text-fg-subtle">{t("signoff")}</p>
     </AuthPanel>
   );
 }
