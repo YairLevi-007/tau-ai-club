@@ -311,7 +311,19 @@
     "lumaErrorUrl": "That isn't a Luma event link (lu.ma/… or luma.com/…).",
     "lumaErrorNotFound": "Luma says that event doesn't exist. Check the link.",
     "lumaErrorNoData": "The Luma page had no event details we could read. Fill in the form by hand.",
-    "lumaErrorFailed": "Luma didn't answer (or blocked the request). Try again later, or fill in the form by hand."
+    "lumaErrorFailed": "Luma didn't answer (or blocked the request). Try again later, or fill in the form by hand.",
+    "flyerUseName": "Use as name",
+    "flyerUseRole": "Use as role",
+    "flyerUseCompany": "Use as company",
+    "flyerCaption": "Text printed next to this photo",
+    "flyerNoCaption": "No text found next to this photo.",
+    "flyerAdjustCrop": "Adjust the crop",
+    "speakerFromFlyer": "From a flyer",
+    "speakerFromFlyerHint": "Read a flyer in your browser, then pick the person. Their name, role, company and photo fill this form; check them, then save. Nothing is saved until you do.",
+    "speakerFlyerUse": "Use this person",
+    "speakerFlyerUsing": "Saving the photo…",
+    "speakerFlyerFilled": "Filled in from the flyer. Check every field, then save.",
+    "speakerFlyerNoFaces": "No faces found on this flyer."
   },
   "speakerForm": {
     "eyebrow": "Contact details",

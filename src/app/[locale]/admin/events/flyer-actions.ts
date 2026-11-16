@@ -9,7 +9,7 @@ import { revalidatePublicContent } from "@/lib/admin/content";
 
 export type SpeakerChoice =
   | { action: "existing"; id: string }
-  | { action: "new"; name_he: string; name_en: string; company: string; role: string }
+  | { action: "new"; name_he: string; name_en: string; role_he?: string; role_en?: string; company_he?: string; company_en?: string }
   | { action: "skip" };
 
 export type ApplyFlyerResult = { ok: true; prefill: string } | { ok: false; error: "invalid" | "speaker" | "photo" };
@@ -42,8 +42,9 @@ export async function applyFlyer(fd: FormData): Promise<ApplyFlyerResult> {
     if (c?.action === "existing" && typeof c.id === "string" && UUID.test(c.id)) {
       speakerIds.push(c.id);
     } else if (c?.action === "new") {
-      const name_he = String(c.name_he ?? "").trim().slice(0, 120);
-      const name_en = String(c.name_en ?? "").trim().slice(0, 120);
+      const text = (v: unknown) => String(v ?? "").trim().slice(0, 120);
+      const name_he = text(c.name_he);
+      const name_en = text(c.name_en);
       if (!name_he && !name_en) return { ok: false, error: "speaker" };
       const base = slugify(name_en) || `speaker-${randomUUID().slice(0, 8)}`;
       let id: string | null = null;
@@ -55,8 +56,10 @@ export async function applyFlyer(fd: FormData): Promise<ApplyFlyerResult> {
             slug,
             name_he: name_he || name_en,
             name_en: name_en || name_he,
-            company_en: String(c.company ?? "").trim().slice(0, 120) || null,
-            role_en: String(c.role ?? "").trim().slice(0, 120) || null,
+            role_he: text(c.role_he) || null,
+            role_en: text(c.role_en) || null,
+            company_he: text(c.company_he) || null,
+            company_en: text(c.company_en) || null,
           })
           .select("id")
           .single();

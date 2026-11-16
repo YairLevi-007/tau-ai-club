@@ -1,26 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { FileImage, Link2, LoaderCircle, Plus, ScanText } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { slugify } from "@/lib/flyer/match";
+import { matchSpeaker, slugify } from "@/lib/flyer/match";
 import { encodePrefill, wallTimes } from "@/lib/flyer/prefill";
 import { hasHebrew, type DraftField, type ImportDraft } from "@/lib/flyer/draft";
 import { lumaToDraft } from "@/lib/flyer/luma";
 import { parseFlyerText } from "@/lib/flyer/flyer-text";
+import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people";
 import type { LumaResponse } from "@/app/api/admin/luma/route";
 import { applyFlyer, type SpeakerChoice } from "@/app/[locale]/admin/events/flyer-actions";
 import { fileInputClass, hintClass, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { CropEditor } from "./crop-editor";
-import { cropToJpeg, detectFaces, suggestSquare, type Square } from "./face-detect";
-import { runFlyerOcr } from "./ocr";
+import { cropToJpeg, type Square } from "./face-detect";
+import { readFlyer, type FlyerReading } from "./read-flyer";
+import { CaptionChips, FacePreview, placeChip, type ChipUse } from "./person-card";
 
 type Named = { id: string; name_he: string; name_en: string };
+type SpeakerOption = Named & { photo_url?: string | null };
 type Picture = { url: string; img: HTMLImageElement };
-/** One line-up row in the review: an existing speaker, a new one typed by the admin, or left out. */
-type Row = { choice: string; name_he: string; name_en: string; face: number | null }; // choice: speaker id | "new" | "skip"
+/**
+ * One person in the review: a face found on the flyer (with the text printed next to it as
+ * chips), or a speaker named in the text. `choice` is an existing speaker id, "new" or "skip".
+ */
+type Row = PersonFields & { choice: string; face: number | null; chips: string[] };
+const blank: PersonFields = { name_he: "", name_en: "", role_he: "", role_en: "", company_he: "", company_en: "" };
 type Review = { draft: ImportDraft; rows: Row[]; faces: Square[]; picture: Picture | null };
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -60,7 +67,7 @@ async function loadPicture(url: string, cors: boolean): Promise<Picture | null> 
  * on the server (/api/admin/luma, admins only); the flyer is read and faces are found here in the
  * browser. The result only pre-fills the form below; the admin checks it and saves a draft.
  */
-export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: Named[] }) {
+export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; venues: Named[] }) {
   const t = useTranslations("admin");
   const locale = useLocale();
   const router = useRouter();
@@ -75,11 +82,33 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
   useEffect(() => () => void (objectUrl.current && URL.revokeObjectURL(objectUrl.current)), []);
   const nameOf = (s: { name_he: string; name_en: string }) => (locale === "he" ? s.name_he : s.name_en) || s.name_en || s.name_he;
 
-  async function start(draft: ImportDraft, picture: Picture | null) {
-    const boxes = picture ? await detectFaces(picture.img) : [];
-    const faces = picture ? boxes.map((b) => suggestSquare(b, picture.img.naturalWidth, picture.img.naturalHeight)) : [];
-    const rows: Row[] = draft.speakers.map((s) => ({ choice: s.id ?? "new", name_he: s.name_he, name_en: s.name_en, face: null }));
-    setReview({ draft, rows, faces, picture });
+  function start(draft: ImportDraft, picture: Picture | null, reading: FlyerReading | null) {
+    const people = picture ? (reading?.people ?? []) : [];
+    const rows: Row[] = [];
+    // One row per face: who it is (a speaker on the site, or a new one prefilled from the
+    // caption), and its crop as the photo, unless an existing speaker already has one.
+    people.forEach((p, i) => {
+      const { speakerId, ...fields } = guessPerson(p.caption, speakers);
+      const known = speakerId ? speakers.find((s) => s.id === speakerId) : undefined;
+      const dup = !!speakerId && rows.some((r) => r.choice === speakerId);
+      rows.push({ ...fields, choice: dup ? "skip" : (speakerId ?? "new"), face: known?.photo_url ? null : i, chips: captionChips(p.caption) });
+    });
+    // Speakers named elsewhere on the flyer (or on Luma) without a face of their own.
+    for (const s of draft.speakers) {
+      if (s.id && rows.some((r) => r.choice === s.id)) continue;
+      rows.push({ ...blank, name_he: s.name_he, name_en: s.name_en, choice: s.id ?? "new", face: null, chips: [] });
+    }
+    setReview({ draft, rows, faces: people.map((p) => p.square), picture });
+  }
+
+  /** A caption chip tapped as name / role / company. A name that is a speaker on the site links to them. */
+  function applyChip(i: number, use: ChipUse, text: string) {
+    if (use === "name") {
+      const m = matchSpeaker(hasHebrew(text) ? { name_he: text, name_en: "" } : { name_he: "", name_en: text }, speakers);
+      if (m) return setRow(i, { choice: m.id, name_he: m.name_he, name_en: m.name_en });
+      return setRow(i, { choice: "new", ...placeChip(use, text) });
+    }
+    setRow(i, placeChip(use, text));
   }
 
   async function onLuma() {
@@ -100,7 +129,8 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
       }
       const draft = lumaToDraft(json.event, speakers, venues);
       const cover = LUMA_IMAGE.test(draft.image_url) ? await loadPicture(draft.image_url, true) : null;
-      await start(draft, cover);
+      const reading = cover ? await readFlyer(cover.url).catch(() => null) : null;
+      start(draft, cover, reading);
     } catch {
       setError(t("lumaErrorFailed"));
     } finally {
@@ -128,8 +158,8 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
       objectUrl.current = URL.createObjectURL(file);
       const picture = await loadPicture(objectUrl.current, false);
       if (!picture) return setError(t("flyerErrorType"));
-      const lines = await runFlyerOcr(objectUrl.current, (p) => setProgress(Math.round(p * 100)));
-      await start(parseFlyerText(lines, speakers, venues), picture);
+      const reading = await readFlyer(objectUrl.current, { page: true }, (p) => setProgress(Math.round(p * 100)));
+      start(parseFlyerText(reading.lines, speakers, venues), picture, reading);
     } catch (e) {
       console.warn("[flyer] reading failed", e);
       setError(t("flyerErrorFailed"));
@@ -170,7 +200,9 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
         filled: fields,
       });
       const choices: SpeakerChoice[] = rows.map((r) =>
-        r.choice === "new" ? { action: "new", name_he: r.name_he.trim(), name_en: r.name_en.trim(), company: "", role: "" } : { action: "existing", id: r.choice },
+        r.choice === "new"
+          ? { action: "new", name_he: r.name_he, name_en: r.name_en, role_he: r.role_he, role_en: r.role_en, company_he: r.company_he, company_en: r.company_en }
+          : { action: "existing", id: r.choice },
       );
       const fd = new FormData();
       fd.append("prefill", prefill);
@@ -332,33 +364,45 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
             <legend className="mb-2 text-sm font-semibold text-fg">{t("sectionSpeakers")}</legend>
             {review.rows.length === 0 && <p className={hintClass}>{t("importNoSpeakers")}</p>}
             {review.rows.map((r, i) => (
-              <div key={i} className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2" data-testid="flyer-speaker">
-                <label className={labelClass}>
-                  {t("flyerSpeakerMatch")}
-                  <select value={r.choice} onChange={(e) => setRow(i, { choice: e.target.value })} className={inputClass}>
-                    <option value="new">{t("flyerCreateSpeaker")}</option>
-                    <option value="skip">{t("flyerSkipSpeaker")}</option>
-                    {speakers.map((sp) => (
-                      <option key={sp.id} value={sp.id}>
-                        {nameOf(sp)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div key={i} className="grid gap-3 rounded-md border border-border p-3" data-testid="flyer-speaker">
+                <div className="flex flex-wrap items-start gap-3">
+                  {review.picture && r.face !== null && review.faces[r.face] && (
+                    <FacePreview src={review.picture.url} imgW={review.picture.img.naturalWidth} imgH={review.picture.img.naturalHeight} square={review.faces[r.face]} />
+                  )}
+                  <div className="grid min-w-0 grow gap-3">
+                    <label className={labelClass}>
+                      {t("flyerSpeakerMatch")}
+                      <select value={r.choice} onChange={(e) => setRow(i, { choice: e.target.value })} className={inputClass} data-testid="flyer-speaker-choice">
+                        <option value="new">{t("flyerCreateSpeaker")}</option>
+                        <option value="skip">{t("flyerSkipSpeaker")}</option>
+                        {speakers.map((sp) => (
+                          <option key={sp.id} value={sp.id}>
+                            {nameOf(sp)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {r.chips.length > 0 && r.choice !== "skip" && <CaptionChips chips={r.chips} onUse={(use, text) => applyChip(i, use, text)} />}
+                  </div>
+                </div>
                 {r.choice === "new" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className={labelClass}>
-                      {t("nameHe")}
-                      <input dir="rtl" lang="he" value={r.name_he} onChange={(e) => setRow(i, { name_he: e.target.value })} className={inputClass} />
-                    </label>
-                    <label className={labelClass}>
-                      {t("nameEn")}
-                      <input dir="ltr" lang="en" value={r.name_en} onChange={(e) => setRow(i, { name_en: e.target.value })} className={`${inputClass} text-start`} />
-                    </label>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {(["name", "role", "company"] as const).map((f) => (
+                      <Fragment key={f}>
+                        <label className={labelClass}>
+                          {t(`${f}He`)}
+                          <input dir="rtl" lang="he" value={r[`${f}_he`]} onChange={(e) => setRow(i, { [`${f}_he`]: e.target.value })} className={inputClass} data-testid={`flyer-${f}-he`} />
+                        </label>
+                        <label className={labelClass}>
+                          {t(`${f}En`)}
+                          <input dir="ltr" lang="en" value={r[`${f}_en`]} onChange={(e) => setRow(i, { [`${f}_en`]: e.target.value })} className={`${inputClass} text-start`} data-testid={`flyer-${f}-en`} />
+                        </label>
+                      </Fragment>
+                    ))}
                   </div>
                 )}
                 {review.picture && review.faces.length > 0 && r.choice !== "skip" && (
-                  <div className="grid gap-3 sm:col-span-2">
+                  <div className="grid gap-3">
                     <label className={labelClass}>
                       {t("flyerPhoto")}
                       <select
@@ -375,15 +419,20 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
                       </select>
                     </label>
                     {r.face !== null && (
-                      <CropEditor
-                        src={review.picture.url}
-                        imgW={review.picture.img.naturalWidth}
-                        imgH={review.picture.img.naturalHeight}
-                        square={review.faces[r.face]}
-                        label={t("flyerCropLabel", { n: r.face + 1 })}
-                        sizeLabel={t("flyerCropSize")}
-                        onChange={(sq) => setReview({ ...review, faces: review.faces.map((q, k) => (k === r.face ? sq : q)) })}
-                      />
+                      <details>
+                        <summary className="cursor-pointer text-sm text-fg-muted">{t("flyerAdjustCrop")}</summary>
+                        <div className="pt-3">
+                          <CropEditor
+                            src={review.picture.url}
+                            imgW={review.picture.img.naturalWidth}
+                            imgH={review.picture.img.naturalHeight}
+                            square={review.faces[r.face]}
+                            label={t("flyerCropLabel", { n: r.face + 1 })}
+                            sizeLabel={t("flyerCropSize")}
+                            onChange={(sq) => setReview({ ...review, faces: review.faces.map((q, k) => (k === r.face ? sq : q)) })}
+                          />
+                        </div>
+                      </details>
                     )}
                   </div>
                 )}
@@ -392,7 +441,7 @@ export function FlyerImport({ speakers, venues }: { speakers: Named[]; venues: N
             <button
               type="button"
               className={cn(smallBtn, "w-fit")}
-              onClick={() => setReview({ ...review, rows: [...review.rows, { choice: "new", name_he: "", name_en: "", face: null }] })}
+              onClick={() => setReview({ ...review, rows: [...review.rows, { ...blank, choice: "new", face: null, chips: [] }] })}
               disabled={review.rows.length >= 8}
               data-testid="flyer-add-speaker"
             >

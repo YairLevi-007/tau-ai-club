@@ -1,56 +1,8 @@
-// Face detection in the admin's browser with MediaPipe (free, nothing is sent anywhere:
-// the image never leaves the page). The library, its wasm and the model are loaded on
-// demand from public CDNs, pinned to one version, only when an admin imports an event.
-
-const VERSION = "1.2.3";
-const BUNDLE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VERSION}/vision_bundle.mjs`;
-const WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VERSION}/wasm`;
-const MODEL =
-  "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
+// Crop helpers for speaker photos taken from a flyer. The faces themselves are found in
+// read-flyer.ts (MediaPipe, in the admin's browser).
 
 export type Box = { x: number; y: number; w: number; h: number };
 export type Square = { x: number; y: number; size: number };
-
-type Detector = { detect(img: HTMLImageElement): { detections: { boundingBox?: { originX: number; originY: number; width: number; height: number } }[] } };
-type VisionModule = {
-  FilesetResolver: { forVisionTasks(base: string): Promise<unknown> };
-  FaceDetector: { createFromModelPath(fileset: unknown, path: string): Promise<Detector> };
-};
-
-let detector: Promise<Detector> | null = null;
-function getDetector() {
-  detector ??= (async () => {
-    const mod = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ BUNDLE)) as VisionModule;
-    const fileset = await mod.FilesetResolver.forVisionTasks(WASM);
-    return mod.FaceDetector.createFromModelPath(fileset, MODEL);
-  })().catch((e) => {
-    detector = null;
-    throw e;
-  });
-  return detector;
-}
-
-/** Face boxes in natural image pixels, left to right. Empty on any failure. */
-export async function detectFaces(img: HTMLImageElement): Promise<Box[]> {
-  try {
-    const d = await getDetector();
-    return d
-      .detect(img)
-      .detections.flatMap((r) => (r.boundingBox ? [{ x: r.boundingBox.originX, y: r.boundingBox.originY, w: r.boundingBox.width, h: r.boundingBox.height }] : []))
-      .sort((a, b) => a.x - b.x);
-  } catch (e) {
-    console.warn("[flyer] face detection unavailable", e);
-    return [];
-  }
-}
-
-/** A head-and-shoulders square around a face box, kept inside the image. */
-export function suggestSquare(face: Box, imgW: number, imgH: number): Square {
-  const size = Math.min(imgW, imgH, Math.round(Math.max(face.w, face.h) * 1.9));
-  const cx = face.x + face.w / 2;
-  const cy = face.y + face.h * 0.55;
-  return clampSquare({ x: Math.round(cx - size / 2), y: Math.round(cy - size / 2), size }, imgW, imgH);
-}
 
 export function clampSquare(s: Square, imgW: number, imgH: number): Square {
   const size = Math.max(32, Math.min(s.size, imgW, imgH));

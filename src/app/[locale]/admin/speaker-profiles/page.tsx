@@ -8,6 +8,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
+import { SpeakerFromFlyer } from "@/components/admin/flyer/speaker-from-flyer";
 import { dangerBtn, inputClass, labelClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { deleteSpeaker, saveSpeaker } from "./actions";
 
@@ -52,6 +53,7 @@ async function SpeakerFields({ speaker }: { speaker?: Speaker }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {speaker && <input type="hidden" name="id" value={speaker.id} />}
+      <SpeakerFromFlyer />
       {pair("name", true)}
       {pair("company")}
       {pair("role")}

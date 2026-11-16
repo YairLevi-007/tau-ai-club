@@ -5,6 +5,7 @@ import { decodePrefill, encodePrefill, wallTimes, type EventPrefill } from "../.
 import { findSpeakersInText, matchSpeaker, matchVenue, normalizeName, slugify } from "../../src/lib/flyer/match";
 import { fetchLumaPage, lumaToDraft, normalizeLumaUrl, parseLumaHtml } from "../../src/lib/flyer/luma";
 import { findDates, findTimes, parseFlyerText, type OcrLine } from "../../src/lib/flyer/flyer-text";
+import { captionChips, fixMixedRuns, guessPerson, type CaptionLine } from "../../src/lib/flyer/people";
 
 // Event import on /admin/events/new: from a Luma link (server) or a flyer image (OCR in the browser).
 // No AI, no paid API.
@@ -279,6 +280,42 @@ test.describe("prefill and matching", () => {
   });
 });
 
+test.describe("people on a flyer: the caption next to each face", () => {
+  const line = (text: string, y: number, height = 30, region: CaptionLine["region"] = "below", confidence = 85): CaptionLine => ({ text, y, height, region, confidence });
+
+  test("mixed Hebrew/English lines get their runs back in reading order", () => {
+    expect(fixMixedRuns("AI, Example Labs חוקרת")).toBe("חוקרת AI, Example Labs");
+    expect(fixMixedRuns("AI סוכני")).toBe("סוכני AI");
+    expect(fixMixedRuns("CTO @ Sample AI")).toBe("CTO @ Sample AI");
+    expect(fixMixedRuns("תמר לוי")).toBe("תמר לוי");
+  });
+
+  test("chips: each line and its parts, junk and far-away text left out", () => {
+    const chips = captionChips([
+      line("~~ |", 0, 12, "below", 30),
+      line("Daniel Mor", 20, 34),
+      line("CTO @ Sample AI", 62, 22),
+      line("lu.ma/agents-night", 400, 22), // far below the caption: another part of the flyer
+      line("CTO", 10, 20, "left"),
+    ]);
+    expect(chips).toEqual(["Daniel Mor", "CTO @ Sample AI", "CTO", "Sample AI"]);
+  });
+
+  test("a name that is already a speaker links to them; the next line gives role and company", () => {
+    const g = guessPerson([line("AI, Example Labs חוקרת", 60, 22), line("תמרלוי", 20, 34)], [{ id: "t", name_he: "תמר לוי", name_en: "Tamar Levi" }]);
+    expect(g).toMatchObject({ speakerId: "t", name_he: "תמר לוי", name_en: "Tamar Levi", role_he: "חוקרת AI", company_en: "Example Labs" });
+  });
+
+  test("an unknown name prefills a new speaker; the biggest line is the name, not stray marks", () => {
+    const g = guessPerson([line("SE enn", 0, 14), line("נועה ברק", 20, 36), line("מהנדסת מחקר +Example Labs", 64, 22)], SPEAKERS);
+    expect(g).toMatchObject({ speakerId: null, name_he: "נועה ברק", role_he: "מהנדסת מחקר", company_en: "Example Labs" });
+    const en = guessPerson([line("Dana Cohen", 0, 34), line("Head of Research | Acme Labs", 40, 22)], SPEAKERS);
+    expect(en).toMatchObject({ speakerId: null, name_en: "Dana Cohen", role_en: "Head of Research", company_en: "Acme Labs" });
+    // A link or a date is never taken as a name.
+    expect(guessPerson([line("הרשמה: lu.ma/x", 0, 30), line("17.03", 40, 30)], SPEAKERS)).toMatchObject({ name_he: "", name_en: "" });
+  });
+});
+
 test.describe("import as an admin", () => {
   test.skip(!process.env.E2E_ADMIN_STATE, "needs E2E_ADMIN_STATE (admin storageState) and a dev Supabase");
   test.use({ storageState: process.env.E2E_ADMIN_STATE });
@@ -294,7 +331,7 @@ test.describe("import as an admin", () => {
     await expect(review).toContainText("סוכני AI בעולם האמיתי");
     await expect(review).toContainText("18:00–20:00");
     // Leave every speaker out so the test creates no rows.
-    for (const select of await page.getByTestId("flyer-speaker").getByRole("combobox").all()) await select.selectOption("skip");
+    for (const select of await page.getByTestId("flyer-speaker-choice").all()) await select.selectOption("skip");
     await page.getByTestId("flyer-apply").click();
     await expect(page).toHaveURL(/\/en\/admin\/events\/new\?prefill=/);
     await expect(page.getByTestId("flyer-prefilled")).toBeVisible();
@@ -314,9 +351,40 @@ test.describe("import as an admin", () => {
     const review = page.getByTestId("flyer-review");
     await expect(review).toBeVisible({ timeout: 90_000 });
     await expect(review).toContainText("lu.ma/tau-ai-agents");
-    for (const select of await page.getByTestId("flyer-speaker").getByRole("combobox").all()) await select.selectOption("skip");
+    for (const select of await page.getByTestId("flyer-speaker-choice").all()) await select.selectOption("skip");
     await page.getByTestId("flyer-apply").click();
     await expect(page.locator('input[name="luma_url"]')).toHaveValue("https://lu.ma/tau-ai-agents");
     await expect(page.locator('select[name="status"]')).toHaveValue("draft");
+  });
+
+  test("two-speaker flyer → one card per face, with its photo and the text beside it", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/en/admin/events/new");
+    await page.getByTestId("flyer-file").setInputFiles(path.join(__dirname, "fixtures", "flyer-two-speakers.png"));
+    await page.getByTestId("flyer-read").click();
+    await expect(page.getByTestId("flyer-review")).toBeVisible({ timeout: 90_000 });
+    const cards = page.getByTestId("flyer-speaker");
+    expect(await cards.count()).toBeGreaterThanOrEqual(2);
+    await expect(cards.getByTestId("person-face")).toHaveCount(2);
+    await expect(page.getByTestId("person-chips").first()).toBeVisible();
+    // A chip tapped as a name goes to the right language field of a new speaker.
+    const card = cards.filter({ hasText: "Example Labs" }).first();
+    await card.getByTestId("flyer-speaker-choice").selectOption("new");
+    await card.getByTestId("person-chip").filter({ hasText: "Example Labs" }).first().locator("..").getByTestId("chip-company").click();
+    await expect(card.getByTestId("flyer-company-en")).toHaveValue(/Example Labs/);
+  });
+
+  test("speaker editor: From a flyer fills name, role, company and photo; nothing saved", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto("/en/admin/speaker-profiles");
+    const panel = page.getByTestId("speaker-flyer").first();
+    await panel.locator("summary").click();
+    await panel.getByTestId("speaker-flyer-file").setInputFiles(path.join(__dirname, "fixtures", "flyer-he-speaker.png"));
+    await panel.getByTestId("speaker-flyer-read").click();
+    await expect(panel.getByTestId("speaker-flyer-person")).toHaveCount(1, { timeout: 90_000 });
+    await panel.getByTestId("speaker-flyer-use").click();
+    const form = page.locator("form").filter({ has: panel });
+    await expect(form.locator('input[name="photo_url"]')).toHaveValue(/^https:\/\/.+\.supabase\.co\/storage\/v1\/object\/public\/speaker-photos\/profiles\//);
+    await expect(form.locator('input[name="name_he"]')).not.toHaveValue("");
   });
 });

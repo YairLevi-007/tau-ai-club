@@ -77,14 +77,14 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           .maybeSingle(),
     supabase.from("cohorts").select("id, name_he, name_en, starts_on").order("starts_on", { ascending: false }),
     supabase.from("venues").select("id, name_he, name_en").order("name_en"),
-    supabase.from("speakers").select("id, name_he, name_en").order("name_en"),
+    supabase.from("speakers").select("id, name_he, name_en, photo_url").order("name_en"),
     isNew ? Promise.resolve({ data: [] }) : supabase.rpc("admin_speaker_contact_status"),
   ]);
   const ev = eventRes.data as EventRow | null;
   if (!isNew && !ev) notFound();
   const cohorts = (cohortsRes.data ?? []) as Named[];
   const venues = (venuesRes.data ?? []) as Named[];
-  const speakers = (speakersRes.data ?? []) as Named[];
+  const speakers = (speakersRes.data ?? []) as (Named & { photo_url: string | null })[];
   // A draft carried over from the Luma/flyer import (new events only). Never sets the status.
   const pf = isNew ? decodePrefill(prefillParam) : null;
   if (pf) {

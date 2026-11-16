@@ -311,7 +311,19 @@
     "lumaErrorUrl": "זה לא קישור לאירוע ב-Luma ‏(lu.ma/… או luma.com/…).",
     "lumaErrorNotFound": "לפי Luma האירוע לא קיים. בדקו את הקישור.",
     "lumaErrorNoData": "בעמוד ה-Luma לא היו פרטי אירוע שאפשר לקרוא. מלאו את הטופס ידנית.",
-    "lumaErrorFailed": "‏Luma לא ענה (או חסם את הבקשה). נסו שוב מאוחר יותר, או מלאו את הטופס ידנית."
+    "lumaErrorFailed": "‏Luma לא ענה (או חסם את הבקשה). נסו שוב מאוחר יותר, או מלאו את הטופס ידנית.",
+    "flyerUseName": "להשתמש כשם",
+    "flyerUseRole": "להשתמש כתפקיד",
+    "flyerUseCompany": "להשתמש כחברה",
+    "flyerCaption": "הטקסט שמודפס ליד התמונה",
+    "flyerNoCaption": "לא נמצא טקסט ליד התמונה.",
+    "flyerAdjustCrop": "כיוון החיתוך",
+    "speakerFromFlyer": "מתוך פלייר",
+    "speakerFromFlyerHint": "קוראים את הפלייר בדפדפן ובוחרים את האדם. השם, התפקיד, החברה והתמונה ימולאו בטופס הזה; בודקים ושומרים. שום דבר לא נשמר לפני כן.",
+    "speakerFlyerUse": "להשתמש באדם הזה",
+    "speakerFlyerUsing": "שומרים את התמונה…",
+    "speakerFlyerFilled": "מולא מהפלייר. בודקים כל שדה ושומרים.",
+    "speakerFlyerNoFaces": "לא נמצאו פנים בפלייר הזה."
   },
   "speakerForm": {
     "eyebrow": "פרטי קשר",

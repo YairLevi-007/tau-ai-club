@@ -1,0 +1,37 @@
+{
+  "flyer-he": [],
+  "flyer-he-speaker": [
+    {
+      "name": "תמר לוי",
+      "role": "חוקרת AI",
+      "company": "Example Labs",
+      "frame": {
+        "x": 337,
+        "y": 305,
+        "size": 406
+      }
+    }
+  ],
+  "flyer-two-speakers": [
+    {
+      "name": "נועה ברק",
+      "role": "מהנדסת מחקר",
+      "company": "Example Labs",
+      "frame": {
+        "x": 572,
+        "y": 388,
+        "size": 346
+      }
+    },
+    {
+      "name": "Daniel Mor",
+      "role": "CTO",
+      "company": "Sample AI",
+      "frame": {
+        "x": 116,
+        "y": 388,
+        "size": 346
+      }
+    }
+  ]
+}

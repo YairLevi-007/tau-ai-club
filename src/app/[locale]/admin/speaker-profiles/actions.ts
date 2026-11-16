@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { adminClient } from "@/lib/auth/viewer";
@@ -61,4 +62,24 @@ export async function deleteSpeaker(_: ActionState, fd: FormData): Promise<Actio
   if (error || !count) return { ok: false, message: t(contentErrorKey(error?.code)) };
   revalidateSpeakers();
   return { ok: true, message: t("deleted") };
+}
+
+export type UploadPhotoResult = { ok: true; url: string } | { ok: false };
+
+/**
+ * A face cropped from a flyer in the admin's browser ("From flyer" in the speaker form). Stores
+ * the JPEG in the public speaker-photos bucket and returns its URL for the form's photo field;
+ * nothing changes on the speaker until the admin saves the form. JPEG only, up to 2 MB.
+ */
+export async function uploadSpeakerPhoto(fd: FormData): Promise<UploadPhotoResult> {
+  const supabase = await adminClient();
+  const file = fd.get("photo");
+  if (!(file instanceof File) || file.size === 0 || file.size > 2 * 1024 * 1024 || file.type !== "image/jpeg") return { ok: false };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!(bytes[0] === 0xff && bytes[1] === 0xd8)) return { ok: false };
+  const photos = supabase.storage.from("speaker-photos");
+  const path = `profiles/${randomUUID()}.jpg`;
+  const up = await photos.upload(path, bytes, { contentType: "image/jpeg", upsert: false, cacheControl: "31536000" });
+  if (up.error) return { ok: false };
+  return { ok: true, url: photos.getPublicUrl(path).data.publicUrl };
 }
