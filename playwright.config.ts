@@ -2,7 +2,8 @@ import { defineConfig } from "@playwright/test";
 
 /** Base "now" for the production-build server: Thu 12 Nov 2026 10:00 Asia/Jerusalem (opening is past, Zero to Hero 1 is next). */
 export const BASE_NOW = "2026-11-12T10:00:00+02:00";
-const NEXT = "node node_modules/next/dist/bin/next";
+/** NEXT_BIN is set by tests/run-isolated.mjs (snapshot runs have no node_modules of their own). */
+const NEXT = `node ${process.env.NEXT_BIN ?? "node_modules/next/dist/bin/next"}`;
 /** PW_PORT lets a second checkout (e.g. the M2 worktree) run the suite without sharing a server. */
 const PORT = Number(process.env.PW_PORT) || 3100;
 

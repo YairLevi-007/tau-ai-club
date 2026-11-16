@@ -65,7 +65,7 @@ async function waitUntilIdle(label: string, ports: number[] = []) {
 export async function startDev(now: string, port: number) {
   await waitUntilIdle("before starting", [port]);
   let exited: number | null = null;
-  const child: ChildProcess = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "-p", String(port)], {
+  const child: ChildProcess = spawn(process.execPath, [process.env.NEXT_BIN ?? "node_modules/next/dist/bin/next", "dev", "-p", String(port)], {
     env: { ...process.env, USE_FIXTURES: "1", DEBUG_NOW: now, NEXT_TELEMETRY_DISABLED: "1" },
     stdio: "ignore",
   });

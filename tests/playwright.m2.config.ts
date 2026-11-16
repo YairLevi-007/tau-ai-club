@@ -17,7 +17,7 @@ export default defineConfig({
   reporter: [["list"]],
   use: { baseURL: `http://localhost:${PORT}`, timezoneId: "Asia/Jerusalem" },
   webServer: {
-    command: `node node_modules/next/dist/bin/next dev -p ${PORT}`,
+    command: `node ${process.env.NEXT_BIN ?? "node_modules/next/dist/bin/next"} dev -p ${PORT}`,
     cwd: "..",
     url: `http://localhost:${PORT}/en`,
     timeout: 180_000,

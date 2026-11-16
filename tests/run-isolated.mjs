@@ -48,6 +48,6 @@ const args =
     ? [cli, "test", "--reporter=line", ...extra]
     : [cli, "test", "-c", "tests/playwright.m2.config.ts", "--reporter=line", ...extra];
 // The M2 config lives in tests/ and uses cwd ".." relative to itself, so run from the snapshot root.
-const env = { ...process.env, PW_PORT: process.env.PW_PORT ?? "3150" };
+const env = { ...process.env, PW_PORT: process.env.PW_PORT ?? "3150", NEXT_BIN: join(root, "node_modules", "next", "dist", "bin", "next") };
 const r = spawnSync(process.execPath, args, { cwd: snap, stdio: "inherit", env });
 process.exit(r.status ?? 1);
