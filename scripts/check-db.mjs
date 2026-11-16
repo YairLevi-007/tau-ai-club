@@ -13,6 +13,7 @@ import { citext } from "@electric-sql/pglite/contrib/citext";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { runM2Checks } from "./rls-m2.mjs";
+import { runProfileChecks } from "./rls-m2-profiles.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
@@ -52,6 +53,28 @@ await db.exec(`
   -- default; mimic that so our migrations' revokes are actually tested.
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
   alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+
+  -- Supabase Storage, only the columns our policies touch. RLS is on, as in Supabase.
+  create schema storage;
+  create table storage.buckets (
+    id text primary key,
+    name text not null unique,
+    public boolean default false,
+    file_size_limit bigint,
+    allowed_mime_types text[]
+  );
+  create table storage.objects (
+    id uuid primary key default gen_random_uuid(),
+    bucket_id text references storage.buckets (id),
+    name text not null,
+    owner_id text,
+    created_at timestamptz default now(),
+    unique (bucket_id, name)
+  );
+  alter table storage.objects enable row level security;
+  alter table storage.buckets enable row level security;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant all on storage.objects, storage.buckets to anon, authenticated, service_role;
 `);
 
 // --- Migrations + seed --------------------------------------------------------
@@ -153,6 +176,7 @@ if (writeFixtures) {
 // --- Milestone 2: roles, allowlist, speaker contact data ------------------------
 // Runs after the fixture export: it writes test rows (members, contacts, an admin edit).
 await runM2Checks(db, check);
+await runProfileChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);
