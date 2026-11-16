@@ -5,7 +5,8 @@ Status: **proposal**. Written 2026-11-12. Deadline: Milestone 1 live by end of *
 Decided so far:
 - **Hosting:** Vercel Hobby. Production URL **`https://tauaiclub.com`** (bought by the club 2026-11-15); `www` redirects to the apex, and `tau-ai-club.vercel.app` stays as a fallback. Setup: `HANDOVER.md` §3 B2. `docs/hosting-options.md` keeps the Cloudflare option for later.
 - **Events:** 18:00–20:00 Asia/Jerusalem. Past events are shown as past. Unknown venues show as TBD.
-- **Lecture summaries (2026-11-13):** no Claude API on the site. A club member writes each summary, and an admin pastes it (Markdown, he/en) or attaches the PDF, then publishes. The site never calls Claude, so there's no API key and no AI cost.
+- **Lecture summaries (2026-11-13):** no AI. A club member writes each summary, and an admin pastes it (Markdown, he/en) or attaches the PDF, then publishes.
+- **Flyer reading (2026-11-16):** the only AI use on the site. In `/admin/events`, an admin uploads an event flyer; the server sends it once to the Claude API (`claude-opus-5-5`, key in `ANTHROPIC_API_KEY`, server only) and the extracted fields fill the event form as a **draft** that the admin reviews and saves. Nothing is published automatically, members and guests never trigger it, and speaker face crops are done in the admin's browser at no cost. Without a key the page says it isn't set up and manual entry works; `FLYER_MOCK=1` returns a fixed sample for testing.
 - **Copy:** casual, Hebrew first.
 - **Brand:** tokens v0.1 in `brand/brand-tokens.md`, pending approval in the designer chat.
 

@@ -15,6 +15,10 @@ import { ActionForm } from "@/components/admin/action-form";
 import { SpeakerContactsPanel, type SpeakerContactStatus } from "@/components/admin/speaker-contacts-panel";
 import { dangerBtn, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { deleteEvent, saveEvent } from "../actions";
+import { FlyerImport } from "@/components/admin/flyer/flyer-import";
+import { flyerMode } from "@/lib/flyer/extract";
+import { decodePrefill } from "@/lib/flyer/prefill";
+import { ScanText } from "lucide-react";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/events/[id]">): Promise<Metadata> {
   const { locale, id } = await params;
@@ -55,7 +59,9 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   setRequestLocale(locale);
   await requireAdmin(`/admin/events/${id}`);
   const t = await getTranslations("admin");
-  const created = (await searchParams).created === "1";
+  const sp = await searchParams;
+  const created = sp.created === "1";
+  const prefillParam = typeof sp.prefill === "string" ? sp.prefill : null;
 
   const supabase = await createClient();
   if (!supabase) notFound();
@@ -80,7 +86,14 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   const cohorts = (cohortsRes.data ?? []) as Named[];
   const venues = (venuesRes.data ?? []) as Named[];
   const speakers = (speakersRes.data ?? []) as Named[];
-  const lineup = [...(ev?.event_speakers ?? [])].sort((a, b) => a.sort - b.sort).map((s) => s.speaker_id);
+  // A draft carried over from the flyer import (new events only). Never sets the status.
+  const pf = isNew ? decodePrefill(prefillParam) : null;
+  if (pf) {
+    // Drop ids that don't exist (or were deleted since), so the form never points at nothing.
+    pf.speaker_ids = pf.speaker_ids.filter((sid) => speakers.some((s) => s.id === sid));
+    if (pf.venue_id && !venues.some((v) => v.id === pf.venue_id)) pf.venue_id = "";
+  }
+  const lineup = ev ? [...ev.event_speakers].sort((a, b) => a.sort - b.sort).map((s) => s.speaker_id) : (pf?.speaker_ids ?? []);
   const slots = Math.max(4, lineup.length + 1);
   const contactById = new Map(((contactsRes.data ?? []) as SpeakerContactStatus[]).map((r) => [r.speaker_id, r]));
   const lineupContacts = lineup.map((sid) => contactById.get(sid)).filter((r): r is SpeakerContactStatus => !!r);
@@ -106,18 +119,32 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
         }
       />
 
-      <ActionForm action={saveEvent} className="grid gap-6" key={ev?.id ?? "new"}>
+      {isNew && (
+        <FlyerImport mode={flyerMode()} speakers={speakers} venues={venues} />
+      )}
+
+      {pf && (
+        <div role="status" className="grid gap-1 rounded-lg border border-border-accent bg-surface p-4 text-sm" data-testid="flyer-prefilled">
+          <p className="flex items-center gap-2 font-semibold text-fg">
+            <ScanText aria-hidden className="size-4 text-brand-purple-soft" />
+            {t("flyerPrefilled")}
+          </p>
+          {pf.notes && <p className="text-fg-muted">{pf.notes}</p>}
+        </div>
+      )}
+
+      <ActionForm action={saveEvent} className="grid gap-6" key={ev?.id ?? (prefillParam ? `prefill-${prefillParam.slice(-24)}` : "new")}>
         {ev && <input type="hidden" name="id" value={ev.id} />}
 
         <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionBasics")}</legend>
           <label className={labelClass}>
             {t("titleHe")}
-            <input name="title_he" required dir="rtl" lang="he" defaultValue={ev?.title_he ?? ""} className={inputClass} />
+            <input name="title_he" required dir="rtl" lang="he" defaultValue={ev?.title_he ?? pf?.title_he ?? ""} className={inputClass} />
           </label>
           <label className={labelClass}>
             {t("titleEn")}
-            <input name="title_en" required dir="ltr" lang="en" defaultValue={ev?.title_en ?? ""} className={ltr} />
+            <input name="title_en" required dir="ltr" lang="en" defaultValue={ev?.title_en ?? pf?.title_en ?? ""} className={ltr} />
           </label>
           <label className={labelClass}>
             {t("slug")}
@@ -126,7 +153,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
               required
               dir="ltr"
               pattern="[a-z0-9-]+"
-              defaultValue={ev?.slug ?? ""}
+              defaultValue={ev?.slug ?? pf?.slug ?? ""}
               aria-describedby="slug-hint"
               className={ltr}
             />
@@ -146,7 +173,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </label>
           <label className={labelClass}>
             {t("kind")}
-            <select name="kind" defaultValue={ev?.kind ?? "lecture"} className={inputClass}>
+            <select name="kind" defaultValue={ev?.kind ?? pf?.kind ?? "lecture"} className={inputClass}>
               {EVENT_KINDS.map((k) => (
                 <option key={k} value={k}>
                   {t(`kind_${k}`)}
@@ -157,20 +184,20 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           <div className="grid grid-cols-[2fr_1fr] gap-3">
             <label className={labelClass}>
               {t("series")}
-              <input name="series" dir="ltr" pattern="[a-z0-9-]*" defaultValue={ev?.series ?? ""} className={ltr} />
+              <input name="series" dir="ltr" pattern="[a-z0-9-]*" defaultValue={ev?.series ?? pf?.series ?? ""} className={ltr} />
             </label>
             <label className={labelClass}>
               {t("seriesNo")}
-              <input name="series_no" type="number" min={1} max={99} defaultValue={ev?.series_no ?? ""} className={ltr} />
+              <input name="series_no" type="number" min={1} max={99} defaultValue={ev?.series_no ?? pf?.series_no ?? ""} className={ltr} />
             </label>
           </div>
           <label className={`${labelClass} sm:col-span-2`}>
             {t("blurbHe")}
-            <textarea name="blurb_he" dir="rtl" lang="he" defaultValue={ev?.blurb_he ?? ""} className={textareaClass} />
+            <textarea name="blurb_he" dir="rtl" lang="he" defaultValue={ev?.blurb_he ?? pf?.blurb_he ?? ""} className={textareaClass} />
           </label>
           <label className={`${labelClass} sm:col-span-2`}>
             {t("blurbEn")}
-            <textarea name="blurb_en" dir="ltr" lang="en" defaultValue={ev?.blurb_en ?? ""} className={textareaClass} />
+            <textarea name="blurb_en" dir="ltr" lang="en" defaultValue={ev?.blurb_en ?? pf?.blurb_en ?? ""} className={textareaClass} />
           </label>
         </fieldset>
 
@@ -183,7 +210,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
               type="datetime-local"
               required
               dir="ltr"
-              defaultValue={ev ? utcToWallTime(ev.starts_at) : ""}
+              defaultValue={ev ? utcToWallTime(ev.starts_at) : (pf?.starts_at ?? "")}
               className={ltr}
             />
           </label>
@@ -194,7 +221,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
               type="datetime-local"
               required
               dir="ltr"
-              defaultValue={ev ? utcToWallTime(ev.ends_at) : ""}
+              defaultValue={ev ? utcToWallTime(ev.ends_at) : (pf?.ends_at ?? "")}
               className={ltr}
             />
           </label>
@@ -209,7 +236,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionWhere")}</legend>
           <label className={`${labelClass} sm:col-span-2`}>
             {t("venue")}
-            <select name="venue_id" defaultValue={ev?.venue_id ?? ""} className={inputClass}>
+            <select name="venue_id" defaultValue={ev?.venue_id ?? pf?.venue_id ?? ""} className={inputClass}>
               <option value="">{t("venueTbd")}</option>
               {venues.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -220,11 +247,11 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </label>
           <label className={labelClass}>
             {t("venueNoteHe")}
-            <input name="venue_note_he" dir="rtl" lang="he" defaultValue={ev?.venue_note_he ?? ""} className={inputClass} />
+            <input name="venue_note_he" dir="rtl" lang="he" defaultValue={ev?.venue_note_he ?? pf?.venue_note_he ?? ""} className={inputClass} />
           </label>
           <label className={labelClass}>
             {t("venueNoteEn")}
-            <input name="venue_note_en" dir="ltr" lang="en" defaultValue={ev?.venue_note_en ?? ""} className={ltr} />
+            <input name="venue_note_en" dir="ltr" lang="en" defaultValue={ev?.venue_note_en ?? pf?.venue_note_en ?? ""} className={ltr} />
           </label>
           <Link href="/admin/venues" className="w-fit text-sm text-brand-purple-soft underline underline-offset-4">
             {t("manageVenues")}
@@ -264,7 +291,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
               dir="ltr"
               placeholder="https://luma.com/…"
               pattern="https://.+"
-              defaultValue={ev?.luma_url ?? ""}
+              defaultValue={ev?.luma_url ?? pf?.luma_url ?? ""}
               className={ltr}
             />
           </label>
