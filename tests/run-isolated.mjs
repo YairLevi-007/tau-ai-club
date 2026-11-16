@@ -10,11 +10,12 @@
 //   node tests/run-isolated.mjs m2 -g "garbage"    # extra args go to playwright
 //   PW_M2_FAKE_SUPABASE=1 node tests/run-isolated.mjs m2 -g "garbage|forged"
 //
-// The snapshot lives in <tmp>/tau-qa-snapshot-<suite>-<sha> and is rebuilt every time. node_modules is a junction/symlink
-// to this checkout's node_modules (not copied).
+// The snapshot lives in <checkout>/.qa-snapshot/<suite>-<sha> and is rebuilt every time. It has no lockfile on purpose:
+// Turbopack then treats this checkout as the workspace root and finds node_modules one level up (a junction to a
+// node_modules outside the root does not work, and a snapshot under node_modules crashes Turbopack). Dot-directories
+// are skipped by tsc, and the folder is added to the git exclude file so `git status` stays clean.
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const [suite, ...extra] = process.argv.slice(2);
@@ -27,16 +28,21 @@ const sha = execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: root, e
 const dirty = execFileSync("git", ["status", "--porcelain", "--", "tests", "playwright.config.ts"], { cwd: root, encoding: "utf8" }).trim();
 if (dirty) console.warn(`WARNING: uncommitted QA files are NOT in the snapshot:\n${dirty}\n`);
 
-const snap = join(tmpdir(), `tau-qa-snapshot-${suite}-${sha}`);
+const snap = join(root, ".qa-snapshot", `${suite}-${sha}`);
+const exclude = resolve(root, execFileSync("git", ["rev-parse", "--git-path", "info/exclude"], { cwd: root, encoding: "utf8" }).trim());
+if (!existsSync(exclude) || !readFileSync(exclude, "utf8").includes(".qa-snapshot")) {
+  mkdirSync(join(exclude, ".."), { recursive: true });
+  appendFileSync(exclude, "\n.qa-snapshot/\n");
+}
 rmSync(snap, { recursive: true, force: true });
 mkdirSync(snap, { recursive: true });
 execFileSync("git", ["archive", "--format=tar", "-o", join(snap, "src.tar"), "HEAD"], { cwd: root });
 execFileSync("tar", ["-xf", "src.tar"], { cwd: snap });
 rmSync(join(snap, "src.tar"));
-symlinkSync(join(root, "node_modules"), join(snap, "node_modules"), "junction");
+for (const f of ["pnpm-lock.yaml", "pnpm-workspace.yaml"]) rmSync(join(snap, f), { force: true });
 console.log(`snapshot of ${sha} at ${snap}`);
 
-const cli = join(snap, "node_modules", "@playwright", "test", "cli.js");
+const cli = join(root, "node_modules", "@playwright", "test", "cli.js");
 const args =
   suite === "m1"
     ? [cli, "test", "--reporter=line", ...extra]
