@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { KeyRound, UserRoundCheck } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getViewer } from "@/lib/auth/viewer";
 import { safeNext } from "@/lib/auth/next-path";
-import { AuthPanel, SignInButton, SignOutButton } from "@/components/auth/auth-buttons";
+import { AuthAlert, AuthPanel, SignedInAs, SignInButton, SignOutButton } from "@/components/auth/auth-buttons";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/login">): Promise<Metadata> {
   const { locale } = await params;
@@ -24,16 +25,15 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
   const [t, nav, viewer] = await Promise.all([getTranslations("auth"), getTranslations("nav"), getViewer()]);
   // Signed in but not on the list: the members-only page explains what to do.
   if (viewer.kind === "outsider") redirect({ href: "/members-only", locale });
+  const member = viewer.kind === "member";
 
   return (
-    <AuthPanel testId="login" title={t("loginTitle")}>
-      {viewer.kind === "member" ? (
+    <AuthPanel testId="login" title={t("loginTitle")} icon={member ? <UserRoundCheck aria-hidden /> : <KeyRound aria-hidden />}>
+      {member ? (
         <>
-          <p>
-            {t("signedInAs")} <bdi dir="ltr">{viewer.email}</bdi>
-          </p>
+          {viewer.email && <SignedInAs label={t("signedInAs")} email={viewer.email} />}
           <div className="flex flex-wrap gap-3">
-            <Link href={next} className="btn btn-primary">
+            <Link href={next} className="btn btn-primary w-full sm:w-fit">
               {t("continue")}
             </Link>
             {viewer.member.role === "admin" && (
@@ -47,12 +47,8 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
       ) : (
         <>
           <p>{t("loginBody")}</p>
-          {errorKey && (
-            <p role="alert" className="text-destructive">
-              {t(errorKey)}
-            </p>
-          )}
-          <SignInButton next={next} />
+          {errorKey && <AuthAlert>{t(errorKey)}</AuthAlert>}
+          <SignInButton next={next} className="w-full sm:w-fit" />
         </>
       )}
     </AuthPanel>

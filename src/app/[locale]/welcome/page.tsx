@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowLeft, ArrowRight, PartyPopper } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
@@ -16,13 +17,22 @@ export default async function WelcomePage({ params, searchParams }: PageProps<"/
   const next = safeNext(typeof sp.next === "string" ? sp.next : null);
   const viewer = await requireMember("/welcome");
   const t = await getTranslations("auth");
+  const Forward = locale === "he" ? ArrowLeft : ArrowRight;
 
   return (
-    <AuthPanel testId="welcome" title={t("welcomeTitle", { name: viewer.member.firstName })}>
+    <AuthPanel testId="welcome" title={t("welcomeTitle", { name: viewer.member.firstName })} icon={<PartyPopper aria-hidden />}>
       <p>{t("welcomeBody")}</p>
-      <Link href={next} className="btn btn-primary w-fit">
-        {t("continue")}
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link href={next} className="btn btn-primary w-full sm:w-fit">
+          {t("continue")}
+          <Forward aria-hidden />
+        </Link>
+        {next !== "/profile" && (
+          <Link href="/profile" className="btn btn-ghost w-full sm:w-fit">
+            {t("welcomeProfile")}
+          </Link>
+        )}
+      </div>
     </AuthPanel>
   );
 }

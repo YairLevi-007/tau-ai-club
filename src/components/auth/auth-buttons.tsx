@@ -7,15 +7,17 @@ export async function SignInButton({
   next = "/",
   label,
   variant = "primary",
+  className,
 }: {
   next?: string;
   label?: string;
   variant?: "primary" | "ghost";
+  className?: string;
 }) {
   const [t, locale] = await Promise.all([getTranslations("auth"), getLocale()]);
   const href = `/api/auth/signin?${new URLSearchParams({ locale, next })}`;
   return (
-    <a href={href} className={cn("btn w-fit", variant === "primary" ? "btn-primary" : "btn-ghost")}>
+    <a href={href} className={cn("btn w-fit", variant === "primary" ? "btn-primary" : "btn-ghost", className)}>
       <LogIn aria-hidden className="rtl:-scale-x-100" />
       {label ?? t("signInGoogle")}
     </a>
@@ -23,12 +25,12 @@ export async function SignInButton({
 }
 
 /** POSTs to /api/auth/signout, which clears the session cookies. Works without JS. */
-export async function SignOutButton() {
+export async function SignOutButton({ className }: { className?: string }) {
   const [t, locale] = await Promise.all([getTranslations("auth"), getLocale()]);
   return (
     <form action="/api/auth/signout" method="post">
       <input type="hidden" name="locale" value={locale} />
-      <button type="submit" className="btn btn-ghost">
+      <button type="submit" className={cn("btn btn-ghost", className)}>
         <LogOut aria-hidden className="rtl:-scale-x-100" />
         {t("signOut")}
       </button>
@@ -36,23 +38,103 @@ export async function SignOutButton() {
   );
 }
 
-/** Common frame for the small auth pages (login, members-only, welcome). */
+/** The club's pixel blocks (from the logo): a small brand mark on auth cards. */
+export function PixelMark({ className }: { className?: string }) {
+  return (
+    <span aria-hidden className={cn("grid grid-cols-2 gap-0", className)}>
+      <i className="size-3 bg-logo-indigo" />
+      <i className="size-3" />
+      <i className="size-3" />
+      <i className="size-3 bg-brand-purple" />
+    </span>
+  );
+}
+
+/**
+ * Common frame for the small auth pages (login, members-only, welcome, the speaker
+ * form): the home page's logo-grid backdrop and one featured card. Server-rendered
+ * and visible at first paint; only the text eases in, once per session (CSS .intro,
+ * static under reduced motion).
+ */
 export function AuthPanel({
   eyebrow,
   title,
   children,
   testId,
+  icon,
+  after,
+  wide = false,
 }: {
   eyebrow?: React.ReactNode;
   title: React.ReactNode;
   children: React.ReactNode;
   testId?: string;
+  /** A lucide icon element shown in a tile above the title. */
+  icon?: React.ReactNode;
+  /** Content below the card (e.g. a follow-us card). */
+  after?: React.ReactNode;
+  /** Wider card for forms. */
+  wide?: boolean;
 }) {
   return (
-    <section data-testid={testId} className="mx-auto grid max-w-site gap-4 px-4 pt-16 pb-16 sm:px-8 lg:pt-24">
-      {eyebrow}
-      <h1 className="max-w-[24ch] text-h1 font-bold text-balance">{title}</h1>
-      <div className="grid max-w-[65ch] gap-5 text-fg-muted">{children}</div>
-    </section>
+    <div className="relative isolate">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[38rem] overflow-hidden">
+        <div className="hero-grid absolute inset-0" />
+        <div className="hero-glow absolute inset-0" />
+        <i className="absolute end-[10%] top-[9rem] size-3.5 bg-brand-purple" />
+        <i className="absolute hidden lg:block start-[8%] top-[16rem] size-7 bg-logo-indigo" />
+        <i className="absolute hidden lg:block start-[calc(8%+1.75rem)] top-[17.75rem] size-3.5 bg-logo-block" />
+      </div>
+
+      <section
+        data-testid={testId}
+        className={cn("mx-auto grid gap-5 px-4 pt-10 pb-20 sm:px-8 sm:pt-16 lg:pt-20", wide ? "max-w-[46rem]" : "max-w-[36rem]")}
+      >
+        <div className="rounded-lg border border-border-accent bg-bg-raised p-6 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] sm:p-8">
+          <div className="intro flex items-start justify-between gap-4 [--i:0]">
+            {icon ? (
+              <span className="grid size-12 place-items-center rounded-md border border-border-accent bg-brand-purple-deeper text-fg [&_svg]:size-6">
+                {icon}
+              </span>
+            ) : (
+              <span />
+            )}
+            <PixelMark />
+          </div>
+          {eyebrow && <div className="intro mt-6 [--i:1]">{eyebrow}</div>}
+          <h1
+            className={cn(
+              "intro text-[clamp(1.75rem,6vw,2.375rem)] leading-[1.1] font-extrabold text-balance text-fg [--i:1]",
+              eyebrow ? "mt-2" : "mt-6",
+            )}
+          >
+            {title}
+          </h1>
+          <div className="intro mt-4 grid gap-5 text-[1.0625rem] leading-relaxed text-fg-muted [--i:2]">{children}</div>
+        </div>
+        {after}
+      </section>
+    </div>
+  );
+}
+
+/** "Signed in as …" row, with the email isolated so it doesn't reorder in RTL. */
+export function SignedInAs({ label, email }: { label: string; email: string }) {
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-border bg-bg-deep/45 px-3.5 py-3 text-[0.9375rem]">
+      <span className="text-fg-subtle">{label}</span>
+      <bdi dir="ltr" className="font-mono text-sm text-fg">
+        {email}
+      </bdi>
+    </p>
+  );
+}
+
+/** Error line for auth pages: written out in a tinted box, never colour alone. */
+export function AuthAlert({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 px-3.5 py-3 text-[0.9375rem] text-fg">
+      {children}
+    </p>
   );
 }

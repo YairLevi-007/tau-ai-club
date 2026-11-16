@@ -99,11 +99,15 @@
     "errorFailed": "Something went wrong signing you in. Try again in a moment.",
     "errorUnavailable": "Sign-in isn't switched on for this site yet.",
     "membersOnlyTitle": "Members only",
-    "membersOnlyBody": "This part of the site is only for members of the cohort. If you signed in with a different email from the one you registered with, sign out and use the right account.",
+    "membersOnlyBody": "This part of the site is for members of the cohort. If you registered with a different email, sign out and sign in with that one, and we'll see you inside.",
     "membersOnlyGuest": "Club members sign in with Google.",
     "membersOnlyFollow": "Not in the cohort? Follow us on Instagram for open events and the next cohort.",
     "welcomeTitle": "Hi {name}, welcome to the AI Club",
-    "welcomeBody": "You're signed in. From here you can see what's open to members of the cohort."
+    "welcomeBody": "You're signed in. From here you can see what's open to members of the cohort.",
+    "membersOnlyFollowTitle": "Not in this cohort?",
+    "membersOnlyFollowBody": "On Instagram we post events that are open to everyone, and when the next cohort opens.",
+    "membersOnlyFollowCta": "Follow on Instagram",
+    "welcomeProfile": "Complete your profile"
   },
   "admin": {
     "eyebrow": "Admin",
@@ -278,7 +282,9 @@
     "errorPhone": "That phone number doesn't look right.",
     "errorLinkedin": "Please use a LinkedIn profile link (https://www.linkedin.com/...).",
     "errorExpired": "This link is no longer valid.",
-    "errorGeneric": "Sending failed. Try again."
+    "errorGeneric": "Sending failed. Try again.",
+    "visibleMembers": "Visible only to signed-in cohort members.",
+    "signoff": "The TAU AI Club team, Tel Aviv University"
   },
   "profile": {
     "title": "My profile",
@@ -316,6 +322,8 @@
     "errorNoFile": "Choose a photo first.",
     "errorPhotoType": "That file isn't a JPEG, PNG or WebP image.",
     "errorPhotoSize": "That photo is over 2 MB.",
-    "errorGeneric": "That didn't work. Try again."
+    "errorGeneric": "That didn't work. Try again.",
+    "eyebrow": "Members area",
+    "about": "About"
   }
 }
