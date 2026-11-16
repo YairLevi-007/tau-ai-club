@@ -186,6 +186,13 @@ Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) deci
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.
 - **Add a Luma link:** fill `events.luma_url` (must start with `https://`). The button appears automatically.
+- **Attendance after each meetup (M2):**
+  1. At the door, check guests in with the Luma app (Luma's free check-in: scan each guest's QR code, or tap their name).
+  2. After the event, on luma.com: the event → **Guests** → **Export CSV** (or the download icon on the guest list).
+  3. On the site: `/admin/events/<the event>` → **Attendance from Luma** → pick the file. Check the preview: members who checked in, members who registered but didn't come, and how many non-member guests. Open "Columns read from the file" if numbers look off. Then **Save attendance**.
+  4. Uploading again replaces that event's attendance, so a corrected export is fine.
+  - The season grid is at `/admin/attendance` (✓/✗ per member per meetup, attendance %, **Export CSV**). Members see their own meetups on `/profile`.
+  - **Privacy:** the export contains every guest's name, email and phone. Don't commit it, attach it to issues or share it: the repo is public. Keep exports in `../tau-ai-club-private/` (outside the repo) or delete them after uploading. `.gitignore` blocks `*luma*.csv` and `*guests*.csv` as a safety net. The site stores only members' attendance, plus a count of non-member guests.
 - **New event from Luma or a flyer (M2):** `/admin/events/new` → "Fill in from Luma or a flyer". The Luma link is the accurate path. A flyer is read in your browser, which is good at dates, times, links, and venues and speakers already on the site, and weak at titles (offered as suggestions). Marked fields came from the import: check them, then save (it saves as a draft). Free: no AI and no API key. The browser loads Tesseract, its language data and MediaPipe from cdn.jsdelivr.net (pinned versions).
 - **Unknown venue:** leave `venue_id` empty (the site shows "מיקום ייקבע" / "Venue TBD"). Optionally set `venue_note_he/en` (e.g. "Off campus").
 - **Tentative event:** `is_tentative = true` adds a "טנטטיבי" / "Tentative" tag.

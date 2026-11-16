@@ -1,0 +1,8 @@
+api_id,name,first_name,last_name,email,phone_number,created_at,approval_status,checked_in_at,custom_source,qr_code_url,ticket_name
+gst-0001,Alice Member,Alice,Member,alice@club.test,,2026-11-01T10:00:00.000Z,approved,2026-11-11T16:05:12.000Z,,https://example.test/qr/1,Free
+gst-0002,"Member, Bob",Bob,Member,BOB@club.test,+972500000000,2026-11-02T10:00:00.000Z,approved,,,https://example.test/qr/2,Free
+gst-0003,Sam Stranger,Sam,Stranger,sam.stranger@example.test,,2026-11-03T10:00:00.000Z,approved,2026-11-11 16:20:00,,https://example.test/qr/3,Free
+gst-0004,Wally Walkin,Wally,Walkin,wally@example.test,,2026-11-04T10:00:00.000Z,approved,,,https://example.test/qr/4,Free
+gst-0005,Dee Declined,Dee,Declined,dee@example.test,,2026-11-05T10:00:00.000Z,declined,,,https://example.test/qr/5,Free
+gst-0006,Wai Tlist,Wai,Tlist,wai@example.test,,2026-11-06T10:00:00.000Z,waitlist,,,https://example.test/qr/6,Free
+gst-0007,"Quote ""Q"" Person",Quote,Person,q@example.test,,2026-11-07T10:00:00.000Z,approved,2026-11-11T16:30:00.000Z,,https://example.test/qr/7,Free

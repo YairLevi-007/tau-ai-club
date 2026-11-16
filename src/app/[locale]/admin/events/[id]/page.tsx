@@ -17,6 +17,7 @@ import { dangerBtn, inputClass, labelClass, panelClass, smallBtn } from "@/compo
 import { deleteEvent, saveEvent } from "../actions";
 import { FlyerImport } from "@/components/admin/flyer/flyer-import";
 import { decodePrefill } from "@/lib/flyer/prefill";
+import { AttendancePanel } from "@/components/admin/attendance/attendance-panel";
 import { ScanText } from "lucide-react";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/events/[id]">): Promise<Metadata> {
@@ -338,6 +339,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
       </ActionForm>
 
       {ev && <SpeakerContactsPanel rows={lineupContacts} locale={locale} />}
+
+      {ev && <AttendancePanel supabase={supabase} eventId={ev.id} />}
 
       {ev && (
         <ActionForm action={deleteEvent} confirmText={t("deleteEventConfirm", { name: loc(ev, "title", locale) ?? ev.slug })} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 p-4 sm:p-5">

@@ -7,6 +7,7 @@ Decided so far:
 - **Events:** 18:00–20:00 Asia/Jerusalem. Past events are shown as past. Unknown venues show as TBD.
 - **No AI and no paid API anywhere on the site (2026-11-16).** No Claude or other model is called, now or later; there is no AI key and no AI cost.
 - **Lecture summaries (2026-11-13):** a club member writes each summary, and an admin pastes it (Markdown, he/en) or attaches the PDF, then publishes.
+- **Attendance from Luma (2026-11-17), free.** No Luma API (it needs a paid Luma Plus plan). At the door the club checks guests in with Luma's free check-in (the Luma app scans their QR codes). After the event an admin exports the guest list from Luma (Guests → Export CSV) and uploads it on the event's admin page. The file is read in the browser; only email, registration status and check-in time go to the server, where members are matched by any of their emails. Only members are stored (`attendance`); guests who aren't members are only counted (`attendance_imports`), never stored. Admins see per-event numbers, a per-member history and a season grid (with a CSV export); each member sees their own attendance on `/profile`.
 - **Event import (2026-11-16), rule-based and free.** On `/admin/events/new` an admin can (1) paste the event's Luma link: the server fetches the public Luma page (only `lu.ma` / `luma.com`, with a timeout, a size cap and no redirects to other hosts) and reads its schema.org Event data (title, start/end, place, cover image); or (2) upload the flyer image: it is read in the admin's browser with Tesseract (Hebrew + English), and dates, times, the Luma link, and venues and speakers already in the database are picked out by pattern. Titles read off a flyer are offered as suggestions, not filled in. Faces are found in the browser (MediaPipe) for speaker photos. Either way the form is only pre-filled, with the imported fields marked; the admin checks it and saves a draft. Nothing is published automatically.
 - **Copy:** casual, Hebrew first.
 - **Brand:** tokens v0.1 in `brand/brand-tokens.md`, pending approval in the designer chat.
@@ -75,9 +76,15 @@ All content lives in the database. The design covers every milestone, and Milest
 | members, member_emails | none | none (own via profile) | full |
 | profiles | none | read all, write own | full |
 | speaker_contacts, speaker_form_tokens | none | via RPC only | full |
+| attendance | none | read own rows | read all; write only via `admin_import_attendance()` |
+| attendance_imports (guest counts) | none | none | read; write via the same RPC |
+
+### Attendance (M2, built: from Luma's CSV export)
+- **attendance**: `event_id, member_id, status (registered | checked_in | no_show), checked_in_at, source ('luma_csv'), imported_at, imported_by`. One row per member per event; re-importing an event replaces its rows.
+- **attendance_imports**: one row per event: `rows_total, guests_registered, guests_checked_in, imported_at, imported_by`. Numbers only: no guest's name or email is ever stored.
+- **admin_import_attendance(event, rows, commit)**: previews (commit = false) or saves, in one transaction. Going but not checked in is a no-show once the event has ended, `registered` before.
 
 ### Backlog (designed, not built)
-- `attendance(event_id, member_id, checked_in_at, method)`
 - `feedback(event_id, member_id, rating, comment, created_at)`
 - `events.og_image_url`
 

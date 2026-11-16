@@ -22,6 +22,7 @@ import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
 import { removePhoto, saveProfile, uploadPhoto } from "./actions";
+import { MyAttendance } from "@/components/members/my-attendance";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/profile">): Promise<Metadata> {
   const { locale } = await params;
@@ -174,6 +175,8 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
           </ActionForm>
         </section>
       </div>
+
+      {supabase && <MyAttendance supabase={supabase} memberId={viewer.member.id} />}
     </div>
   );
 }

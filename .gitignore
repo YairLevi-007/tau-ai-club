@@ -53,3 +53,10 @@ supabase/.branches/
 # Playwright
 /test-results/
 /playwright-report/
+
+# Real Luma exports hold guests' personal data and the repo is public. Keep them in
+# ../tau-ai-club-private/, never here. (Synthetic test data: tests/m2/fixtures/attendance-sample.csv)
+*luma*.csv
+*guests*.csv
+*Luma*.csv
+*Guests*.csv

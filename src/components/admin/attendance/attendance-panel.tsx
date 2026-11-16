@@ -1,0 +1,89 @@
+import { getLocale, getTranslations } from "next-intl/server";
+import { UsersRound } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getEventAttendance } from "@/lib/attendance/data";
+import { formatShortDate } from "@/lib/event-format";
+import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
+import { cn } from "@/lib/utils";
+import { AttendanceImport } from "./attendance-import";
+
+type Client = SupabaseClient;
+
+/** "Attendance from Luma" on an event's admin page: the numbers, who came, and the CSV upload. */
+export async function AttendancePanel({ supabase, eventId }: { supabase: Client; eventId: string }) {
+  const [t, locale] = await Promise.all([getTranslations("attendance"), getLocale() as Promise<Locale>]);
+  const { info, members } = await getEventAttendance(supabase, eventId);
+  const n = (s: string) => members.filter((m) => m.status === s).length;
+  const time = (iso: string) =>
+    new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+
+  return (
+    <section aria-labelledby="attendance-heading" className={cn(panelClass, "grid gap-4 p-4 sm:p-6")} data-testid="attendance-panel">
+      <div className="grid gap-1">
+        <h2 id="attendance-heading" className={cn(panelTitle, "flex items-center gap-2")}>
+          <UsersRound aria-hidden className="size-5 text-brand-purple-soft" />
+          {t("title")}
+        </h2>
+        <p className={hintClass}>{t("body")}</p>
+      </div>
+
+      {info ? (
+        <div className="grid gap-3">
+          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4" data-testid="attendance-counts">
+            {(
+              [
+                ["registered", members.length + info.guests_registered],
+                ["checkedIn", n("checked_in") + info.guests_checked_in],
+                ["noShows", n("no_show")],
+                ["guests", info.guests_registered],
+              ] as const
+            ).map(([k, v]) => (
+              <div key={k} className="rounded-md border border-border p-3">
+                <dt className="text-fg-subtle">{t(`stat_${k}`)}</dt>
+                <dd className="text-xl font-bold text-fg" data-testid={`stat-${k}`}>
+                  <bdi>{v}</bdi>
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className={hintClass}>
+            {t("statsHint", { members: members.length, checkedIn: n("checked_in"), guestsIn: info.guests_checked_in })}{" "}
+            {t("importedOn", { date: formatShortDate(info.imported_at, locale) })}
+          </p>
+          {members.length > 0 ? (
+            <ul className="grid gap-1 text-sm" data-testid="attendance-members">
+              {members.map((m) => (
+                <li key={m.member_id} className="flex flex-wrap items-baseline gap-x-2">
+                  <Link href={`/admin/attendance/${m.member_id}`} className="text-fg underline-offset-4 hover:underline">
+                    {m.full_name}
+                  </Link>
+                  <span className={cn("text-xs", m.status === "checked_in" ? "text-brand-purple-soft" : "text-fg-subtle")}>
+                    {t(`status_${m.status}`)}
+                    {m.checked_in_at && (
+                      <>
+                        {" "}
+                        <bdi dir="ltr">{time(m.checked_in_at)}</bdi>
+                      </>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={hintClass}>{t("noMembers")}</p>
+          )}
+        </div>
+      ) : (
+        <p className="text-sm text-fg-muted" data-testid="attendance-none">
+          {t("none")}
+        </p>
+      )}
+
+      <div className="border-t border-border pt-4">
+        <AttendanceImport eventId={eventId} />
+      </div>
+    </section>
+  );
+}

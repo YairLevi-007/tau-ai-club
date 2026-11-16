@@ -34,6 +34,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
             { href: "/admin/venues", label: t("venuesTab") },
             { href: "/admin/speaker-profiles", label: t("speakerProfilesTab") },
             { href: "/admin/members", label: t("membersTab") },
+            { href: "/admin/attendance", label: t("attendanceTab") },
           ]}
         />
       </div>

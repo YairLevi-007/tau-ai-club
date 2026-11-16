@@ -14,6 +14,7 @@ import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { runM2Checks } from "./rls-m2.mjs";
 import { runProfileChecks } from "./rls-m2-profiles.mjs";
+import { runAttendanceChecks } from "./rls-m2-attendance.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
@@ -177,6 +178,7 @@ if (writeFixtures) {
 // Runs after the fixture export: it writes test rows (members, contacts, an admin edit).
 await runM2Checks(db, check);
 await runProfileChecks(db, check);
+await runAttendanceChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);
