@@ -5,7 +5,17 @@ import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate } from "@/lib/event-format";
 import { ActionForm } from "@/components/admin/action-form";
-import { inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { AdminHeader } from "@/components/admin/admin-header";
+import {
+  dangerBtn,
+  fileInputClass,
+  inputClass,
+  labelClass,
+  panelClass,
+  panelTitle,
+  smallBtn,
+} from "@/components/admin/styles";
+import { cn } from "@/lib/utils";
 import { addEmail, addMember, importCsv, removeEmail, removeMember, setRole } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/members">): Promise<Metadata> {
@@ -39,26 +49,26 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
   const members = (data ?? []) as unknown as MemberRow[];
 
   return (
-    <div className="grid gap-10">
-      <header className="grid gap-2">
-        <h1 className="text-h2 font-bold">{t("membersTitle")}</h1>
-        <p className="max-w-[65ch] text-fg-muted">{t("membersBody")}</p>
-        <p className="text-sm text-fg-subtle">{t("count", { n: members.length })}</p>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {t("errorGeneric")}
-          </p>
-        )}
-      </header>
+    <div className="grid gap-8">
+      <AdminHeader
+        title={t("membersTitle")}
+        body={t("membersBody")}
+        meta={t("count", { n: members.length })}
+        alert={error ? t("errorGeneric") : null}
+      />
 
-      <section aria-labelledby="add-member" className="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
-        <h2 id="add-member" className="text-h3 font-semibold">
+      <section aria-labelledby="add-member" className={cn(panelClass, "grid gap-4 p-4 sm:p-5")}>
+        <h2 id="add-member" className={panelTitle}>
           {t("addMemberTitle")}
         </h2>
-        <ActionForm action={addMember} resetOnSuccess className="flex flex-wrap items-end gap-3">
+        <ActionForm
+          action={addMember}
+          resetOnSuccess
+          className="grid gap-3 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_9rem_auto] sm:items-end"
+        >
           <label className={labelClass}>
             {t("email")}
-            <input name="email" type="email" required autoComplete="off" dir="ltr" className={inputClass} />
+            <input name="email" type="email" required autoComplete="off" dir="ltr" className={cn(inputClass, "text-start")} />
           </label>
           <label className={labelClass}>
             {t("fullName")}
@@ -68,23 +78,26 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
             {t("role")}
             <RoleSelect value="member" t={t} />
           </label>
-          <button type="submit" className="btn btn-primary h-10">
+          <button type="submit" className="btn btn-primary h-10 px-5 text-sm">
             {t("add")}
           </button>
         </ActionForm>
       </section>
 
-      <section aria-labelledby="members-list" className="grid gap-3">
+      <section aria-labelledby="members-list" className={cn(panelClass, "overflow-hidden")}>
         <h2 id="members-list" className="sr-only">
           {t("membersTitle")}
         </h2>
-        <ul className="grid gap-3">
+        <ul className="divide-y divide-border">
           {members.map((m) => {
             const emails = [...m.member_emails].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
             return (
-              <li key={m.id} data-testid="member-row" className="grid gap-4 rounded-lg border border-border p-4 sm:p-5">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <p className="text-lg font-semibold text-fg">{m.full_name}</p>
+              <li key={m.id} data-testid="member-row" className="grid gap-4 p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <p className="text-base font-bold text-fg">{m.full_name}</p>
+                    {m.role === "admin" && <span className="tag tag-next">{t("roleAdmin")}</span>}
+                  </div>
                   <p className="text-sm text-fg-subtle">
                     {m.profiles?.welcomed_at ? (
                       <>
@@ -96,18 +109,24 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                   </p>
                 </div>
 
-                <ul aria-label={t("emails")} className="grid gap-2">
+                <ul aria-label={t("emails")} className="flex flex-wrap gap-2">
                   {emails.map((e) => (
-                    <li key={e.email} className="flex flex-wrap items-center gap-3 text-sm">
-                      <bdi dir="ltr" className="font-mono text-fg">
+                    <li
+                      key={e.email}
+                      className="flex min-w-0 max-w-full items-center gap-2 rounded-md border border-border bg-bg-deep/45 py-1 ps-2.5 pe-1.5 text-sm"
+                    >
+                      <bdi dir="ltr" className="truncate font-mono text-[0.8125rem] text-fg">
                         {e.email}
                       </bdi>
                       {e.is_primary ? (
-                        <span className="tag">{t("primary")}</span>
+                        <span className="pe-1 text-xs text-brand-purple-soft">{t("primary")}</span>
                       ) : (
                         <ActionForm action={removeEmail} className="contents">
                           <input type="hidden" name="email" value={e.email} />
-                          <button type="submit" className="text-sm text-fg-subtle underline underline-offset-4 hover:text-fg">
+                          <button
+                            type="submit"
+                            className="rounded px-1.5 py-0.5 text-xs text-fg-subtle underline underline-offset-4 hover:text-fg"
+                          >
                             {t("removeEmail")}
                           </button>
                         </ActionForm>
@@ -128,11 +147,11 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                     </button>
                   </ActionForm>
 
-                  <ActionForm action={addEmail} resetOnSuccess className="flex flex-wrap items-end gap-2">
+                  <ActionForm action={addEmail} resetOnSuccess className="flex min-w-0 grow flex-wrap items-end gap-2 sm:grow-0">
                     <input type="hidden" name="member_id" value={m.id} />
-                    <label className={labelClass}>
+                    <label className={cn(labelClass, "min-w-0 grow")}>
                       {t("addEmailLabel", { name: m.full_name })}
-                      <input name="email" type="email" required autoComplete="off" dir="ltr" className={inputClass} />
+                      <input name="email" type="email" required autoComplete="off" dir="ltr" className={cn(inputClass, "text-start sm:w-64")} />
                     </label>
                     <button type="submit" className={smallBtn}>
                       {t("add")}
@@ -145,7 +164,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                     className="ms-auto flex flex-wrap items-end gap-2"
                   >
                     <input type="hidden" name="member_id" value={m.id} />
-                    <button type="submit" className="btn h-10 border-border px-3 text-sm text-destructive hover:bg-surface-hover">
+                    <button type="submit" className={dangerBtn}>
                       {t("remove")}
                     </button>
                   </ActionForm>
@@ -156,27 +175,29 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
         </ul>
       </section>
 
-      <section aria-labelledby="import" className="grid gap-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
-        <h2 id="import" className="text-h3 font-semibold">
-          {t("importTitle")}
-        </h2>
-        <p className="max-w-[65ch] text-sm text-fg-muted">{t("importBody")}</p>
-        <ActionForm action={importCsv} resetOnSuccess className="grid gap-3">
+      <section aria-labelledby="import" className={cn(panelClass, "grid gap-4 p-4 sm:p-5")}>
+        <div className="grid gap-1.5">
+          <h2 id="import" className={panelTitle}>
+            {t("importTitle")}
+          </h2>
+          <p className="max-w-[65ch] text-sm text-fg-muted">{t("importBody")}</p>
+        </div>
+        <ActionForm action={importCsv} resetOnSuccess className="grid gap-4 lg:grid-cols-2">
           <label className={labelClass}>
             {t("importFile")}
-            <input name="file" type="file" accept=".csv,text/csv" className="text-sm text-fg-muted file:me-3 file:rounded-md file:border file:border-border file:bg-surface-hover file:px-3 file:py-2 file:text-fg" />
+            <input name="file" type="file" accept=".csv,text/csv" className={fileInputClass} />
           </label>
-          <label className={labelClass}>
+          <label className={cn(labelClass, "lg:row-span-2")}>
             {t("importText")}
             <textarea
               name="text"
               rows={5}
               dir="ltr"
               placeholder={"email,full_name,role\nname@gmail.com,Full Name,member"}
-              className="min-h-28 rounded-md border border-border bg-bg p-3 font-mono text-sm text-fg placeholder:text-fg-faint"
+              className={cn(inputClass, "h-auto min-h-32 py-2.5 font-mono text-sm leading-relaxed")}
             />
           </label>
-          <button type="submit" className="btn btn-primary h-10 w-fit">
+          <button type="submit" className="btn btn-primary h-10 w-full px-5 text-sm sm:w-fit lg:self-end">
             {t("importButton")}
           </button>
         </ActionForm>

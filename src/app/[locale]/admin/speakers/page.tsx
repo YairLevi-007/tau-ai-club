@@ -4,8 +4,10 @@ import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, loc } from "@/lib/event-format";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { cn } from "@/lib/utils";
 import { ActionForm } from "@/components/admin/action-form";
-import { smallBtn } from "@/components/admin/styles";
+import { dangerBtn, panelClass, smallBtn } from "@/components/admin/styles";
 import { SpeakerLinkForm } from "@/components/admin/speaker-link-form";
 import { createSpeakerLink, deleteSpeakerContact, revokeSpeakerLinks } from "./actions";
 
@@ -46,17 +48,9 @@ export default async function AdminSpeakersPage({ params }: PageProps<"/[locale]
 
   return (
     <div className="grid gap-8">
-      <header className="grid gap-2">
-        <h1 className="text-h2 font-bold">{t("speakersTitle")}</h1>
-        <p className="max-w-[65ch] text-fg-muted">{t("speakersBody")}</p>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {t("errorGeneric")}
-          </p>
-        )}
-      </header>
+      <AdminHeader title={t("speakersTitle")} body={t("speakersBody")} alert={error ? t("errorGeneric") : null} />
 
-      <ul className="grid gap-3">
+      <ul className={cn(panelClass, "divide-y divide-border overflow-hidden")}>
         {rows.map((s) => {
           const name = loc(s, "name", locale) ?? s.slug;
           const shared = [
@@ -65,9 +59,9 @@ export default async function AdminSpeakersPage({ params }: PageProps<"/[locale]
             s.has_linkedin && t("fieldLinkedin"),
           ].filter(Boolean) as string[];
           return (
-            <li key={s.speaker_id} data-testid="speaker-row" className="grid gap-4 rounded-lg border border-border p-4 sm:p-5">
+            <li key={s.speaker_id} data-testid="speaker-row" className="grid gap-4 p-4 sm:p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                <p className="text-lg font-semibold text-fg">{name}</p>
+                <p className="text-base font-bold text-fg">{name}</p>
                 <div className="flex flex-wrap gap-2">
                   {!s.has_contact ? (
                     <span className="tag tag-tbd">{t("noContact")}</span>
@@ -114,7 +108,7 @@ export default async function AdminSpeakersPage({ params }: PageProps<"/[locale]
                     className="ms-auto"
                   >
                     <input type="hidden" name="speaker_id" value={s.speaker_id} />
-                    <button type="submit" className="btn h-10 border-border px-3 text-sm text-destructive hover:bg-surface-hover">
+                    <button type="submit" className={dangerBtn}>
                       {t("deleteContact")}
                     </button>
                   </ActionForm>

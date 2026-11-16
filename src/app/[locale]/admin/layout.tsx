@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getViewer } from "@/lib/auth/viewer";
 import { AdminTabs } from "@/components/admin/admin-tabs";
 import { SignOutButton } from "@/components/auth/auth-buttons";
@@ -14,10 +14,19 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 export default async function AdminLayout({ children }: LayoutProps<"/[locale]/admin">) {
   const viewer = await getViewer();
   if (viewer.kind !== "member" || viewer.member.role !== "admin") return children;
-  const t = await getTranslations("admin");
+  const [t, locale] = await Promise.all([getTranslations("admin"), getLocale()]);
   return (
-    <div className="mx-auto grid max-w-site gap-8 px-4 pt-10 pb-16 sm:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+    <div className="mx-auto grid max-w-site gap-8 px-4 pt-8 pb-20 sm:px-8 lg:pt-10">
+      <div className="grid gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className={locale === "he" ? "eyebrow-he text-sm" : "eyebrow-pixel text-[0.6875rem]"}>{t("eyebrow")}</p>
+          <div className="flex min-w-0 items-center gap-3 text-sm text-fg-subtle">
+            <bdi dir="ltr" className="truncate font-mono text-[0.8125rem]">
+              {viewer.email}
+            </bdi>
+            <SignOutButton className="h-9 shrink-0 px-3 text-sm" />
+          </div>
+        </div>
         <AdminTabs
           label={t("navLabel")}
           tabs={[
@@ -28,10 +37,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
             { href: "/admin/members", label: t("membersTab") },
           ]}
         />
-        <div className="flex items-center gap-3 text-sm text-fg-subtle">
-          <bdi dir="ltr">{viewer.email}</bdi>
-          <SignOutButton />
-        </div>
       </div>
       {children}
     </div>

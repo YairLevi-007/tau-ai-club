@@ -4,8 +4,11 @@ import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
-import { inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { dangerBtn, inputClass, labelClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { deleteVenue, saveVenue } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/venues">): Promise<Metadata> {
@@ -70,18 +73,10 @@ export default async function AdminVenuesPage({ params }: PageProps<"/[locale]/a
 
   return (
     <div className="grid gap-8">
-      <header className="grid gap-2">
-        <h1 className="text-h2 font-bold">{t("venuesTitle")}</h1>
-        <p className="max-w-[65ch] text-fg-muted">{t("venuesBody")}</p>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {t("errorGeneric")}
-          </p>
-        )}
-      </header>
+      <AdminHeader title={t("venuesTitle")} body={t("venuesBody")} alert={error ? t("errorGeneric") : null} />
 
-      <section aria-labelledby="add-venue" className="grid gap-4 rounded-lg border border-border bg-surface p-4">
-        <h2 id="add-venue" className="text-h3 font-bold">
+      <section aria-labelledby="add-venue" className={cn(panelClass, "grid gap-4 p-4 sm:p-5")}>
+        <h2 id="add-venue" className={panelTitle}>
           {t("addVenue")}
         </h2>
         <ActionForm action={saveVenue} resetOnSuccess className="grid gap-4">
@@ -92,15 +87,16 @@ export default async function AdminVenuesPage({ params }: PageProps<"/[locale]/a
         </ActionForm>
       </section>
 
-      <ul className="grid gap-3" data-testid="admin-venues">
+      <ul className={cn(panelClass, "divide-y divide-border overflow-hidden")} data-testid="admin-venues">
         {venues.map((v) => (
-          <li key={v.id} className="rounded-lg border border-border p-4">
-            <details>
-              <summary className="cursor-pointer font-bold">
-                {loc(v, "name", locale)}{" "}
-                <span className="text-sm font-normal text-fg-muted">· {t("eventCount", { n: v.events.length })}</span>
+          <li key={v.id}>
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-surface-hover sm:px-5 [&::-webkit-details-marker]:hidden">
+                <ChevronDown aria-hidden className="size-4 shrink-0 text-fg-subtle transition-transform duration-200 group-open:rotate-180" />
+                <span className="min-w-0 grow font-bold text-fg">{loc(v, "name", locale)}</span>
+                <span className="shrink-0 text-sm text-fg-subtle">{t("eventCount", { n: v.events.length })}</span>
               </summary>
-              <div className="mt-4 grid gap-4">
+              <div className="grid gap-4 border-t border-border bg-bg-deep/30 p-4 sm:p-5">
                 <ActionForm action={saveVenue} className="grid gap-4">
                   <VenueFields venue={v} />
                   <button type="submit" className="btn btn-primary h-10 w-fit px-4 text-sm">
@@ -112,7 +108,7 @@ export default async function AdminVenuesPage({ params }: PageProps<"/[locale]/a
                   confirmText={t("deleteVenueConfirm", { name: loc(v, "name", locale) ?? "", n: v.events.length })}
                 >
                   <input type="hidden" name="id" value={v.id} />
-                  <button type="submit" className={`${smallBtn} text-destructive`}>
+                  <button type="submit" className={dangerBtn}>
                     {t("remove")}
                   </button>
                 </ActionForm>

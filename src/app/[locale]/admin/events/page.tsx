@@ -5,7 +5,10 @@ import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTimeRange, loc } from "@/lib/event-format";
-import { smallBtn } from "@/components/admin/styles";
+import { panelClass, smallBtn } from "@/components/admin/styles";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/events">): Promise<Metadata> {
   const { locale } = await params;
@@ -45,39 +48,36 @@ export default async function AdminEventsPage({ params }: PageProps<"/[locale]/a
 
   return (
     <div className="grid gap-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="grid gap-2">
-          <h1 className="text-h2 font-bold">{t("eventsTitle")}</h1>
-          <p className="max-w-[65ch] text-fg-muted">{t("eventsBody")}</p>
-        </div>
-        <Link href="/admin/events/new" className="btn btn-primary h-10 px-4 text-sm">
-          {t("newEvent")}
-        </Link>
-      </header>
-      {error && (
-        <p role="alert" className="text-destructive">
-          {t("errorGeneric")}
-        </p>
-      )}
+      <AdminHeader
+        title={t("eventsTitle")}
+        body={t("eventsBody")}
+        alert={error ? t("errorGeneric") : null}
+        action={
+          <Link href="/admin/events/new" className="btn btn-primary h-10 w-full px-4 text-sm sm:w-fit">
+            <Plus aria-hidden />
+            {t("newEvent")}
+          </Link>
+        }
+      />
 
       {rows.length === 0 && !error ? (
-        <p className="text-fg-muted">{t("noEvents")}</p>
+        <p className={cn(panelClass, "p-6 text-fg-muted")}>{t("noEvents")}</p>
       ) : (
-        <ul className="grid gap-3" data-testid="admin-events">
+        <ul className={cn(panelClass, "divide-y divide-border overflow-hidden")} data-testid="admin-events">
           {rows.map((e) => (
-            <li key={e.id} className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-surface p-4">
-              <div className="grid gap-1">
-                <p className="font-bold">{loc(e, "title", locale)}</p>
+            <li key={e.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 p-4 transition-colors duration-150 hover:bg-surface-hover sm:px-5">
+              <div className="grid min-w-0 gap-1.5">
+                <p className="font-bold text-fg">{loc(e, "title", locale)}</p>
                 <p className="text-sm text-fg-muted">
                   <bdi>{formatShortDate(e.starts_at, locale)}</bdi> · <bdi dir="ltr">{formatTimeRange(e.starts_at, e.ends_at)}</bdi> ·{" "}
                   {e.venue ? loc(e.venue, "name", locale) : t("venueTbd")} · {t("speakerCount", { n: e.event_speakers.length })}
                 </p>
-                <p className="flex flex-wrap gap-2 text-sm">
+                <p className="flex flex-wrap items-center gap-2 text-sm">
                   <span className={e.status === "published" ? "tag tag-next" : "tag"}>
                     {e.status === "published" ? t("statusPublished") : t("statusDraft")}
                   </span>
                   {e.is_tentative && <span className="tag tag-tentative">{t("tentative")}</span>}
-                  <bdi dir="ltr" className="text-fg-subtle">
+                  <bdi dir="ltr" className="font-mono text-[0.8125rem] text-fg-subtle">
                     /{e.slug}
                   </bdi>
                 </p>

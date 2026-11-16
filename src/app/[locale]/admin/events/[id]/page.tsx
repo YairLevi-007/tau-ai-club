@@ -8,8 +8,11 @@ import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
 import { EVENT_KINDS } from "@/lib/admin/content";
 import { utcToWallTime } from "@/lib/wall-time";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { cn } from "@/lib/utils";
+import { ArrowLeft, CircleCheck } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
-import { inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { dangerBtn, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { deleteEvent, saveEvent } from "../actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/events/[id]">): Promise<Metadata> {
@@ -80,24 +83,30 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
 
   return (
     <div className="grid gap-8">
-      <header className="grid gap-2">
-        <Link href="/admin/events" className="w-fit text-sm text-fg-muted hover:text-fg">
-          {t("backToEvents")}
-        </Link>
-        <h1 className="text-h2 font-bold">{isNew ? t("newEvent") : loc(ev!, "title", locale)}</h1>
-        <p className="max-w-[65ch] text-fg-muted">{t("eventFormBody")}</p>
-        {created && (
-          <p role="status" className="text-fg-muted">
-            {t("added")}
-          </p>
-        )}
-      </header>
+      <AdminHeader
+        before={
+          <Link href="/admin/events" className="inline-flex w-fit items-center gap-1.5 text-sm text-fg-muted transition-colors duration-150 hover:text-fg">
+            <ArrowLeft aria-hidden className="size-4 rtl:-scale-x-100" />
+            {t("backToEvents")}
+          </Link>
+        }
+        title={isNew ? t("newEvent") : loc(ev!, "title", locale)}
+        body={t("eventFormBody")}
+        meta={
+          created ? (
+            <span role="status" className="inline-flex items-center gap-1.5 text-brand-purple-soft">
+              <CircleCheck aria-hidden className="size-4" />
+              {t("added")}
+            </span>
+          ) : null
+        }
+      />
 
       <ActionForm action={saveEvent} className="grid gap-6" key={ev?.id ?? "new"}>
         {ev && <input type="hidden" name="id" value={ev.id} />}
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="mb-2 text-h3 font-bold">{t("sectionBasics")}</legend>
+        <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
+          <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionBasics")}</legend>
           <label className={labelClass}>
             {t("titleHe")}
             <input name="title_he" required dir="rtl" lang="he" defaultValue={ev?.title_he ?? ""} className={inputClass} />
@@ -161,8 +170,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </label>
         </fieldset>
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="mb-2 text-h3 font-bold">{t("sectionWhen")}</legend>
+        <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
+          <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionWhen")}</legend>
           <label className={labelClass}>
             {t("startsAt")}
             <input
@@ -192,8 +201,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </label>
         </fieldset>
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="mb-2 text-h3 font-bold">{t("sectionWhere")}</legend>
+        <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
+          <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionWhere")}</legend>
           <label className={`${labelClass} sm:col-span-2`}>
             {t("venue")}
             <select name="venue_id" defaultValue={ev?.venue_id ?? ""} className={inputClass}>
@@ -218,8 +227,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </Link>
         </fieldset>
 
-        <fieldset className="grid gap-4">
-          <legend className="mb-2 text-h3 font-bold">{t("sectionSpeakers")}</legend>
+        <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:p-6")}>
+          <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionSpeakers")}</legend>
           <p className="text-sm text-fg-subtle">{t("speakersOrderHint")}</p>
           <div className="grid gap-3 sm:grid-cols-2">
             {Array.from({ length: slots }, (_, i) => (
@@ -241,8 +250,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           </Link>
         </fieldset>
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="mb-2 text-h3 font-bold">{t("sectionPublish")}</legend>
+        <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
+          <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionPublish")}</legend>
           <label className={`${labelClass} sm:col-span-2`}>
             {t("lumaUrl")}
             <input
@@ -265,7 +274,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
         </fieldset>
 
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn btn-primary h-10 px-5 text-sm">
+          <button type="submit" className="btn btn-primary h-10 w-full px-6 text-sm sm:w-fit">
             {isNew ? t("createEvent") : t("save")}
           </button>
           {ev?.status === "published" && (
@@ -277,9 +286,9 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
       </ActionForm>
 
       {ev && (
-        <ActionForm action={deleteEvent} confirmText={t("deleteEventConfirm", { name: loc(ev, "title", locale) ?? ev.slug })} className="border-t border-border pt-6">
+        <ActionForm action={deleteEvent} confirmText={t("deleteEventConfirm", { name: loc(ev, "title", locale) ?? ev.slug })} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 p-4 sm:p-5">
           <input type="hidden" name="id" value={ev.id} />
-          <button type="submit" className={`${smallBtn} text-destructive`}>
+          <button type="submit" className={dangerBtn}>
             {t("deleteEvent")}
           </button>
         </ActionForm>

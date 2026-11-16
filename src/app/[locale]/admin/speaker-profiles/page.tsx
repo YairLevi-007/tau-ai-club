@@ -4,8 +4,11 @@ import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
-import { inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { dangerBtn, inputClass, labelClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { deleteSpeaker, saveSpeaker } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/speaker-profiles">): Promise<Metadata> {
@@ -88,18 +91,10 @@ export default async function AdminSpeakerProfilesPage({ params }: PageProps<"/[
 
   return (
     <div className="grid gap-8">
-      <header className="grid gap-2">
-        <h1 className="text-h2 font-bold">{t("speakerProfilesTitle")}</h1>
-        <p className="max-w-[65ch] text-fg-muted">{t("speakerProfilesBody")}</p>
-        {error && (
-          <p role="alert" className="text-destructive">
-            {t("errorGeneric")}
-          </p>
-        )}
-      </header>
+      <AdminHeader title={t("speakerProfilesTitle")} body={t("speakerProfilesBody")} alert={error ? t("errorGeneric") : null} />
 
-      <section aria-labelledby="add-speaker" className="grid gap-4 rounded-lg border border-border bg-surface p-4">
-        <h2 id="add-speaker" className="text-h3 font-bold">
+      <section aria-labelledby="add-speaker" className={cn(panelClass, "grid gap-4 p-4 sm:p-5")}>
+        <h2 id="add-speaker" className={panelTitle}>
           {t("addSpeaker")}
         </h2>
         <ActionForm action={saveSpeaker} resetOnSuccess className="grid gap-4">
@@ -110,15 +105,16 @@ export default async function AdminSpeakerProfilesPage({ params }: PageProps<"/[
         </ActionForm>
       </section>
 
-      <ul className="grid gap-3" data-testid="admin-speaker-profiles">
+      <ul className={cn(panelClass, "divide-y divide-border overflow-hidden")} data-testid="admin-speaker-profiles">
         {speakers.map((s) => (
-          <li key={s.id} className="rounded-lg border border-border p-4">
-            <details>
-              <summary className="cursor-pointer font-bold">
-                {loc(s, "name", locale)}{" "}
-                <span className="text-sm font-normal text-fg-muted">· {t("eventCount", { n: s.event_speakers.length })}</span>
+          <li key={s.id}>
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-surface-hover sm:px-5 [&::-webkit-details-marker]:hidden">
+                <ChevronDown aria-hidden className="size-4 shrink-0 text-fg-subtle transition-transform duration-200 group-open:rotate-180" />
+                <span className="min-w-0 grow font-bold text-fg">{loc(s, "name", locale)}</span>
+                <span className="shrink-0 text-sm text-fg-subtle">{t("eventCount", { n: s.event_speakers.length })}</span>
               </summary>
-              <div className="mt-4 grid gap-4">
+              <div className="grid gap-4 border-t border-border bg-bg-deep/30 p-4 sm:p-5">
                 <ActionForm action={saveSpeaker} className="grid gap-4">
                   <SpeakerFields speaker={s} />
                   <button type="submit" className="btn btn-primary h-10 w-fit px-4 text-sm">
@@ -127,7 +123,7 @@ export default async function AdminSpeakerProfilesPage({ params }: PageProps<"/[
                 </ActionForm>
                 <ActionForm action={deleteSpeaker} confirmText={t("deleteSpeakerConfirm", { name: loc(s, "name", locale) ?? s.slug })}>
                   <input type="hidden" name="id" value={s.id} />
-                  <button type="submit" className={`${smallBtn} text-destructive`}>
+                  <button type="submit" className={dangerBtn}>
                     {t("remove")}
                   </button>
                 </ActionForm>
