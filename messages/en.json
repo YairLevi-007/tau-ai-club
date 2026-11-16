@@ -62,7 +62,11 @@
     "openMaps": "Open in Maps",
     "prevMeetup": "Previous meetup",
     "nextMeetup": "Next meetup",
-    "seasonNav": "More meetups this season"
+    "seasonNav": "More meetups this season",
+    "contactTitle": "Contact (members only)",
+    "contactEmail": "Email",
+    "contactPhone": "Phone",
+    "contactLinkedin": "LinkedIn"
   },
   "footer": {
     "instagram": "Instagram",

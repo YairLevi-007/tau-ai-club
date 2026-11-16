@@ -22,6 +22,7 @@ import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
+import { SpeakerContactLinks } from "@/components/events/speaker-contact-links";
 
 export const revalidate = 300;
 
@@ -105,6 +106,12 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
     };
   });
   const hasBody = !!blurb || speakers.length > 0;
+  const contactLabels = {
+    title: t("contactTitle"),
+    email: t("contactEmail"),
+    phone: t("contactPhone"),
+    linkedin: t("contactLinkedin"),
+  };
   const seriesTotal = event.series ? season.events.filter((e) => e.series === event.series).length : 0;
 
   const index = season.events.findIndex((e) => e.slug === event.slug);
@@ -257,6 +264,8 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                       <div className="min-w-0">
                         <p className="text-lg leading-tight font-semibold text-fg">{sp.name}</p>
                         {sp.role && <p className="mt-1 text-sm text-fg-subtle">{sp.role}</p>}
+                        {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML. */}
+                        <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />
                       </div>
                     </li>
                   ))}

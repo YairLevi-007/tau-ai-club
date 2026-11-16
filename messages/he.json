@@ -62,7 +62,11 @@
     "openMaps": "פתיחה במפות",
     "prevMeetup": "המפגש הקודם",
     "nextMeetup": "המפגש הבא",
-    "seasonNav": "מפגשים נוספים בעונה"
+    "seasonNav": "מפגשים נוספים בעונה",
+    "contactTitle": "פרטי קשר (לחברי המועדון בלבד)",
+    "contactEmail": "אימייל",
+    "contactPhone": "טלפון",
+    "contactLinkedin": "LinkedIn"
   },
   "footer": {
     "instagram": "אינסטגרם",
