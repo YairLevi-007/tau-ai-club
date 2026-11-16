@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { requireAdmin } from "@/lib/auth/viewer";
+import { getViewer } from "@/lib/auth/viewer";
 import { AdminTabs } from "@/components/admin/admin-tabs";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
-/** Admin area. Every page also calls requireAdmin() itself, and RLS checks every query. */
+/**
+ * Admin area chrome. The guard lives in each page (requireAdmin with its own path, so
+ * sign-in returns to the right page); RLS checks every query. Non-admins never see
+ * the chrome: their page redirects or 404s.
+ */
 export default async function AdminLayout({ children }: LayoutProps<"/[locale]/admin">) {
-  const viewer = await requireAdmin("/admin/members");
+  const viewer = await getViewer();
+  if (viewer.kind !== "member" || viewer.member.role !== "admin") return children;
   const t = await getTranslations("admin");
   return (
     <div className="mx-auto grid max-w-site gap-8 px-4 pt-10 pb-16 sm:px-8">
