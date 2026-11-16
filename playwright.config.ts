@@ -3,6 +3,8 @@ import { defineConfig } from "@playwright/test";
 /** Base "now" for the production-build server: Thu 12 Nov 2026 10:00 Asia/Jerusalem (opening is past, Zero to Hero 1 is next). */
 export const BASE_NOW = "2026-11-12T10:00:00+02:00";
 const NEXT = "node node_modules/next/dist/bin/next";
+/** PW_PORT lets a second checkout (e.g. the M2 worktree) run the suite without sharing a server. */
+const PORT = Number(process.env.PW_PORT) || 3100;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -10,14 +12,14 @@ export default defineConfig({
   fullyParallel: true,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    baseURL: "http://localhost:3100",
+    baseURL: `http://localhost:${PORT}`,
     timezoneId: "Asia/Jerusalem",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `${NEXT} build && ${NEXT} start -p 3100`,
-    url: "http://localhost:3100",
+    command: `${NEXT} build && ${NEXT} start -p ${PORT}`,
+    url: `http://localhost:${PORT}`,
     timeout: 300_000,
     reuseExistingServer: !process.env.CI,
     env: { USE_FIXTURES: "1", DEBUG_NOW: BASE_NOW },

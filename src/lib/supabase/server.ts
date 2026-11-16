@@ -1,21 +1,23 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { AUTH_COOKIE_OPTIONS, supabaseEnv } from "./config";
 
 /**
  * Cookie-aware Supabase client for Server Components, Server Actions and Route
- * Handlers that act as the signed-in user (Milestone 2+). Using it makes the
- * route dynamic, so keep public pages on `./public.ts`.
+ * Handlers that act as the signed-in user. Using it makes the route dynamic, so
+ * keep public pages on `./public.ts`.
+ *
+ * Returns null when the env vars are missing (fixtures mode, or before the
+ * Supabase projects exist): callers treat that as "signed out".
  */
 export async function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
-  }
+  const env = supabaseEnv();
+  if (!env) return null;
   const cookieStore = await cookies();
 
-  return createServerClient(url, key, {
+  return createServerClient(env.url, env.key, {
+    cookieOptions: AUTH_COOKIE_OPTIONS,
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (toSet) => {
@@ -23,7 +25,7 @@ export async function createClient() {
           toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
           // Called from a Server Component: cookies are read-only there.
-          // The proxy refreshes the session instead (added in Milestone 2).
+          // src/proxy.ts refreshes the session before the page renders instead.
         }
       },
     },

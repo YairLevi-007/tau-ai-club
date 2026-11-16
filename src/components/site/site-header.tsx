@@ -40,6 +40,13 @@ export async function SiteHeader() {
           >
             <InstagramIcon className="size-[18px]" />
           </a>
+          {/* Static link (same HTML for everyone, so public pages stay cacheable). /login knows who you are. */}
+          <Link
+            href="/login"
+            className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+          >
+            {t("signIn")}
+          </Link>
           <LanguageSwitch />
         </div>
       </nav>
