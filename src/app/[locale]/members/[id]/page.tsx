@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowUpRight, Globe, Link2, Pencil } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
@@ -8,8 +9,10 @@ import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, LINK_KEYS } from "@/lib/members/profile";
-import { smallBtn } from "@/components/admin/styles";
+import { panelClass, smallBtn } from "@/components/admin/styles";
 import { MemberAvatar } from "@/components/members/member-avatar";
+import { MembersEyebrow } from "@/components/members/members-eyebrow";
+import { cn } from "@/lib/utils";
 
 // Members only: no member's name goes into the title or any metadata.
 export async function generateMetadata({ params }: PageProps<"/[locale]/members/[id]">): Promise<Metadata> {
@@ -24,7 +27,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
   const locale = l as Locale;
   setRequestLocale(locale);
   await requireMember(`/members/${id}`);
-  const t = await getTranslations("profile");
+  const [t, te] = await Promise.all([getTranslations("profile"), getTranslations("event")]);
 
   const supabase = await createClient();
   const profile = supabase ? await getMemberProfile(supabase, id) : null;
@@ -34,48 +37,63 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
   const photoSrc = profile.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const bio = loc(profile, "bio", locale);
   const links = LINK_KEYS.filter((k) => profile.links?.[k]);
+  const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty].filter(Boolean).join(" · ");
 
   return (
-    <article className="mx-auto grid max-w-3xl gap-8 px-4 pt-10 pb-16 sm:px-8" data-testid="member-profile">
-      <header className="flex flex-wrap items-center gap-6">
+    <article className="mx-auto max-w-4xl px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="member-profile">
+      <MembersEyebrow />
+      <header className="mt-3 flex flex-col gap-5 rounded-lg border border-border-accent bg-bg-raised p-6 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] sm:flex-row sm:items-center sm:gap-7 sm:p-8">
         <MemberAvatar name={profile.full_name} src={photoSrc} size={128} />
-        <div className="grid gap-2">
-          <h1 className="text-h2 font-bold">{profile.full_name}</h1>
-          {(profile.year || profile.faculty) && (
-            <p className="text-fg-muted">
-              {[profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty].filter(Boolean).join(" · ")}
-            </p>
-          )}
+        <div className="grid min-w-0 gap-2">
+          <h1 className="text-[clamp(1.875rem,6vw,2.5rem)] leading-[1.1] font-extrabold text-balance text-fg">{profile.full_name}</h1>
+          {subline && <p className="text-fg-muted">{subline}</p>}
           {profile.is_self && (
-            <Link href="/profile" className={`${smallBtn} w-fit`}>
+            <Link href="/profile" className={cn(smallBtn, "mt-2 w-fit")}>
+              <Pencil aria-hidden />
               {t("edit")}
             </Link>
           )}
         </div>
       </header>
 
-      {bio ? (
-        <p className="max-w-[65ch] whitespace-pre-line text-fg-muted">{bio}</p>
-      ) : (
-        <p className="text-fg-subtle">{t("noBio")}</p>
-      )}
-
-      {links.length > 0 && (
-        <section aria-labelledby="links-heading" className="grid gap-3">
-          <h2 id="links-heading" className="text-h3 font-bold">
-            {t("links")}
-          </h2>
-          <ul className="flex flex-wrap gap-3">
-            {links.map((k) => (
-              <li key={k}>
-                <a href={profile.links[k]} target="_blank" rel="noopener noreferrer nofollow" className={smallBtn}>
-                  {t(`link_${k}`)}
-                </a>
-              </li>
-            ))}
-          </ul>
+      <div className={cn("mt-5 grid items-start gap-5", links.length > 0 && "md:grid-cols-[minmax(0,1fr)_16rem]")}>
+        <section aria-label={t("about")} className={cn(panelClass, "p-5 sm:p-6")}>
+          <h2 className="text-sm font-semibold text-fg-subtle">{t("about")}</h2>
+          {bio ? (
+            <p className="mt-3 max-w-[65ch] text-[1.0625rem] leading-relaxed whitespace-pre-line text-fg-muted">{bio}</p>
+          ) : (
+            <p className="mt-3 text-fg-subtle">{t("noBio")}</p>
+          )}
         </section>
-      )}
+
+        {links.length > 0 && (
+          <section aria-labelledby="links-heading" className={cn(panelClass, "p-5 sm:p-6")}>
+            <h2 id="links-heading" className="text-sm font-semibold text-fg-subtle">
+              {t("links")}
+            </h2>
+            <ul className="mt-3 grid gap-2">
+              {links.map((k) => {
+                const Icon = k === "website" ? Globe : Link2;
+                return (
+                  <li key={k}>
+                    <a
+                      href={profile.links[k]}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="flex items-center gap-2.5 rounded-md border border-border bg-bg-deep/45 px-3 py-2.5 text-[0.9375rem] font-medium text-fg transition-colors duration-150 hover:border-border-accent"
+                    >
+                      <Icon aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                      <span className="grow">{t(`link_${k}`)}</span>
+                      <ArrowUpRight aria-hidden className="size-4 shrink-0 text-fg-subtle rtl:-scale-x-100" />
+                      <span className="sr-only"> {te("opensInNewTab")}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+      </div>
     </article>
   );
 }
