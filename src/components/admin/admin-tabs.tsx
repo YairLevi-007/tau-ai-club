@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 export function AdminTabs({ label, tabs }: { label: string; tabs: { href: string; label: string }[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label={label} className="flex gap-1">
+    <nav aria-label={label} className="flex flex-wrap gap-1">
       {tabs.map((tab) => {
-        const current = pathname === tab.href;
+        const current = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
         return (
           <Link
             key={tab.href}
