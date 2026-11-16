@@ -1,4 +1,4 @@
-# TAU AI Club: Brand Tokens (v1.0, approved)
+# TAU AI Club: Brand Tokens (v1.1, approved)
 
 Status: **APPROVED by the user on 2026-11-13.** These tokens are frozen. Changing one needs the user's OK.
 
@@ -48,6 +48,7 @@ Every hex below is sampled or extracted. **Derived** marks a value I computed fr
 | `--fg-subtle` | `#9C93C9` | 6.9:1 | Meta, captions, timestamps |
 | `--fg-faint` | `#5B5575` | 2.8:1 ⚠️ | Decorative only, disabled. **Never for readable text** |
 | `--on-purple` | `#FFFFFF` | 5.4:1 on `--brand-purple` | Text on purple buttons/pills |
+| `--destructive` | `#FF6B8A` | 6.9:1 | Delete buttons, error messages, invalid fields. Not in the PDFs: added and approved by the user 2026-11-16 (v1.1) |
 
 ### Light context (only for printable/long-form pages, as in the PDF inner pages)
 `--paper` `#FFFFFF` · `--ink` `#2A2540` · `--ink-muted` `#5B5575` · accent rules `#8A2BFF`. The site itself is dark-first. This only exists for a possible print stylesheet.

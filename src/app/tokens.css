@@ -32,7 +32,7 @@
   --fg-subtle: #9c93c9;
   --fg-faint: #5b5575; /* decorative / disabled only */
   --on-purple: #ffffff;
-  --destructive: #ff6b8a; /* not in brand v0.1: placeholder for error states */
+  --destructive: #ff6b8a; /* brand v1.1, approved 2026-11-16 */
 
   /* Type scale */
   --text-display: clamp(2.75rem, 7vw, 5rem);
