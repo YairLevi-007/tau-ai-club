@@ -94,12 +94,16 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   }
   // Fields the import filled: marked on the form (a text tag and a purple outline) for review.
   const imported = new Set(pf?.filled ?? []);
-  const hl = (name: string, cls: string) => (imported.has(name) ? `${cls} border-brand-purple` : cls);
+  const hl = (name: string, cls: string) => (imported.has(name) ? cn(cls, "border-brand-purple bg-brand-purple-deeper/25") : cls);
   const lab = (text: string, name: string) =>
     imported.has(name) ? (
-      <span className="flex flex-wrap items-center gap-x-2">
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {text}
-        <span className="text-xs font-normal text-brand-purple-soft" data-testid="imported-tag">
+        <span
+          className="inline-flex items-center gap-1 rounded-full border border-border-accent bg-brand-purple-deeper/50 px-2 py-0.5 text-[0.6875rem] leading-tight font-medium text-brand-purple-soft"
+          data-testid="imported-tag"
+        >
+          <ScanText aria-hidden className="size-3" />
           {t("importedTag")}
         </span>
       </span>
@@ -137,12 +141,16 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
       )}
 
       {pf && (
-        <div role="status" className="grid gap-1 rounded-lg border border-border-accent bg-surface p-4 text-sm" data-testid="flyer-prefilled">
-          <p className="flex items-center gap-2 font-semibold text-fg">
-            <ScanText aria-hidden className="size-4 text-brand-purple-soft" />
-            {t("flyerPrefilled")}
-          </p>
-          {pf.notes && <p className="text-fg-muted">{pf.notes}</p>}
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-lg border border-border-accent bg-brand-purple-deeper/25 p-4 text-[0.9375rem] sm:p-5"
+          data-testid="flyer-prefilled"
+        >
+          <ScanText aria-hidden className="mt-0.5 size-5 shrink-0 text-brand-purple-soft" />
+          <div className="grid gap-1">
+            <p className="leading-relaxed font-medium text-fg">{t("flyerPrefilled")}</p>
+            {pf.notes && <p className="text-sm text-fg-muted">{pf.notes}</p>}
+          </div>
         </div>
       )}
 

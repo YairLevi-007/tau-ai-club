@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { FileImage, Link2, LoaderCircle, Plus, ScanText } from "lucide-react";
+import { CircleCheck, CircleDashed, FileImage, Link2, LoaderCircle, Plus, ScanText } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { matchSpeaker, slugify } from "@/lib/flyer/match";
@@ -13,7 +13,7 @@ import { parseFlyerText } from "@/lib/flyer/flyer-text";
 import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people";
 import type { LumaResponse } from "@/app/api/admin/luma/route";
 import { applyFlyer, type SpeakerChoice } from "@/app/[locale]/admin/events/flyer-actions";
-import { fileInputClass, hintClass, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
+import { fileInputClass, hintClass, inputClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
 import { readFlyer, type FlyerReading } from "./read-flyer";
@@ -229,23 +229,34 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
   const x = review?.draft;
   const found = (f: DraftField) => !!x?.filled.includes(f);
   const status = (ok: boolean) => (
-    <span className={cn("ms-2 text-xs", ok ? "text-brand-purple-soft" : "text-fg-subtle")}>{ok ? t("importFound") : t("importNotFound")}</span>
+    <span className={cn("ms-2 inline-flex items-center gap-1 align-middle text-xs", ok ? "text-brand-purple-soft" : "text-fg-subtle")}>
+      {ok ? <CircleCheck aria-hidden className="size-3.5" /> : <CircleDashed aria-hidden className="size-3.5" />}
+      {ok ? t("importFound") : t("importNotFound")}
+    </span>
   );
   const when = x?.date ? wallTimes(x.date, x.start_time, x.end_time) : null;
 
   return (
-    <section aria-labelledby="flyer-heading" className={cn(panelClass, "grid gap-5 p-4 sm:p-6")} data-testid="flyer-import">
-      <div className="grid gap-1">
-        <h2 id="flyer-heading" className="flex items-center gap-2 text-lg font-bold text-fg">
-          <ScanText aria-hidden className="size-5 text-brand-purple-soft" />
-          {t("importTitle")}
-        </h2>
-        <p className={hintClass}>{t("importBody")}</p>
+    <section
+      aria-labelledby="flyer-heading"
+      className="grid gap-5 rounded-lg border border-border-accent bg-bg-raised p-4 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] sm:p-6"
+      data-testid="flyer-import"
+    >
+      <div className="flex items-start gap-3.5">
+        <span className="grid size-10 shrink-0 place-items-center rounded-md border border-border-accent bg-brand-purple-deeper text-brand-purple-soft [&_svg]:size-5">
+          <ScanText aria-hidden />
+        </span>
+        <div className="grid gap-1">
+          <h2 id="flyer-heading" className="text-lg font-bold text-fg">
+            {t("importTitle")}
+          </h2>
+          <p className="max-w-[65ch] text-sm text-fg-muted">{t("importBody")}</p>
+        </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 sm:gap-0">
         <form
-          className="grid content-start gap-2"
+          className="grid content-start gap-2 sm:pe-6"
           onSubmit={(e) => {
             e.preventDefault();
             onLuma();
@@ -271,7 +282,7 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
           <p className={hintClass}>{t("lumaImportHint")}</p>
         </form>
 
-        <div className="grid content-start gap-2">
+        <div className="grid content-start gap-2 border-t border-border pt-5 sm:border-t-0 sm:border-s sm:pt-0 sm:ps-6">
           <label className={labelClass}>
             {t("flyerPick")}
             <input type="file" accept={TYPES.join(",")} className={fileInputClass} data-testid="flyer-file" onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
@@ -288,7 +299,7 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
         {busy === "luma" ? t("lumaImporting") : busy === "reading" ? t("flyerReading", { percent: progress }) : busy === "applying" ? t("flyerApplying") : review ? t("importDone") : ""}
       </p>
       {error && (
-        <p role="alert" className="text-sm text-destructive" data-testid="flyer-error">
+        <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 px-3.5 py-2.5 text-sm text-fg" data-testid="flyer-error">
           {error}
         </p>
       )}
@@ -296,7 +307,7 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
       {review && x && (
         <div className="grid gap-5 border-t border-border pt-4" data-testid="flyer-review">
           <p className="text-sm text-fg-muted">{x.source === "luma" ? t("importFromLuma") : t("importFromFlyer")}</p>
-          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+          <dl className="grid gap-x-6 gap-y-1 rounded-md border border-border bg-bg-deep/45 p-3.5 text-sm sm:grid-cols-[auto_1fr] sm:gap-y-2.5">
             <dt className="text-fg-subtle">{t("titleHe")}</dt>
             <dd className="text-fg">
               <bdi dir="rtl" lang="he">{x.title_he || "—"}</bdi>
