@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    // Profile photos (up to 2 MB) go through a Server Action; the default limit is 1 MB.
+    serverActions: { bodySizeLimit: "3mb" },
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
   },
