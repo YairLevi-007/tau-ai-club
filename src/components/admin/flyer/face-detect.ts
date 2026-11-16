@@ -1,6 +1,6 @@
 // Face detection in the admin's browser with MediaPipe (free, nothing is sent anywhere:
 // the image never leaves the page). The library, its wasm and the model are loaded on
-// demand from public CDNs, pinned to one version, only when an admin imports a flyer.
+// demand from public CDNs, pinned to one version, only when an admin imports an event.
 
 const VERSION = "1.2.3";
 const BUNDLE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VERSION}/vision_bundle.mjs`;
@@ -67,17 +67,4 @@ export function cropToJpeg(img: HTMLImageElement, s: Square, out = 512): Promise
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, s.x, s.y, s.size, s.size, 0, 0, out, out);
   return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.88));
-}
-
-/** Big photos are shrunk before upload (Claude reads ~1.5k px anyway; Vercel caps bodies at 4.5 MB). */
-export async function shrinkForUpload(file: File, img: HTMLImageElement, maxEdge = 2000): Promise<Blob> {
-  const long = Math.max(img.naturalWidth, img.naturalHeight);
-  if (long <= maxEdge && file.size <= 3.5 * 1024 * 1024) return file;
-  const scale = Math.min(1, maxEdge / long);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(img.naturalWidth * scale);
-  canvas.height = Math.round(img.naturalHeight * scale);
-  canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.9));
-  return blob ?? file;
 }

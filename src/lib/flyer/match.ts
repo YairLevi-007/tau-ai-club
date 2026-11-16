@@ -34,6 +34,37 @@ export function matchSpeaker<T extends Named>(name: { name_he: string; name_en: 
   return speakers.find((s) => wantedHe.includes(skeleton(normalizeName(s.name_he)))) ?? null;
 }
 
+/**
+ * Existing speakers whose name appears in free text (a flyer read by OCR, a Luma description),
+ * in the order they appear. Only names of 2+ words or 4+ letters, so "Oz" alone doesn't
+ * match every "oz" in a sentence; a one-word Hebrew name of 3 letters is allowed in Hebrew text.
+ */
+export function findSpeakersInText<T extends Named>(text: string, speakers: T[]): T[] {
+  const hay = ` ${normalizeName(text)} `;
+  // OCR often glues Hebrew words ("ושייהל" for "ושי יהל"), so multi-word names are also looked
+  // for with the spaces removed. Positions are taken in that joined text so the order is consistent.
+  const joined = hay.replace(/ /g, "");
+  const found: { s: T; at: number }[] = [];
+  for (const s of speakers) {
+    let at = -1;
+    for (const raw of [s.name_he, s.name_en]) {
+      const n = normalizeName(raw);
+      const ok = n.includes(" ") || n.length >= 4 || (/^[א-ת]{3}$/.test(n) && /[א-ת]/.test(hay));
+      if (!n || !ok) continue;
+      // Hebrew attaches prefixes to words ("ועוז"), so allow one of ו/ב/ל/מ/ש/ה before the name.
+      // `n` holds only letters, digits and spaces after normalizeName, so it is safe inside a RegExp.
+      const hit = /[א-ת]/.test(n) ? hay.search(new RegExp(` [ובלמשה]?${n} `)) >= 0 : hay.includes(` ${n} `);
+      const nj = n.replace(/ /g, "");
+      const glued = n.includes(" ") && nj.length >= 5 && joined.includes(nj);
+      if (!hit && !glued) continue;
+      const i = joined.indexOf(nj);
+      if (at < 0 || i < at) at = i;
+    }
+    if (at >= 0) found.push({ s, at });
+  }
+  return found.sort((a, b) => a.at - b.at).map((f) => f.s);
+}
+
 /** The venue whose name appears in the printed venue text (or the other way round). */
 export function matchVenue<T extends Named>(text: string, venues: T[]): T | null {
   const t = normalizeName(text);

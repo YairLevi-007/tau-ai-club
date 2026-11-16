@@ -16,7 +16,6 @@ import { SpeakerContactsPanel, type SpeakerContactStatus } from "@/components/ad
 import { dangerBtn, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { deleteEvent, saveEvent } from "../actions";
 import { FlyerImport } from "@/components/admin/flyer/flyer-import";
-import { flyerMode } from "@/lib/flyer/extract";
 import { decodePrefill } from "@/lib/flyer/prefill";
 import { ScanText } from "lucide-react";
 
@@ -86,13 +85,27 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   const cohorts = (cohortsRes.data ?? []) as Named[];
   const venues = (venuesRes.data ?? []) as Named[];
   const speakers = (speakersRes.data ?? []) as Named[];
-  // A draft carried over from the flyer import (new events only). Never sets the status.
+  // A draft carried over from the Luma/flyer import (new events only). Never sets the status.
   const pf = isNew ? decodePrefill(prefillParam) : null;
   if (pf) {
     // Drop ids that don't exist (or were deleted since), so the form never points at nothing.
     pf.speaker_ids = pf.speaker_ids.filter((sid) => speakers.some((s) => s.id === sid));
     if (pf.venue_id && !venues.some((v) => v.id === pf.venue_id)) pf.venue_id = "";
   }
+  // Fields the import filled: marked on the form (a text tag and a purple outline) for review.
+  const imported = new Set(pf?.filled ?? []);
+  const hl = (name: string, cls: string) => (imported.has(name) ? `${cls} border-brand-purple` : cls);
+  const lab = (text: string, name: string) =>
+    imported.has(name) ? (
+      <span className="flex flex-wrap items-center gap-x-2">
+        {text}
+        <span className="text-xs font-normal text-brand-purple-soft" data-testid="imported-tag">
+          {t("importedTag")}
+        </span>
+      </span>
+    ) : (
+      text
+    );
   const lineup = ev ? [...ev.event_speakers].sort((a, b) => a.sort - b.sort).map((s) => s.speaker_id) : (pf?.speaker_ids ?? []);
   const slots = Math.max(4, lineup.length + 1);
   const contactById = new Map(((contactsRes.data ?? []) as SpeakerContactStatus[]).map((r) => [r.speaker_id, r]));
@@ -120,7 +133,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
       />
 
       {isNew && (
-        <FlyerImport mode={flyerMode()} speakers={speakers} venues={venues} />
+        <FlyerImport speakers={speakers} venues={venues} />
       )}
 
       {pf && (
@@ -139,12 +152,12 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
         <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionBasics")}</legend>
           <label className={labelClass}>
-            {t("titleHe")}
-            <input name="title_he" required dir="rtl" lang="he" defaultValue={ev?.title_he ?? pf?.title_he ?? ""} className={inputClass} />
+            {lab(t("titleHe"), "title_he")}
+            <input name="title_he" required dir="rtl" lang="he" defaultValue={ev?.title_he ?? pf?.title_he ?? ""} className={hl("title_he", inputClass)} />
           </label>
           <label className={labelClass}>
-            {t("titleEn")}
-            <input name="title_en" required dir="ltr" lang="en" defaultValue={ev?.title_en ?? pf?.title_en ?? ""} className={ltr} />
+            {lab(t("titleEn"), "title_en")}
+            <input name="title_en" required dir="ltr" lang="en" defaultValue={ev?.title_en ?? pf?.title_en ?? ""} className={hl("title_en", ltr)} />
           </label>
           <label className={labelClass}>
             {t("slug")}
@@ -172,8 +185,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
             </select>
           </label>
           <label className={labelClass}>
-            {t("kind")}
-            <select name="kind" defaultValue={ev?.kind ?? pf?.kind ?? "lecture"} className={inputClass}>
+            {lab(t("kind"), "kind")}
+            <select name="kind" defaultValue={ev?.kind ?? pf?.kind ?? "lecture"} className={hl("kind", inputClass)}>
               {EVENT_KINDS.map((k) => (
                 <option key={k} value={k}>
                   {t(`kind_${k}`)}
@@ -192,37 +205,37 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
             </label>
           </div>
           <label className={`${labelClass} sm:col-span-2`}>
-            {t("blurbHe")}
-            <textarea name="blurb_he" dir="rtl" lang="he" defaultValue={ev?.blurb_he ?? pf?.blurb_he ?? ""} className={textareaClass} />
+            {lab(t("blurbHe"), "blurb_he")}
+            <textarea name="blurb_he" dir="rtl" lang="he" defaultValue={ev?.blurb_he ?? pf?.blurb_he ?? ""} className={hl("blurb_he", textareaClass)} />
           </label>
           <label className={`${labelClass} sm:col-span-2`}>
-            {t("blurbEn")}
-            <textarea name="blurb_en" dir="ltr" lang="en" defaultValue={ev?.blurb_en ?? pf?.blurb_en ?? ""} className={textareaClass} />
+            {lab(t("blurbEn"), "blurb_en")}
+            <textarea name="blurb_en" dir="ltr" lang="en" defaultValue={ev?.blurb_en ?? pf?.blurb_en ?? ""} className={hl("blurb_en", textareaClass)} />
           </label>
         </fieldset>
 
         <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionWhen")}</legend>
           <label className={labelClass}>
-            {t("startsAt")}
+            {lab(t("startsAt"), "starts_at")}
             <input
               name="starts_at"
               type="datetime-local"
               required
               dir="ltr"
               defaultValue={ev ? utcToWallTime(ev.starts_at) : (pf?.starts_at ?? "")}
-              className={ltr}
+              className={hl("starts_at", ltr)}
             />
           </label>
           <label className={labelClass}>
-            {t("endsAt")}
+            {lab(t("endsAt"), "ends_at")}
             <input
               name="ends_at"
               type="datetime-local"
               required
               dir="ltr"
               defaultValue={ev ? utcToWallTime(ev.ends_at) : (pf?.ends_at ?? "")}
-              className={ltr}
+              className={hl("ends_at", ltr)}
             />
           </label>
           <p className="text-sm text-fg-subtle sm:col-span-2">{t("timeZoneHint")}</p>
@@ -235,8 +248,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
         <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionWhere")}</legend>
           <label className={`${labelClass} sm:col-span-2`}>
-            {t("venue")}
-            <select name="venue_id" defaultValue={ev?.venue_id ?? pf?.venue_id ?? ""} className={inputClass}>
+            {lab(t("venue"), "venue_id")}
+            <select name="venue_id" defaultValue={ev?.venue_id ?? pf?.venue_id ?? ""} className={hl("venue_id", inputClass)}>
               <option value="">{t("venueTbd")}</option>
               {venues.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -246,12 +259,12 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
             </select>
           </label>
           <label className={labelClass}>
-            {t("venueNoteHe")}
-            <input name="venue_note_he" dir="rtl" lang="he" defaultValue={ev?.venue_note_he ?? pf?.venue_note_he ?? ""} className={inputClass} />
+            {lab(t("venueNoteHe"), "venue_note_he")}
+            <input name="venue_note_he" dir="rtl" lang="he" defaultValue={ev?.venue_note_he ?? pf?.venue_note_he ?? ""} className={hl("venue_note_he", inputClass)} />
           </label>
           <label className={labelClass}>
-            {t("venueNoteEn")}
-            <input name="venue_note_en" dir="ltr" lang="en" defaultValue={ev?.venue_note_en ?? pf?.venue_note_en ?? ""} className={ltr} />
+            {lab(t("venueNoteEn"), "venue_note_en")}
+            <input name="venue_note_en" dir="ltr" lang="en" defaultValue={ev?.venue_note_en ?? pf?.venue_note_en ?? ""} className={hl("venue_note_en", ltr)} />
           </label>
           <Link href="/admin/venues" className="w-fit text-sm text-brand-purple-soft underline underline-offset-4">
             {t("manageVenues")}
@@ -264,8 +277,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           <div className="grid gap-3 sm:grid-cols-2">
             {Array.from({ length: slots }, (_, i) => (
               <label key={i} className={labelClass}>
-                {t("speakerSlot", { n: i + 1 })}
-                <select name="speaker_id" defaultValue={lineup[i] ?? ""} className={inputClass}>
+                {i < lineup.length ? lab(t("speakerSlot", { n: i + 1 }), "speaker_id") : t("speakerSlot", { n: i + 1 })}
+                <select name="speaker_id" defaultValue={lineup[i] ?? ""} className={i < lineup.length ? hl("speaker_id", inputClass) : inputClass}>
                   <option value="">{t("noSpeaker")}</option>
                   {speakers.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -284,7 +297,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
         <fieldset className={cn(panelClass, "grid gap-4 p-4 sm:grid-cols-2 sm:p-6")}>
           <legend className="float-start mb-1 w-full text-lg font-bold text-fg sm:col-span-2">{t("sectionPublish")}</legend>
           <label className={`${labelClass} sm:col-span-2`}>
-            {t("lumaUrl")}
+            {lab(t("lumaUrl"), "luma_url")}
             <input
               name="luma_url"
               type="url"
@@ -292,7 +305,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
               placeholder="https://luma.com/…"
               pattern="https://.+"
               defaultValue={ev?.luma_url ?? pf?.luma_url ?? ""}
-              className={ltr}
+              className={hl("luma_url", ltr)}
             />
           </label>
           <label className={labelClass}>

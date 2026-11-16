@@ -12,7 +12,6 @@ Keep this file current: whoever adds a service or env var updates it in the same
 | Supabase | Postgres, RLS, Auth (M2) | Dedicated org "TAU AI Club", projects `tau-ai-club-dev` and `tau-ai-club-prod` | Free (projects pause after ~7 days without traffic; dev may pause, prod gets daily traffic) | ⏳ to create |
 | Google Cloud | OAuth client for "Sign in with Google" (M2) | Project `tau-ai-club`, owned by the club Google account | Free | ⏳ to create (runbook F1) |
 | Luma | Event registration (we only link to it) | Club's Luma calendar | Free | exists |
-| Anthropic Console | Claude API key for **flyer reading** in `/admin/events` (the only AI on the site; an admin triggers it) | Org on console.anthropic.com owned by the club account; one API key per environment (prod / dev) | Pay as you go, prepaid credits. Expect a few US cents per flyer (Claude Opus 5.5, one call; measure with the `[flyer] usage` server log) | ⏳ to create. Until then the admin page says "flyer reading isn't set up yet" and manual entry works |
 | Domain `tauaiclub.com` | Production domain (apex), `www` redirects to it | Registrar: **GoDaddy** (from public RDAP/DNS: nameservers `ns21/ns22.domaincontrol.com`; confirm). Account owner: **TBD** (should be the club account). Renewal: **TBD** (RDAP shows registered 2026-11-10, expires 2027-11-10; turn on auto-renew) | Paid yearly | bought by the club; DNS ⏳ to point at Vercel (runbook B2) |
 
 Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@…` Google account), with at least two current board members as admins. Personal accounts are only a bootstrap.
@@ -27,8 +26,6 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
-| `ANTHROPIC_API_KEY` | Vercel, **server only**, set per environment (Production: the prod key; Preview: a separate dev key, or leave unset); `.env.local` | `sk-ant-…` from console.anthropic.com → API Keys. Never `NEXT_PUBLIC_`: it is read only by the server in `src/lib/flyer/claude.ts` | **Yes** |
-| `FLYER_MOCK` | local / QA / Preview only | `1` = flyer reading returns a fixed sample, no API call, no cost. Ignored in production | No |
 | `SUPABASE_SECRET_KEY` | **Not used.** M2 runs every query as the signed-in user under RLS, so the site needs no secret key. If a later feature needs one: server only, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
 
 The template is in `.env.example`. Real values live only in Vercel and in each developer's `.env.local`.
@@ -186,18 +183,10 @@ Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) deci
 - Removing a member in `/admin/members` cuts their access on their next request.
 - Hand QA the list under §4 "M2: what to test".
 
-### G. Flyer reading (Anthropic Console, ~10 min, optional)
-1. Sign in to **console.anthropic.com** with the club account and create (or join) the club's organization.
-2. **Billing**: buy a small amount of prepaid credit (e.g. $10). Requests stop when credit runs out, so this is a hard cap.
-3. **Settings → Limits**: set a **monthly spend limit** (e.g. $10/month) and an email alert below it. Check the limit after any plan change.
-4. **API Keys → Create key**, one per environment: `tau-ai-club-prod` and `tau-ai-club-dev`. Copy each once.
-5. Vercel → Project → Settings → Environment Variables: add `ANTHROPIC_API_KEY` = the prod key for **Production** only, and the dev key for **Preview** (optional). Redeploy.
-6. Verify: as an admin, open `/admin/events/new`, upload a flyer, check the draft, then look at the Vercel function log for one `[flyer] usage` line with `input_tokens` / `output_tokens`.
-7. To switch it off: delete the env var (the page goes back to "not set up yet") or revoke the key in the Console.
-
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.
 - **Add a Luma link:** fill `events.luma_url` (must start with `https://`). The button appears automatically.
+- **New event from Luma or a flyer (M2):** `/admin/events/new` → "Fill in from Luma or a flyer". The Luma link is the accurate path. A flyer is read in your browser, which is good at dates, times, links, and venues and speakers already on the site, and weak at titles (offered as suggestions). Marked fields came from the import: check them, then save (it saves as a draft). Free: no AI and no API key. The browser loads Tesseract, its language data and MediaPipe from cdn.jsdelivr.net (pinned versions).
 - **Unknown venue:** leave `venue_id` empty (the site shows "מיקום ייקבע" / "Venue TBD"). Optionally set `venue_note_he/en` (e.g. "Off campus").
 - **Tentative event:** `is_tentative = true` adds a "טנטטיבי" / "Tentative" tag.
 - **Members (M2):** `/admin/members`. Add one person, import a CSV, change a role, add a secondary email (e.g. a personal Gmail next to the TAU one), or remove someone. Emails match case-insensitively; enter the exact Google account address (Gmail dots and `+tags` are not merged).

@@ -1,4 +1,4 @@
-// The draft an admin carries from the flyer panel to the event form, as a URL param
+// The draft an admin carries from the import panel (Luma link or flyer) to the event form, as a URL param
 // (`/admin/events/new?prefill=…`). Pure module; validated again on the server.
 
 export type EventPrefill = {
@@ -18,7 +18,15 @@ export type EventPrefill = {
   luma_url: string;
   speaker_ids: string[];
   notes: string;
+  /** Form field names the import filled, highlighted on the form for review. */
+  filled: string[];
 };
+
+/** Form fields that can be marked as imported. */
+export const PREFILL_FIELDS = [
+  "title_he", "title_en", "kind", "blurb_he", "blurb_en", "starts_at", "ends_at",
+  "venue_id", "venue_note_he", "venue_note_en", "speaker_id", "luma_url",
+] as const;
 
 const DEFAULT_START = "18:00";
 const DEFAULT_END = "20:00";
@@ -83,5 +91,8 @@ export function decodePrefill(param: string | undefined | null): EventPrefill | 
     luma_url: /^https:\/\/\S+$/.test(s("luma_url")) ? s("luma_url") : "",
     speaker_ids: Array.isArray(raw.speaker_ids) ? raw.speaker_ids.filter((x): x is string => typeof x === "string" && UUID.test(x)).slice(0, 8) : [],
     notes: s("notes", 600),
+    filled: Array.isArray(raw.filled)
+      ? [...new Set(raw.filled.filter((x): x is string => typeof x === "string" && (PREFILL_FIELDS as readonly string[]).includes(x)))]
+      : [],
   };
 }
