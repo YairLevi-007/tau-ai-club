@@ -33,6 +33,16 @@ await db.exec(`
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
   alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
   alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+  -- Supabase Storage: only the columns/policies our migrations touch. RLS on, as in Supabase.
+  create schema storage;
+  create table storage.buckets (id text primary key, name text not null unique, public boolean default false,
+    file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets (id),
+    name text not null, owner_id text, created_at timestamptz default now(), unique (bucket_id, name));
+  alter table storage.objects enable row level security;
+  alter table storage.buckets enable row level security;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant all on storage.objects, storage.buckets to anon, authenticated, service_role;
 `);
 for (const f of readdirSync(join(root, "supabase", "migrations")).filter((f) => f.endsWith(".sql")).sort())
   await db.exec(readFileSync(join(root, "supabase", "migrations", f), "utf8"));
@@ -427,7 +437,7 @@ section("7. Privilege audit (catalog)");
     ok(!(await su(`select has_table_privilege('authenticated','public.${t}','SELECT') s`))[0].s, `authenticated has no SELECT on ${t}`);
   // Which public functions can anon / authenticated execute? Anything outside the expected list is a finding.
   const ANON_OK = new Set(["current_member_id", "is_member", "is_admin", "public_speaker_links", "speaker_form_info", "submit_speaker_contact"]);
-  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status"]);
+  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status", "avatar_owner_folder", "update_my_name", "member_directory", "member_profile", "admin_save_event"]);
   const fns = await su(`select p.proname, has_function_privilege('anon', p.oid, 'EXECUTE') a, has_function_privilege('authenticated', p.oid, 'EXECUTE') u
                         from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prorettype <> 'trigger'::regtype order by 1`); // trigger functions can't be called directly (info: set_updated_at has default EXECUTE grants)
   const anonExtra = fns.filter((f) => f.a && !ANON_OK.has(f.proname)).map((f) => f.proname);
@@ -440,6 +450,174 @@ section("7. Privilege audit (catalog)");
   // Views must not bypass RLS
   const views = await su(`select c.relname, c.reloptions from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='v'`);
   ok(views.every((v) => (v.reloptions ?? []).some((o) => /security_invoker=(true|on)/.test(o))), "every public view is security_invoker", views.map((v) => v.relname).join());
+}
+
+// =====================================================================================================
+section("8. Profiles (part 2): photo + links constraints, own-name RPC, directory");
+{
+  const own = (m) => `https://x.supabase.co/storage/v1/object/authenticated/avatars/${m}/me.jpg`;
+  const setPhoto = (who, m, url) => run(who, `update public.profiles set photo_url = '${url}' where member_id = '${m}'`);
+  ok(!(await setPhoto("member", M.member, own(M.member))).error, "member can point photo_url at their OWN avatar folder");
+  ok(!!(await setPhoto("member", M.member, own(M.member2))).error, "member CANNOT point photo_url at another member's folder");
+  ok(!!(await setPhoto("member", M.member, "https://evil.example/x.jpg")).error, "photo_url must be a storage URL in the avatars bucket");
+  for (const [label, links] of [
+    ["unknown key", `{"twitter":"https://x.com/a"}`],
+    ["http LinkedIn", `{"linkedin":"http://linkedin.com/in/a"}`],
+    ["javascript: website", `{"website":"javascript:alert(1)"}`],
+    ["LinkedIn on another domain", `{"linkedin":"https://evil.example/linkedin.com/in/a"}`],
+    ["non-github github", `{"github":"https://evil.example/a"}`],
+  ])
+    ok(!!(await run("member", `update public.profiles set links = '${links}'::jsonb where member_id='${M.member}'`)).error, `links rejected: ${label}`);
+  ok(
+    !(await run("member", `update public.profiles set links = '{"linkedin":"https://www.linkedin.com/in/a","github":"https://github.com/a","website":"https://example.com/a"}'::jsonb where member_id='${M.member}'`)).error,
+    "valid links accepted",
+  );
+
+  ok(!!(await run("anon", "select public.update_my_name('X')")).error, "anon: update_my_name refused");
+  ok(!!(await run("outsider", "select public.update_my_name('Mallory')")).error, "outsider: update_my_name refused");
+  ok(!!(await run("unverified", "select public.update_my_name('Mallory')")).error, "unverified: update_my_name refused");
+  ok(
+    !(await run("member", "select public.update_my_name('  New Name  ')")).error && (await su(`select full_name from public.members where id=$1`, [M.member]))[0].full_name === "New Name",
+    "member renames themself (trimmed)",
+  );
+  ok((await su(`select full_name from public.members where id=$1`, [M.member2]))[0].full_name === "Member Two", "renaming does not touch other members");
+  for (const bad of ["''", `'${"x".repeat(121)}'`, "null"]) ok(!!(await run("member", `select public.update_my_name(${bad})`)).error, `update_my_name rejects ${bad.slice(0, 12)}`);
+
+  ok(!!(await run("anon", "select * from public.member_directory()")).error, "anon: member_directory refused");
+  ok(rowsOf(await run("outsider", "select * from public.member_directory()")).length === 0, "outsider: member_directory empty");
+  ok(rowsOf(await run("unverified", "select * from public.member_directory()")).length === 0, "unverified: member_directory empty");
+  const dir = rowsOf(await run("member", "select * from public.member_directory()"));
+  ok(dir.length >= 5, "member sees the directory");
+  ok(!Object.keys(dir[0] ?? {}).some((k) => /email|role|phone/i.test(k)), "directory exposes no email/role/phone columns");
+  ok(!!(await run("anon", "select * from public.member_profile($1)", [M.member2])).error, "anon: member_profile refused");
+  ok(rowsOf(await run("outsider", "select * from public.member_profile($1)", [M.member2])).length === 0, "outsider: member_profile empty");
+  const mp = rowsOf(await run("member", "select * from public.member_profile($1)", [M.member2]))[0];
+  ok(mp && mp.is_self === false && !Object.keys(mp).some((k) => /email|role|phone/i.test(k)), "member_profile: no email/role/phone, is_self=false for others");
+  ok(rowsOf(await run("member", "select * from public.member_profile($1)", [M.member]))[0]?.is_self === true, "member_profile: is_self=true for own");
+  for (const who of ["anon", "outsider", "member"]) ok(!!(await run(who, "select public.admin_save_event('{}'::jsonb)")).error, `[${who}] admin_save_event refused`);
+}
+
+// =====================================================================================================
+section("9. Storage: avatars bucket");
+{
+  const b = (await su(`select * from storage.buckets where id='avatars'`))[0];
+  ok(b && b.public === false, "avatars bucket exists and is PRIVATE");
+  ok(b?.file_size_limit > 0 && b.file_size_limit <= 5 * 1024 * 1024, "avatars bucket has a size limit <= 5 MB", String(b?.file_size_limit));
+  ok(Array.isArray(b?.allowed_mime_types) && b.allowed_mime_types.every((m) => /^image\/(jpeg|png|webp)$/.test(m)), "avatars bucket only allows jpeg/png/webp (no svg/html)", JSON.stringify(b?.allowed_mime_types));
+  await su(`insert into storage.buckets (id, name, public) values ('private-other','private-other',false) on conflict do nothing`);
+  await su(`insert into storage.objects (bucket_id, name) values ('avatars', $1), ('avatars', $2), ('private-other', 'secret.txt')`, [`${M.member2}/face.jpg`, `${M.member}/old.jpg`]);
+  const list = (who) => run(who, `select name from storage.objects where bucket_id='avatars'`);
+  ok(rowsOf(await list("anon")).length === 0, "guest (anon) sees NO avatar objects");
+  for (const who of ["outsider", "unverified"]) ok(rowsOf(await list(who)).length === 0, `[${who}] sees NO avatar objects`);
+  ok(rowsOf(await list("member")).length >= 2, "member can read avatars (all folders)");
+  ok(rowsOf(await run("member", `select name from storage.objects where bucket_id='private-other'`)).length === 0, "member cannot read other buckets (no policy)");
+  const objs = (who, name, bucket = "avatars") => run(who, `insert into storage.objects (bucket_id, name) values ('${bucket}', '${name}')`);
+  ok(!!(await objs("anon", `${M.member}/a.jpg`)).error, "guest cannot upload");
+  ok(!!(await objs("outsider", `${M.member}/a.jpg`)).error, "outsider cannot upload even into a member's folder");
+  ok(!!(await objs("unverified", `${M.victim}/a.jpg`)).error, "unverified-email user cannot upload into the victim's folder");
+  ok(!(await objs("member", `${M.member}/new.jpg`)).error, "member uploads into OWN folder");
+  ok(!!(await objs("member", `${M.member2}/evil.jpg`)).error, "member CANNOT upload into another member's folder");
+  ok(!!(await objs("member", `evil.jpg`)).error, "member cannot upload at the bucket root");
+  ok(!!(await objs("member", `/${M.member}/x.jpg`)).error, "leading-slash name does not bypass the folder rule");
+  ok(!!(await objs("member", `${M.member}/x.jpg`, "private-other")).error, "member cannot upload into another bucket");
+  const trav = await objs("member", `${M.member}/../${M.member2}/traversal.jpg`);
+  console.log(`INFO  object name "<me>/../<other>/x" ${trav.error ? "refused" : "ACCEPTED by the SQL policy (real Supabase Storage rejects '..' segments; verify there)"}`);
+  await su(`delete from storage.objects where name like '%traversal.jpg'`);
+  const upd = (who, name) => run(who, `update storage.objects set owner_id = 'x' where bucket_id='avatars' and name = '${name}'`);
+  ok(((await upd("member", `${M.member}/old.jpg`)).count ?? 0) === 1, "member can replace own object");
+  ok(((await upd("member", `${M.member2}/face.jpg`)).count ?? 0) === 0, "member cannot replace another member's object");
+  const mv = await run("member", `update storage.objects set name='${M.member}/stolen.jpg' where name='${M.member2}/face.jpg'`);
+  ok(!!mv.error || (mv.count ?? 0) === 0, "member cannot move another member's object into their own folder");
+  const mv2 = await run("member", `update storage.objects set name='${M.member2}/planted.jpg' where name='${M.member}/new.jpg'`);
+  ok(!!mv2.error || (mv2.count ?? 0) === 0, "member cannot move their own object into another member's folder");
+  const del = (who, name) => run(who, `delete from storage.objects where bucket_id='avatars' and name = '${name}'`);
+  ok(((await del("outsider", `${M.member2}/face.jpg`)).count ?? 0) === 0, "outsider cannot delete");
+  ok(((await del("member", `${M.member2}/face.jpg`)).count ?? 0) === 0, "member cannot delete another member's photo");
+  ok(((await del("member", `${M.member}/old.jpg`)).count ?? 0) === 1, "member deletes own photo");
+  ok(!!(await objs("admin", `${M.member2}/by-admin.jpg`)).error, "admin cannot UPLOAD into someone else's folder (only delete)");
+  ok(((await del("admin", `${M.member2}/face.jpg`)).count ?? 0) === 1, "admin can delete any photo");
+  const bl = await run("anon", "select * from storage.buckets");
+  ok(denied(bl) || rowsOf(bl).length === 0, "guest sees no bucket list");
+}
+
+// =====================================================================================================
+section("10. Content writes are admin-only; drafts invisible");
+{
+  const cohort = (await su(`select id from public.cohorts limit 1`))[0].id;
+  const venue = (await su(`select id from public.venues limit 1`))[0].id;
+  const evZ = (await su(`select id from public.events where slug='zero-to-hero-2'`))[0].id;
+  const attempts = {
+    "insert venue": `insert into public.venues (name_he, name_en) values ('x','x')`,
+    "update venue": `update public.venues set name_en='HACKED'`,
+    "delete venue": `delete from public.venues where id='${venue}'`,
+    "insert speaker": `insert into public.speakers (slug, name_he, name_en) values ('qa-evil','x','x')`,
+    "update speaker": `update public.speakers set name_en='HACKED'`,
+    "delete speaker": `delete from public.speakers where id='${S.b}'`,
+    "update line-up": `update public.event_speakers set sort = 9`,
+    "delete line-up": `delete from public.event_speakers`,
+    "insert line-up": `insert into public.event_speakers (event_id, speaker_id) values ('${evZ}','${S.a}')`,
+    "update cohort": `update public.cohorts set name_en='HACKED'`,
+    "publish a draft": `update public.events set status='published' where slug='draft-event'`,
+  };
+  for (const who of ["anon", "outsider", "unverified", "member"])
+    for (const [label, sql] of Object.entries(attempts)) {
+      const r = await run(who, sql);
+      ok(!(!r.error && (r.count ?? 0) > 0), `[${who}] ${label}: refused or 0 rows`, JSON.stringify(r).slice(0, 100));
+    }
+  ok(
+    (await su(`select count(*)::int c from public.venues where name_en='HACKED'`))[0].c === 0 &&
+      (await su(`select count(*)::int c from public.speakers where name_en='HACKED' or slug='qa-evil'`))[0].c === 0,
+    "no venue/speaker/cohort change leaked through",
+  );
+  ok((await su(`select status from public.events where slug='draft-event'`))[0].status === "draft", "draft stayed a draft");
+
+  ok(!(await run("admin", "insert into public.venues (name_he, name_en) values ('qa','QA Hall')")).error, "admin can insert a venue");
+  ok(((await run("admin", "update public.venues set name_en='QA Hall 2' where name_en='QA Hall'")).count ?? 0) === 1, "admin can update a venue");
+  ok(!(await run("admin", "insert into public.speakers (slug, name_he, name_en) values ('qa-speaker','ק','QA Speaker')")).error, "admin can insert a speaker");
+  ok(((await run("admin", "delete from public.speakers where slug='qa-speaker'")).count ?? 0) === 1, "admin can delete a speaker");
+
+  const base = (o = {}) =>
+    JSON.stringify({
+      slug: "qa-saved", cohort_id: cohort, kind: "lecture", title_he: "כ", title_en: "QA saved",
+      starts_at: "2027-03-03T18:00:00+02:00", ends_at: "2027-03-03T20:00:00+02:00", is_tentative: false, status: "draft",
+      speaker_ids: [S.b, S.a], ...o,
+    });
+  const save = (who, j) => run(who, "select public.admin_save_event($1::jsonb) id", [j]);
+  const created = await save("admin", base());
+  ok(!created.error, "admin_save_event creates an event", created.error);
+  const id = rowsOf(created)[0]?.id;
+  const lineup = async () => (await su(`select s.slug from public.event_speakers es join public.speakers s on s.id=es.speaker_id where es.event_id=$1 order by es.sort`, [id])).map((r) => r.slug);
+  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz", "shai-yahel"]), "line-up saved in the given order", JSON.stringify(await lineup()));
+  const badUpdate = await save("admin", base({ id, ends_at: "2027-03-03T17:00:00+02:00", speaker_ids: [S.c] }));
+  ok(!!badUpdate.error, "update with ends_at before starts_at is rejected");
+  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz", "shai-yahel"]), "failed update left the line-up untouched (atomic)");
+  ok(!!(await save("admin", base({ id, slug: "Bad Slug!" }))).error, "bad slug rejected");
+  ok(!!(await save("admin", base({ id: "00000000-0000-0000-0000-000000000000" }))).error, "unknown event id rejected");
+  ok(!!(await save("admin", base({ luma_url: "javascript:alert(1)" }))).error, "non-https luma_url rejected");
+  ok(!!(await save("admin", base({ speaker_ids: "nope" }))).error, "speaker_ids must be an array");
+
+  const vis = async (who) => JSON.stringify(rowsOf(await run(who, "select slug from public.events")));
+  for (const who of ["anon", "outsider", "member"]) {
+    const v = await vis(who);
+    ok(!v.includes("qa-saved") && !v.includes("draft-event"), `[${who}] cannot list draft events`);
+    ok(rowsOf(await run(who, "select * from public.events where slug='draft-event'")).length === 0, `[${who}] cannot fetch a draft by slug`);
+  }
+  for (const who of ["anon", "member"]) {
+    ok(rowsOf(await run(who, `select * from public.event_speakers where event_id=$1`, [id])).length === 0, `[${who}] cannot see the line-up of a draft`);
+    ok(rowsOf(await run(who, "select * from public.speakers where slug='secret-speaker'")).length === 0, `[${who}] cannot see a speaker who is only on a draft`);
+    const emb = JSON.stringify(rowsOf(await run(who, "select e.slug, (select json_agg(s.slug) from public.event_speakers es join public.speakers s on s.id=es.speaker_id where es.event_id=e.id) from public.events e")));
+    ok(!emb.includes("secret-speaker"), `[${who}] draft-only speaker does not surface through joins`);
+  }
+  ok((await vis("admin")).includes("qa-saved"), "admin sees drafts");
+  await save("admin", base({ id, status: "published" }));
+  ok((await vis("anon")).includes("qa-saved"), "publishing makes it visible to guests");
+  await save("admin", base({ id, status: "draft" }));
+  ok(!(await vis("anon")).includes("qa-saved"), "un-publishing hides it again");
+
+  await su(`insert into public.venues (name_he, name_en) values ('x','Hidden Draft Venue')`);
+  await su(`update public.events set venue_id=(select id from public.venues where name_en='Hidden Draft Venue') where slug='draft-event'`);
+  const hv = JSON.stringify(rowsOf(await run("anon", "select name_en from public.venues")));
+  console.log(`INFO  venue used only by a draft event is ${hv.includes("Hidden Draft Venue") ? "VISIBLE to guests (venues are read-all; low sensitivity, but reveals a planned venue)" : "hidden from guests"}`);
 }
 
 console.log(`\n${n - fails}/${n} passed, ${fails} failed`);

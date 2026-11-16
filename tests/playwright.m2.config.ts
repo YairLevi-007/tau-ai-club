@@ -12,6 +12,7 @@ export default defineConfig({
   testDir: "m2",
   timeout: 90_000,
   fullyParallel: true,
+  retries: 1, // next dev can 500 once when parallel cold requests compile the same route (dev-only race, see QA notes)
   reporter: [["list"]],
   use: { baseURL: `http://localhost:${PORT}`, timezoneId: "Asia/Jerusalem" },
   webServer: {
@@ -24,6 +25,10 @@ export default defineConfig({
       USE_FIXTURES: "1",
       DEBUG_NOW: "2026-11-12T10:00:00+02:00",
       NEXT_TELEMETRY_DISABLED: "1",
+      // PW_M2_FAKE_SUPABASE=1 adds an unreachable Supabase URL so auth code paths (garbage cookies etc.) execute.
+      ...(process.env.PW_M2_FAKE_SUPABASE
+        ? { NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fake" }
+        : {}),
     },
   },
   projects: [
