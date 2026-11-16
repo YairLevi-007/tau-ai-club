@@ -5,16 +5,20 @@
 //   pnpm db:check --fixtures -> also write src/lib/data/fixtures.json (what anon sees)
 //
 // This is a stand-in until the real Supabase projects exist. The stubs below mimic
-// only what our SQL needs from Supabase (auth.users, auth.uid(), anon/authenticated).
+// only what our SQL needs from Supabase (auth.users, auth.uid(), auth.jwt(),
+// anon/authenticated, the `extensions` schema). Milestone 2 role checks live in
+// scripts/rls-m2.mjs.
 import { PGlite } from "@electric-sql/pglite";
+import { citext } from "@electric-sql/pglite/contrib/citext";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { runM2Checks } from "./rls-m2.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
 const writeFixtures = process.argv.includes("--fixtures");
 
-const db = new PGlite();
+const db = new PGlite({ extensions: { citext } });
 let failures = 0;
 const check = (ok, label) => {
   console.log(`${ok ? "PASS" : "FAIL"}  ${label}`);
@@ -27,13 +31,27 @@ await db.exec(`
   create role authenticated nologin;
   create role service_role nologin bypassrls;
   create schema auth;
-  create table auth.users (id uuid primary key default gen_random_uuid(), email text);
-  create function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
+  create schema extensions;
+  create table auth.users (
+    id uuid primary key default gen_random_uuid(),
+    email text,
+    email_confirmed_at timestamptz
+  );
+  -- Same as Supabase: claims come from the request.jwt.claims GUC that PostgREST sets.
+  create function auth.jwt() returns jsonb language sql stable as $$
+    select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
+  $$;
+  create function auth.uid() returns uuid language sql stable as $$
+    select nullif(auth.jwt() ->> 'sub', '')::uuid
+  $$;
   grant usage on schema public to anon, authenticated, service_role;
   grant usage on schema auth to anon, authenticated;
-  -- Supabase grants everything on public tables to the API roles by default;
-  -- mimic that so our migration's revokes are actually tested.
+  grant usage on schema extensions to anon, authenticated, service_role;
+  grant execute on all functions in schema auth to anon, authenticated;
+  -- Supabase grants everything on public tables AND functions to the API roles by
+  -- default; mimic that so our migrations' revokes are actually tested.
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+  alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 `);
 
 // --- Migrations + seed --------------------------------------------------------
@@ -131,6 +149,10 @@ if (writeFixtures) {
   writeFileSync(out, JSON.stringify({ cohort: cohort.rows[0], events: res.rows[0].data }, null, 2) + "\n");
   console.log(`wrote    ${out}`);
 }
+
+// --- Milestone 2: roles, allowlist, speaker contact data ------------------------
+// Runs after the fixture export: it writes test rows (members, contacts, an admin edit).
+await runM2Checks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);
