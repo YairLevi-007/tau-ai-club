@@ -1,4 +1,4 @@
-# HANDOVER (v1.2, 2026-11-15)
+# HANDOVER (v1.3, 2026-11-16)
 
 How the TAU AI Club site runs, what it depends on, and how to hand it to the next club team.
 Keep this file current: whoever adds a service or env var updates it in the same PR.
@@ -10,7 +10,7 @@ Keep this file current: whoever adds a service or env var updates it in the same
 | GitHub | Code, PRs, Vercel's git source | Org `tau-ai-club`, repo `tau-ai-club/site` (**public**: Vercel Hobby can't deploy private org repos) | Free | ⏳ to create |
 | Vercel | Hosting, preview deploys | Hobby account of a club admin, project `tau-ai-club`. Production: **`https://tauaiclub.com`** (`www` → apex), fallback `tau-ai-club.vercel.app` | Hobby (non-commercial only: no ads, no paid work on the site) | ⏳ to create |
 | Supabase | Postgres, RLS, Auth (M2) | Dedicated org "TAU AI Club", projects `tau-ai-club-dev` and `tau-ai-club-prod` | Free (projects pause after ~7 days without traffic; dev may pause, prod gets daily traffic) | ⏳ to create |
-| Google Cloud | OAuth client for "Sign in with Google" (M2) | Project `tau-ai-club`, owned by the club Google account | Free | M2 |
+| Google Cloud | OAuth client for "Sign in with Google" (M2) | Project `tau-ai-club`, owned by the club Google account | Free | ⏳ to create (runbook F1) |
 | Luma | Event registration (we only link to it) | Club's Luma calendar | Free | exists |
 | Domain `tauaiclub.com` | Production domain (apex), `www` redirects to it | Registrar: **GoDaddy** (from public RDAP/DNS: nameservers `ns21/ns22.domaincontrol.com`; confirm). Account owner: **TBD** (should be the club account). Renewal: **TBD** (RDAP shows registered 2026-11-10, expires 2027-11-10; turn on auto-renew) | Paid yearly | bought by the club; DNS ⏳ to point at Vercel (runbook B2) |
 
@@ -26,7 +26,7 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
-| `SUPABASE_SECRET_KEY` | **M2+, server only**, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
+| `SUPABASE_SECRET_KEY` | **Not used.** M2 runs every query as the signed-in user under RLS, so the site needs no secret key. If a later feature needs one: server only, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
 
 The template is in `.env.example`. Real values live only in Vercel and in each developer's `.env.local`.
 
@@ -117,10 +117,7 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
    - **Project URL**: `https://<ref>.supabase.co`
    - **Publishable key**: `sb_publishable_…`. If the project only shows legacy keys, use the **anon public** key; it works the same.
    - Never copy the **secret** / **service_role** key into Vercel for M1.
-9. **Authentication → URL Configuration** (needed for Google sign-in in M2, harmless to set now):
-   - **prod**: Site URL = `https://tauaiclub.com`. Redirect URLs: `https://tauaiclub.com/**` and `https://tau-ai-club.vercel.app/**` (fallback domain).
-   - **dev**: Site URL = `http://localhost:3000`. Redirect URLs: `http://localhost:3000/**` and `https://tau-ai-club-*.vercel.app/**` (preview deploys).
-   - Google Cloud OAuth client (M2): Authorized JavaScript origins `https://tauaiclub.com`, `https://tau-ai-club.vercel.app` and `http://localhost:3000`. Authorized redirect URI: each project's `https://<ref>.supabase.co/auth/v1/callback`.
+9. **Authentication → URL Configuration** and the Google provider: see **F** (Milestone 2).
 
 ### D. Connect Vercel to Supabase (~5 min)
 1. Vercel → project → **Settings → Environment Variables**. Add each variable with the right environment checkboxes:
@@ -145,12 +142,58 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
 - Edit one event title in Supabase **prod**: the site updates within 5 minutes.
 - Tell QA the production URL (`https://tauaiclub.com`), so they can run `qa/TEST-PLAN.md` against it.
 
+### F. Milestone 2: Google sign-in + allowlist (~30 min)
+Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) decides who is a member. Nothing new goes into Vercel: no new env vars, no secret key.
+
+**F1. Google Cloud OAuth client** (one client serves both Supabase projects), signed in as the club Google account:
+1. console.cloud.google.com → project picker → **New project** → Name `tau-ai-club` → **Create**, then select it.
+2. **APIs & Services → OAuth consent screen** (Google Auth Platform) → **Get started**:
+   - App name `TAU AI Club`, user support email = the club email. Audience: **External**. Contact email = the club email. Agree, **Create**.
+   - **Branding**: home page `https://tauaiclub.com`. **Authorized domains**: `tauaiclub.com` and `supabase.co`.
+   - **Data access**: only `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`. They are non-sensitive, so Google doesn't need to verify the app.
+   - **Audience → Publish app** (status **In production**). While it says "Testing", only listed test users can sign in.
+3. **Clients → Create client** → type **Web application**, name `tau-ai-club-supabase`:
+   - **Authorized JavaScript origins**: `https://tauaiclub.com`, `https://tau-ai-club.vercel.app`, `http://localhost:3000`.
+   - **Authorized redirect URIs**: `https://<DEV_REF>.supabase.co/auth/v1/callback` and `https://<PROD_REF>.supabase.co/auth/v1/callback`. Google sends people back to Supabase, never straight to our site.
+   - **Create**, then save the **Client ID** and **Client secret** in the club password manager. The secret goes only into Supabase (F2), never into the repo or Vercel.
+
+**F2. Supabase Auth** (in **dev** and in **prod**):
+1. **Authentication → Sign In / Providers → Google**: **Enable**, paste the Client ID and secret, **Save**. The callback URL shown there must be one of the redirect URIs from F1.
+2. Same page: turn **off** Email, Phone and **Anonymous sign-ins**. The database trusts only confirmed emails (`auth.users.email_confirmed_at`), so other sign-ups couldn't get in anyway, but there's no reason to offer them. Keep **Allow new users to sign up** on: people who aren't on the list still need a session so the site can show them "המועדון סגור לחברים בלבד".
+3. **Authentication → URL Configuration**. The app's callback is `/api/auth/callback` (it carries `?locale=…&next=…`, hence the trailing `**`):
+   - **prod**: Site URL `https://tauaiclub.com`. Redirect URLs: `https://tauaiclub.com/api/auth/callback**` and `https://tau-ai-club.vercel.app/api/auth/callback**`.
+   - **dev**: Site URL `http://localhost:3000`. Redirect URLs: `http://localhost:3000/api/auth/callback**`, `http://localhost:3500/api/auth/callback**` (the M2 worktree's dev port) and `https://tau-ai-club-*.vercel.app/api/auth/callback**` (every preview and branch URL; `*` doesn't cross `.` or `/`).
+   - If an earlier version of this runbook had you add broad `/**` patterns, replace them with these.
+4. Optional, recommended: **Project Settings → JWT Keys → migrate to asymmetric signing keys**. The site then verifies sessions locally (`getClaims()`) instead of calling Supabase Auth on every request.
+
+**F3. Schema + first admin**:
+1. Apply the M2 migration, dev first, then prod: `npx supabase link --project-ref <REF>`, then `npx supabase db push`. It adds `members`, `member_emails`, `profiles`, `speaker_contacts`, `speaker_form_tokens`, the RLS helpers and the RPCs, and makes content tables admin-writable.
+2. Bootstrap the first admin once per project in the **SQL Editor** (use your real name and Google email):
+   ```sql
+   with m as (insert into public.members (full_name, role) values ('Full Name', 'admin') returning id)
+   insert into public.member_emails (email, member_id, is_primary) select 'you@gmail.com', id, true from m;
+   ```
+   Everything after that happens in the site's admin pages. The database refuses to remove or demote the last admin.
+3. Sign in at `/login` with that account: you see the first-login welcome, then `/admin/members`.
+4. Import the cohort: `/admin/members` → **Import from CSV**, columns `email, full_name, role` (`member` or `admin`; header row optional). A known email is updated; one bad row stops the whole import and nothing is written.
+
+**F4. Verify**:
+- A Google account that is **not** on the list signs in and lands on `/members-only` ("המועדון סגור לחברים בלבד" / "Members only"), and can sign out.
+- A listed account signs in and sees the welcome once. `/admin/members` is a 404 unless the account is an admin.
+- Removing a member in `/admin/members` cuts their access on their next request.
+- Hand QA the list under §4 "M2: what to test".
+
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.
 - **Add a Luma link:** fill `events.luma_url` (must start with `https://`). The button appears automatically.
 - **Unknown venue:** leave `venue_id` empty (the site shows "מיקום ייקבע" / "Venue TBD"). Optionally set `venue_note_he/en` (e.g. "Off campus").
 - **Tentative event:** `is_tentative = true` adds a "טנטטיבי" / "Tentative" tag.
+- **Members (M2):** `/admin/members`. Add one person, import a CSV, change a role, add a secondary email (e.g. a personal Gmail next to the TAU one), or remove someone. Emails match case-insensitively; enter the exact Google account address (Gmail dots and `+tags` are not merged).
+- **Speaker contact details (M2):** `/admin/speakers` → **Create link** → copy it (it's shown only once) and send it to the speaker. It works once and expires (14 days by default, max 60); a new link cancels the previous one. The speaker ticks each field they agree to share. Email and phone are shown only to signed-in members; LinkedIn is public only if they also tick "show it on the public site". If a speaker asks, **Delete details** removes the row for good. Admins see which fields were shared, never the values.
 - **Schema change:** add a new file in `supabase/migrations/`, run `pnpm db:check`, open a PR, then `supabase db push` to dev and later to prod.
+
+### M2: what to test (for QA)
+Roles: guest, signed-in non-allowlisted, member, admin. Routes, each in he and en: `/login`, `/members-only`, `/welcome`, `/admin/members`, `/admin/speakers`, `/speaker/<token>`, and `/api/auth/signin`, `/api/auth/callback`, `/api/auth/signout`. Database side: `pnpm db:check` runs the RLS suite in `scripts/rls-m2.mjs`.
 
 ## 5. Transfer to the next team (yearly)
 1. **GitHub:** add the new board members as org owners, then remove the outgoing ones. The repo stays in the org.
@@ -162,7 +205,7 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
 
    If the club ever upgrades to Pro, use **Project → Settings → Transfer** instead (the domains move with the project).
 3. **Supabase:** Organization → Team → invite the new owners as Owner, then remove the outgoing ones. Rotate the database password and the secret API key afterwards.
-4. **Google Cloud (M2):** add the new owners to the project IAM as Owner. The OAuth client stays the same.
+4. **Google Cloud (M2):** add the new owners to the project IAM as Owner. The OAuth client stays the same. If the client secret may have leaked, add a new secret to the client, paste it into both Supabase projects (F2.1), then delete the old one.
 5. **Shared club Google account + password manager:** hand them over in person, and rotate the passwords.
 6. **Domain `tauaiclub.com`:** make sure it sits in a **club-owned** registrar account. If it was bought on a personal GoDaddy account, use GoDaddy's **Transfer to another GoDaddy account** (account change, not a registrar transfer). Check that auto-renew is on and that the renewal card or credit belongs to the club. Note the renewal date in §1. Moving to another registrar is possible only 60 days after purchase (from ~2027-01-09), and the DNS records must be recreated there first.
 7. Update §1 of this file with the new owners and date.
