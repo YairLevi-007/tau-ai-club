@@ -255,7 +255,9 @@
     "addSpeaker": "Add a speaker",
     "deleteSpeakerConfirm": "Delete {name}'s profile? This can't be undone.",
     "errorSpeakerOnEvent": "This speaker is on an event's line-up. Remove them from the event first.",
-    "errorPhotoHost": "The photo has to be an https link on Supabase Storage (*.supabase.co)."
+    "errorPhotoHost": "The photo has to be an https link on Supabase Storage (*.supabase.co).",
+    "contactsEmpty": "No speakers on this session yet. Pick speakers above and save, then you can ask them for contact details.",
+    "missingContacts": "{n, plural, one {# speaker without contact details} other {# speakers without contact details}}"
   },
   "speakerForm": {
     "eyebrow": "Contact details",

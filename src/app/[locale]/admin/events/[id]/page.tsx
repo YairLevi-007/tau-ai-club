@@ -12,6 +12,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, CircleCheck } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
+import { SpeakerContactsPanel, type SpeakerContactStatus } from "@/components/admin/speaker-contacts-panel";
 import { dangerBtn, inputClass, labelClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { deleteEvent, saveEvent } from "../actions";
 
@@ -61,7 +62,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   const isNew = id === "new";
   if (!isNew && !/^[0-9a-f-]{36}$/i.test(id)) notFound();
 
-  const [eventRes, cohortsRes, venuesRes, speakersRes] = await Promise.all([
+  const [eventRes, cohortsRes, venuesRes, speakersRes, contactsRes] = await Promise.all([
     isNew
       ? Promise.resolve({ data: null })
       : supabase
@@ -72,6 +73,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
     supabase.from("cohorts").select("id, name_he, name_en, starts_on").order("starts_on", { ascending: false }),
     supabase.from("venues").select("id, name_he, name_en").order("name_en"),
     supabase.from("speakers").select("id, name_he, name_en").order("name_en"),
+    isNew ? Promise.resolve({ data: [] }) : supabase.rpc("admin_speaker_contact_status"),
   ]);
   const ev = eventRes.data as EventRow | null;
   if (!isNew && !ev) notFound();
@@ -80,6 +82,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
   const speakers = (speakersRes.data ?? []) as Named[];
   const lineup = [...(ev?.event_speakers ?? [])].sort((a, b) => a.sort - b.sort).map((s) => s.speaker_id);
   const slots = Math.max(4, lineup.length + 1);
+  const contactById = new Map(((contactsRes.data ?? []) as SpeakerContactStatus[]).map((r) => [r.speaker_id, r]));
+  const lineupContacts = lineup.map((sid) => contactById.get(sid)).filter((r): r is SpeakerContactStatus => !!r);
 
   return (
     <div className="grid gap-8">
@@ -284,6 +288,8 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
           )}
         </div>
       </ActionForm>
+
+      {ev && <SpeakerContactsPanel rows={lineupContacts} locale={locale} />}
 
       {ev && (
         <ActionForm action={deleteEvent} confirmText={t("deleteEventConfirm", { name: loc(ev, "title", locale) ?? ev.slug })} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 p-4 sm:p-5">

@@ -45,6 +45,10 @@ export default async function AdminEventsPage({ params }: PageProps<"/[locale]/a
         .order("starts_at")
     : { data: [], error: null };
   const rows = (data ?? []) as unknown as Row[];
+  const { data: contacts } = supabase ? await supabase.rpc("admin_speaker_contact_status") : { data: [] };
+  const hasContact = new Map(
+    ((contacts ?? []) as { speaker_id: string; has_contact: boolean }[]).map((c) => [c.speaker_id, c.has_contact]),
+  );
 
   return (
     <div className="grid gap-8">
@@ -77,6 +81,10 @@ export default async function AdminEventsPage({ params }: PageProps<"/[locale]/a
                     {e.status === "published" ? t("statusPublished") : t("statusDraft")}
                   </span>
                   {e.is_tentative && <span className="tag tag-tentative">{t("tentative")}</span>}
+                  {(() => {
+                    const missing = e.event_speakers.filter((sp) => hasContact.get(sp.speaker_id) === false).length;
+                    return missing > 0 ? <span className="tag tag-tbd">{t("missingContacts", { n: missing })}</span> : null;
+                  })()}
                   <bdi dir="ltr" className="font-mono text-[0.8125rem] text-fg-subtle">
                     /{e.slug}
                   </bdi>

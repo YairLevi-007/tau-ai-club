@@ -32,7 +32,7 @@ export async function createSpeakerLink(_: ActionState, fd: FormData): Promise<A
 
   const origin = (await headers()).get("origin") ?? SITE_URL;
   const locale = (await getLocale()) as Locale;
-  revalidatePath("/[locale]/admin/speakers", "page");
+  revalidatePath("/[locale]/admin/events", "layout");
   return { ok: true, message: t("linkReady"), link: `${origin}${localizedPath(locale, `/speaker/${row.token}`)}` };
 }
 
@@ -41,7 +41,7 @@ export async function revokeSpeakerLinks(_: ActionState, fd: FormData): Promise<
   const t = await getTranslations("admin");
   const { error } = await supabase.rpc("admin_revoke_speaker_tokens", { p_speaker_id: str(fd, "speaker_id") });
   if (error) return { ok: false, message: t("errorGeneric") };
-  revalidatePath("/[locale]/admin/speakers", "page");
+  revalidatePath("/[locale]/admin/events", "layout");
   return { ok: true, message: t("saved") };
 }
 
@@ -51,6 +51,6 @@ export async function deleteSpeakerContact(_: ActionState, fd: FormData): Promis
   const t = await getTranslations("admin");
   const { error } = await supabase.rpc("admin_delete_speaker_contact", { p_speaker_id: str(fd, "speaker_id") });
   if (error) return { ok: false, message: t("errorGeneric") };
-  revalidatePath("/[locale]/admin/speakers", "page");
+  revalidatePath("/[locale]/admin/events", "layout");
   return { ok: true, message: t("deleted") };
 }

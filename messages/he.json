@@ -255,7 +255,9 @@
     "addSpeaker": "הוספת מרצה",
     "deleteSpeakerConfirm": "למחוק את הפרופיל של {name}? אי אפשר לבטל.",
     "errorSpeakerOnEvent": "המרצה משובץ לאירוע. קודם צריך להסיר אותו מהאירוע.",
-    "errorPhotoHost": "התמונה צריכה להיות קישור https ב-Supabase Storage (*.supabase.co)."
+    "errorPhotoHost": "התמונה צריכה להיות קישור https ב-Supabase Storage (*.supabase.co).",
+    "contactsEmpty": "עוד אין מרצים במפגש הזה. בחרו מרצים למעלה ושמרו, ואז אפשר לבקש מהם פרטי קשר.",
+    "missingContacts": "{n, plural, one {חסרים פרטי קשר למרצה אחד} other {חסרים פרטי קשר ל-# מרצים}}"
   },
   "speakerForm": {
     "eyebrow": "פרטי קשר",

@@ -33,7 +33,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
             { href: "/admin/events", label: t("eventsTab") },
             { href: "/admin/venues", label: t("venuesTab") },
             { href: "/admin/speaker-profiles", label: t("speakerProfilesTab") },
-            { href: "/admin/speakers", label: t("speakersTab") },
             { href: "/admin/members", label: t("membersTab") },
           ]}
         />
