@@ -172,4 +172,22 @@ export async function runProfileChecks(db, check) {
     const delEvent = await as("admin", "delete from public.events where id = $1", [id]);
     check(delEvent.affected === 1, "[admin] deletes an event (its line-up cascades)");
   }
+  // ---- 16. speaker-photos bucket (public read, admin write) --------------------
+  {
+    const b = (await db.query("select public from storage.buckets where id = 'speaker-photos'")).rows[0];
+    check(b && b.public === true, "speaker-photos bucket exists and is public");
+    const put = (who, name) => as(who, "insert into storage.objects (bucket_id, name) values ('speaker-photos', $1)", [name]);
+    check(!denied(await put("admin", "x/face.jpg")), "[admin] uploads a speaker photo");
+    check(denied(await put("alice", "x/evil.jpg")), "[member] cannot upload speaker photos");
+    check(denied(await put("outsider", "x/evil.jpg")), "[outsider] cannot upload speaker photos");
+    check(denied(await put("guest", "x/evil.jpg")), "[guest] cannot upload speaker photos");
+    const del = await as("alice", "delete from storage.objects where bucket_id = 'speaker-photos'");
+    check(!denied(del) && del.affected === 0, "[member] cannot delete speaker photos");
+    const upd = await as("alice", "update storage.objects set name = 'y/z.jpg' where bucket_id = 'speaker-photos'");
+    check(!denied(upd) && upd.affected === 0, "[member] cannot rename speaker photos");
+    const own = await as("alice", "insert into storage.objects (bucket_id, name) values ('avatars', $1)", ["x/face.jpg"]);
+    check(denied(own), "the speaker-photos admin policy does not open the avatars bucket");
+    const delAdmin = await as("admin", "delete from storage.objects where bucket_id = 'speaker-photos'");
+    check(delAdmin.affected === 1, "[admin] deletes a speaker photo");
+  }
 }
