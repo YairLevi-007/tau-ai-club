@@ -10,7 +10,7 @@ const ROUTES = [
   "/profile", "/en/profile", "/members/123e4567-e89b-42d3-a456-426614174000", "/en/members/123e4567-e89b-42d3-a456-426614174000",
   "/admin", "/en/admin", "/admin/members", "/en/admin/members", "/admin/events", "/en/admin/events",
   "/admin/events/123e4567-e89b-42d3-a456-426614174000", "/en/admin/events/123e4567-e89b-42d3-a456-426614174000",
-  "/admin/events/new", "/en/admin/events/new", "/admin/venues", "/en/admin/venues",
+  "/admin/events/new", "/en/admin/events/new", "/admin/venues", "/en/admin/venues", "/admin/attendance", "/en/admin/attendance", "/admin/attendance/123e4567-e89b-42d3-a456-426614174000", "/api/admin/attendance",
   "/admin/speaker-profiles", "/en/admin/speaker-profiles", "/admin/speakers", "/en/admin/speakers",
   "/events/zero-to-hero-1", "/en/events/zero-to-hero-1", "/events/joint-event-ori-goshen", "/en/events/joint-event-ori-goshen",
   `/speaker/${"a".repeat(64)}`, `/en/speaker/${"a".repeat(64)}`, "/speaker/abc", "/en/speaker/abc", "/speaker/..%2F..%2Fetc%2Fpasswd",

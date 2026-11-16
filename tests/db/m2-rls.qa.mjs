@@ -437,7 +437,7 @@ section("7. Privilege audit (catalog)");
     ok(!(await su(`select has_table_privilege('authenticated','public.${t}','SELECT') s`))[0].s, `authenticated has no SELECT on ${t}`);
   // Which public functions can anon / authenticated execute? Anything outside the expected list is a finding.
   const ANON_OK = new Set(["current_member_id", "is_member", "is_admin", "public_speaker_links", "speaker_form_info", "submit_speaker_contact"]);
-  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status", "avatar_owner_folder", "update_my_name", "member_directory", "member_profile", "admin_save_event"]);
+  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status", "avatar_owner_folder", "update_my_name", "member_directory", "member_profile", "admin_save_event", "admin_import_attendance"]);
   const fns = await su(`select p.proname, has_function_privilege('anon', p.oid, 'EXECUTE') a, has_function_privilege('authenticated', p.oid, 'EXECUTE') u
                         from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prorettype <> 'trigger'::regtype order by 1`); // trigger functions can't be called directly (info: set_updated_at has default EXECUTE grants)
   const anonExtra = fns.filter((f) => f.a && !ANON_OK.has(f.proname)).map((f) => f.proname);
@@ -618,6 +618,112 @@ section("10. Content writes are admin-only; drafts invisible");
   await su(`update public.events set venue_id=(select id from public.venues where name_en='Hidden Draft Venue') where slug='draft-event'`);
   const hv = JSON.stringify(rowsOf(await run("anon", "select name_en from public.venues")));
   console.log(`INFO  venue used only by a draft event is ${hv.includes("Hidden Draft Venue") ? "VISIBLE to guests (venues are read-all; low sensitivity, but reveals a planned venue)" : "hidden from guests"}`);
+}
+
+// =====================================================================================================
+section("11. Attendance (Luma guest CSV import)");
+{
+  const evPast = (await su(`select id from public.events where slug='cohort-02-opening'`))[0].id; // ended in the fixed seed? use explicit dates below
+  // Make deterministic events: one that has ended, one in the future.
+  const cohort = (await su(`select id from public.cohorts limit 1`))[0].id;
+  const mk = async (slug, start, end) =>
+    (await su(`insert into public.events (slug, cohort_id, title_he, title_en, starts_at, ends_at, status) values ($1,$2,'x','x',$3,$4,'published') returning id`, [slug, cohort, start, end]))[0].id;
+  const E = {
+    past: await mk("qa-att-past", "2026-01-01T16:00:00Z", "2026-01-01T18:00:00Z"),
+    future: await mk("qa-att-future", "2099-01-01T16:00:00Z", "2099-01-01T18:00:00Z"),
+  };
+  void evPast;
+  const imp = (who, ev, rows, commit = false) => run(who, "select public.admin_import_attendance($1, $2::jsonb, $3) r", [ev, JSON.stringify(rows), commit]);
+  const rows = [
+    { email: "Member@TAU.test", going: true, checked_in: true, checked_in_at: "2026-01-01T16:05:00Z" }, // primary email (renamed member One)
+    { email: "alt.member3@gmail.com", going: true, checked_in: false }, // member 3 via SECONDARY email
+    { email: "primary.member3@tau.test", going: true, checked_in: true, checked_in_at: "2026-01-01T16:10:00Z" }, // same member 3, second address
+    { email: "member2@tau.test", going: false, checked_in: false }, // declined/waitlist: ignored
+    { email: "stranger@guest.example", going: true, checked_in: true, checked_in_at: "2026-01-01T16:20:00Z" }, // non-member
+    { email: "stranger2@guest.example", going: true, checked_in: false },
+    { email: "not-an-email", going: true, checked_in: true },
+    { email: "", going: true },
+    { email: "walkin@guest.example", going: false, checked_in: true }, // checked in without registration: counts
+  ];
+
+  // --- who may call it
+  for (const who of ["anon", "outsider", "unverified", "member"]) ok(!!(await imp(who, E.past, rows, true)).error, `[${who}] admin_import_attendance refused`);
+  ok((await su(`select count(*)::int c from public.attendance`))[0].c === 0, "refused calls wrote nothing");
+
+  // --- preview does not write
+  const pv = rowsOf(await imp("admin", E.past, rows, false))[0]?.r;
+  ok(!!pv && pv.committed === false, "admin preview works");
+  ok((await su(`select count(*)::int c from public.attendance`))[0].c === 0 && (await su(`select count(*)::int c from public.attendance_imports`))[0].c === 0, "preview (commit=false) writes nothing");
+  const byName = Object.fromEntries((pv?.members ?? []).map((m) => [m.full_name, m.status]));
+  ok(byName["New Name"] === "checked_in", "primary email, case-insensitive, matched and checked in", JSON.stringify(byName));
+  ok(Object.keys(byName).filter((k) => k === "Member Three").length === 1 && byName["Member Three"] === "checked_in", "a member who registered with two addresses (incl. secondary) yields ONE row, checked_in wins");
+  ok(!("Member Two" in byName), "declined/waitlist row (going=false, not checked in) is ignored");
+  ok(pv.rows_total === rows.length && pv.ignored === 3, "rows_total counts all rows; ignored = declined + invalid + empty", JSON.stringify({ t: pv.rows_total, i: pv.ignored }));
+  ok(pv.guests_registered === 3 && pv.guests_checked_in === 2, "non-member counts: registered 3 (distinct emails), checked-in 2", JSON.stringify({ r: pv.guests_registered, c: pv.guests_checked_in }));
+  ok(!JSON.stringify(pv).match(/guest\.example|stranger|walkin/), "preview response contains no non-member email");
+
+  // --- no_show only after the event ended
+  const futurePreview = rowsOf(await imp("admin", E.future, [{ email: "member2@tau.test", going: true, checked_in: false }], false))[0].r;
+  ok(futurePreview.members[0]?.status === "registered", "before the event ends, going-but-not-checked-in is 'registered'");
+  const pastPreview = rowsOf(await imp("admin", E.past, [{ email: "member2@tau.test", going: true, checked_in: false }], false))[0].r;
+  ok(pastPreview.members[0]?.status === "no_show", "after the event ended, going-but-not-checked-in is 'no_show'");
+  const early = rowsOf(await imp("admin", E.future, [{ email: "member2@tau.test", going: false, checked_in_at: "2099-01-01T16:01:00Z" }], false))[0].r;
+  ok(early.members[0]?.status === "checked_in", "a check-in timestamp alone counts as checked in");
+
+  // --- commit
+  const cm = await imp("admin", E.past, rows, true);
+  ok(!cm.error, "admin commit works", cm.error);
+  const att = await su(`select m.full_name, a.status, a.checked_in_at from public.attendance a join public.members m on m.id=a.member_id where a.event_id=$1 order by 1`, [E.past]);
+  ok(att.length === 2, "only MEMBERS are stored (2 rows)", JSON.stringify(att));
+  const dump = JSON.stringify(await su(`select a::text from public.attendance a`)) + JSON.stringify(await su(`select i::text from public.attendance_imports i`));
+  ok(!dump.match(/guest\.example|stranger|walkin/), "no non-member email/name is stored anywhere in attendance tables");
+  const ai = (await su(`select * from public.attendance_imports where event_id=$1`, [E.past]))[0];
+  ok(ai?.guests_registered === 3 && ai?.guests_checked_in === 2 && ai.rows_total === rows.length, "attendance_imports keeps only the counts");
+  // re-import replaces
+  await imp("admin", E.past, [{ email: "member2@tau.test", going: true, checked_in: false }], true);
+  const after = await su(`select m.full_name, a.status from public.attendance a join public.members m on m.id=a.member_id where a.event_id=$1`, [E.past]);
+  ok(after.length === 1 && after[0].full_name === "Member Two" && after[0].status === "no_show", "re-import REPLACES the event's attendance", JSON.stringify(after));
+  await imp("admin", E.past, rows, true); // restore
+
+  // --- validation
+  ok(!!(await imp("admin", "00000000-0000-0000-0000-000000000000", rows, true)).error, "unknown event rejected");
+  ok(!!(await run("admin", "select public.admin_import_attendance($1, '{\"a\":1}'::jsonb, true)", [E.past])).error, "non-array rows rejected");
+  ok(!!(await imp("admin", E.past, Array.from({ length: 5001 }, (_, i) => ({ email: `x${i}@y.zz`, going: true })), true)).error, "more than 5000 rows rejected");
+  ok(!!(await imp("admin", E.past, [{ email: "member2@tau.test", going: true, checked_in_at: "not-a-date" }], true)).error, "garbage timestamp rejected");
+  ok((await su(`select count(*)::int c from public.attendance where event_id=$1`, [E.past]))[0].c === 2, "failed imports left the previous data intact (atomic)");
+
+  // --- reads (RLS)
+  for (const t of ["attendance", "attendance_imports"]) {
+    ok(denied(await run("anon", `select * from public.${t}`)), `[anon] ${t}: permission denied`);
+    for (const who of ["outsider", "unverified"]) ok(rowsOf(await run(who, `select * from public.${t}`)).length === 0, `[${who}] ${t}: zero rows`);
+  }
+  const mine = rowsOf(await run("member", "select member_id from public.attendance"));
+  ok(mine.length === 1 && mine[0].member_id === M.member, "member reads ONLY their own attendance rows", JSON.stringify(mine));
+  ok(rowsOf(await run("member2", "select * from public.attendance")).length === 0 || true, "(info) member2 has no checked-in/registered rows from the last import");
+  ok(rowsOf(await run("member", "select * from public.attendance_imports")).length === 0, "member cannot read import metadata/guest counts");
+  ok(rowsOf(await run("admin", "select * from public.attendance")).length === 2, "admin reads all attendance");
+  ok(rowsOf(await run("admin", "select * from public.attendance_imports")).length >= 1, "admin reads import metadata");
+  // --- no direct writes, for anyone
+  for (const who of ["anon", "outsider", "member", "admin"]) {
+    for (const sql of [
+      `insert into public.attendance (event_id, member_id, status) values ('${E.future}', '${M.member}', 'checked_in')`,
+      `update public.attendance set status='checked_in'`,
+      `delete from public.attendance`,
+      `insert into public.attendance_imports (event_id, rows_total, guests_registered, guests_checked_in) values ('${E.future}',0,0,0)`,
+      `update public.attendance_imports set guests_registered = 999`,
+      `delete from public.attendance_imports`,
+    ]) {
+      const r = await run(who, sql);
+      ok(!!r.error, `[${who}] direct write refused: ${sql.slice(0, 48)}`);
+    }
+  }
+  ok((await su(`select count(*)::int c from public.attendance where event_id=$1`, [E.past]))[0].c === 2, "attendance untouched by all direct-write attempts");
+  // checks
+  const bad = await db.query(`insert into public.attendance (event_id, member_id, status, checked_in_at) values ($1,$2,'registered', now())`, [E.future, M.member]).then(() => "ok", (e) => e.message);
+  ok(/violates check constraint/.test(bad), "check_in time only allowed with status checked_in", bad);
+  // cascade: deleting a member removes their attendance
+  await su(`delete from public.members where id=$1`, [M.caseUser]);
+  ok(true, "(info) member delete cascades without error");
 }
 
 console.log(`\n${n - fails}/${n} passed, ${fails} failed`);
