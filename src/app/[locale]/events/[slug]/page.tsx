@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
 import { SpeakerContactLinks } from "@/components/events/speaker-contact-links";
+import { authEnabled } from "@/lib/supabase/config";
 
 export const revalidate = 300;
 
@@ -107,6 +108,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
     };
   });
   const hasBody = !!blurb || speakers.length > 0;
+  const authOn = authEnabled();
   const contactLabels = {
     title: t("contactTitle"),
     email: t("contactEmail"),
@@ -285,8 +287,9 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                               <bdi>{sp.company}</bdi>
                             </p>
                           )}
-                          {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML. */}
-                          <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />
+                          {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML.
+                              Not even rendered while the members area is off. */}
+                          {authOn && <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />}
                         </div>
                       </li>
                     );

@@ -25,6 +25,7 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `NEXT_PUBLIC_SITE_URL` | Vercel **Production only**; `.env.local` | Production: **`https://tauaiclub.com`** (no trailing slash). Local: `http://localhost:3000`. Leave unset on Preview. It drives metadataBase, canonical/hreflang, OG URLs, `sitemap.xml`, `robots.txt` and calendar links | No |
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
 | `DATA_SOURCE` | **TEMPORARY until Supabase; remove after migration.** Vercel Production (and Preview) only during the seed launch | `seed` = serve the season from the committed seed (`src/lib/data/fixtures.json`, generated from `supabase/seed.sql`), production included. Unset = Supabase. Without Supabase vars and without this flag the site keeps showing "couldn't load the events" (it never falls back silently) | No |
+| `AUTH_ENABLED` | Vercel (Production and Preview), `.env.local` | `true` switches the members/admin area on. Set it **only after runbook F** (Google provider configured in Supabase), then redeploy. Unset, any other value, missing Supabase vars or `DATA_SOURCE=seed` = off: sign-in links are hidden, `/login`, `/welcome`, `/profile`, `/members/…`, `/members-only`, `/admin/…` and `/speaker/…` show a calm "בקרוב / Coming soon" page (200, noindex, same URL), and no cookie-aware Supabase client is created | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
 | `SUPABASE_SECRET_KEY` | **Not used.** M2 runs every query as the signed-in user under RLS, so the site needs no secret key. If a later feature needs one: server only, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
@@ -157,7 +158,7 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
 - Tell QA the production URL (`https://tauaiclub.com`), so they can run `qa/TEST-PLAN.md` against it.
 
 ### F. Milestone 2: Google sign-in + allowlist (~30 min)
-Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) decides who is a member. Nothing new goes into Vercel: no new env vars, no secret key.
+Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) decides who is a member. The only new Vercel variable is the switch `AUTH_ENABLED=true` (step F5); no secret key.
 
 **F1. Google Cloud OAuth client** (one client serves both Supabase projects), signed in as the club Google account:
 1. console.cloud.google.com → project picker → **New project** → Name `tau-ai-club` → **Create**, then select it.
@@ -196,6 +197,8 @@ Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) deci
 - A listed account signs in and sees the welcome once. `/admin/members` is a 404 unless the account is an admin.
 - Removing a member in `/admin/members` cuts their access on their next request.
 - Hand QA the list under §4 "M2: what to test".
+
+**F5. Switch the members area on**: until now `main` runs with it off (members/admin routes show "בקרוב", no sign-in link). Do F4 on a Preview first (Vercel → Settings → Environment Variables → `AUTH_ENABLED` = `true` for **Preview**, redeploy the branch). Then add it for **Production** and **Redeploy**: the header is cached (ISR), so the sign-in link appears only after a redeploy. To switch it off again, delete the variable and redeploy. `DATA_SOURCE=seed` always keeps it off, so delete that first (step D).
 
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.

@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import createMiddleware from "next-intl/middleware";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "./i18n/routing";
-import { AUTH_COOKIE_OPTIONS, hasAuthCookie, supabaseEnv } from "./lib/supabase/config";
+import { AUTH_COOKIE_OPTIONS, authEnabled, hasAuthCookie, isAuthArea, supabaseEnv } from "./lib/supabase/config";
 
 // Next 16 renamed middleware.ts to proxy.ts; this is the project's one request hook.
 const intl = createMiddleware(routing);
@@ -13,10 +13,20 @@ const intl = createMiddleware(routing);
  *    with the new token, and onto the response, so the browser stores it.
  * 2. Hand off to next-intl for locale routing (it forwards the request headers).
  *
+ * While auth is off (authEnabled() false: no AUTH_ENABLED, no Supabase env, or seed
+ * mode) there is no session work at all, and members/admin routes are rewritten to
+ * the calm "coming soon" page in the visitor's language (the URL stays the same).
+ *
  * This is not a security boundary: pages check membership on the server and RLS
  * enforces it in the database.
  */
 export default async function proxy(request: NextRequest) {
+  if (!authEnabled()) {
+    const soon = comingSoon(request);
+    if (soon) return soon;
+    return intl(request);
+  }
+
   const env = supabaseEnv();
   const pending: { name: string; value: string; options: object }[] = [];
 
@@ -42,6 +52,23 @@ export default async function proxy(request: NextRequest) {
   // A refreshed session must never be cached by a CDN.
   if (pending.length) response.headers.set("Cache-Control", "private, no-store");
   return response;
+}
+
+/** Rewrites a members/admin path ("/admin/…", "/en/profile") to /<locale>/coming-soon. */
+function comingSoon(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const m = /^\/(en)(?=\/|$)/.exec(pathname);
+  // "/he/…" first goes through next-intl's redirect to the unprefixed URL.
+  if (/^\/he(?=\/|$)/.test(pathname)) return null;
+  const locale = m ? m[1] : routing.defaultLocale;
+  const rest = m ? pathname.slice(m[0].length) || "/" : pathname;
+  if (!isAuthArea(rest)) return null;
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}/coming-soon`;
+  url.search = "";
+  const res = NextResponse.rewrite(url);
+  res.headers.set("X-Robots-Tag", "noindex");
+  return res;
 }
 
 export const config = {

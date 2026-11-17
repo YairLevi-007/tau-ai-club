@@ -178,9 +178,9 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
       <section aria-labelledby="import" className={cn(panelClass, "grid gap-4 p-4 sm:p-5")}>
         <div className="grid gap-1.5">
           <h2 id="import" className={panelTitle}>
-            {t("importTitle")}
+            {t("csvImportTitle")}
           </h2>
-          <p className="max-w-[65ch] text-sm text-fg-muted">{t("importBody")}</p>
+          <p className="max-w-[65ch] text-sm text-fg-muted">{t("csvImportBody")}</p>
         </div>
         <ActionForm action={importCsv} resetOnSuccess className="grid gap-4 lg:grid-cols-2">
           <label className={labelClass}>

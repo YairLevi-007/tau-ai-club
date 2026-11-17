@@ -330,7 +330,9 @@
     "flyerChipCompany": "Company",
     "flyerChipUse": "Where \"{text}\" goes",
     "flyerNoName": "No name yet",
-    "flyerLinked": "Already on the site"
+    "flyerLinked": "Already on the site",
+    "csvImportTitle": "Import from CSV",
+    "csvImportBody": "Columns: email, full_name, role (member or admin). An email already on the list is updated, a new one is added. One bad row stops the whole import."
   },
   "speakerForm": {
     "eyebrow": "Contact details",
@@ -463,5 +465,12 @@
     "memberNoData": "No meetups imported yet this season.",
     "backToSeason": "All members",
     "legendTitle": "Legend"
+  },
+  "comingSoon": {
+    "eyebrow": "Members area",
+    "title": "Coming soon",
+    "body": "The club's members and admin area isn't open yet. Meanwhile every meetup, date and registration link is open to everyone on the site.",
+    "home": "See all meetups",
+    "instagram": "Updates on Instagram"
   }
 }

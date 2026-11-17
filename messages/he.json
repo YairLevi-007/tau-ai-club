@@ -330,7 +330,9 @@
     "flyerChipCompany": "חברה",
     "flyerChipUse": "לאן להכניס את \"{text}\"",
     "flyerNoName": "עוד אין שם",
-    "flyerLinked": "מרצה שכבר באתר"
+    "flyerLinked": "מרצה שכבר באתר",
+    "csvImportTitle": "ייבוא מ-CSV",
+    "csvImportBody": "עמודות: email, full_name, role (member או admin). מייל שכבר ברשימה מתעדכן, מייל חדש נוסף. שורה שגויה עוצרת את כל הייבוא."
   },
   "speakerForm": {
     "eyebrow": "פרטי קשר",
@@ -463,5 +465,12 @@
     "memberNoData": "עוד לא יובאו מפגשים העונה.",
     "backToSeason": "כל החברים",
     "legendTitle": "מקרא"
+  },
+  "comingSoon": {
+    "eyebrow": "אזור החברים",
+    "title": "בקרוב",
+    "body": "אזור החברים והניהול של המועדון עוד לא נפתח. בינתיים כל המפגשים, התאריכים וההרשמה פתוחים באתר לכולם.",
+    "home": "לכל המפגשים",
+    "instagram": "עדכונים באינסטגרם"
   }
 }

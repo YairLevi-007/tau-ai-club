@@ -81,9 +81,11 @@ async function fetchCurrentSeason(): Promise<
     seedWarned = true;
     return loadFixtures();
   }
+  // An explicit USE_FIXTURES=1 (local/QA only) wins even when Supabase env is set, so the
+  // members-area specs can run auth code against a fake Supabase URL on seed data.
+  if (fixturesAllowed()) return loadFixtures();
   const supabase = createPublicClient();
   if (!supabase) {
-    if (fixturesAllowed()) return loadFixtures();
     console.error("[events] Supabase env vars missing; set them, or DATA_SOURCE=seed for the temporary seed launch (USE_FIXTURES=1 in local dev).");
     return { error: "not-configured" };
   }

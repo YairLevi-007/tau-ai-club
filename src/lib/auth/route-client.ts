@@ -3,17 +3,17 @@ import { createServerClient } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
 import { hasLocale } from "next-intl";
 import { routing, type Locale } from "@/i18n/routing";
-import { AUTH_COOKIE_OPTIONS, supabaseEnv } from "@/lib/supabase/config";
+import { AUTH_COOKIE_OPTIONS, authEnabled, supabaseEnv } from "@/lib/supabase/config";
 
 type PendingCookie = { name: string; value: string; options: object };
 
 /**
- * Supabase client for the /api/auth/* route handlers. Cookies it sets are collected
+ * Supabase client for API route handlers (null when auth is off). Cookies it sets are collected
  * and applied to whatever response the handler returns (`apply(res)`).
  */
 export function routeClient(request: NextRequest) {
   const env = supabaseEnv();
-  if (!env) return null;
+  if (!env || !authEnabled()) return null;
   const pending: PendingCookie[] = [];
   const supabase = createServerClient(env.url, env.key, {
     cookieOptions: AUTH_COOKIE_OPTIONS,
