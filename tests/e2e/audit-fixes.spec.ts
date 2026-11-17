@@ -163,21 +163,17 @@ test.describe("404 titles", () => {
       expect(html).toMatch(/<meta name="robots" content="noindex/);
     });
 
-    // The 404 response is the framework error shell (`<html id="__next_error__">`): no lang or dir until the client swaps in the
-    // localized page. Screen readers, translation tools and no-JS clients get an untagged Hebrew/English document.
+    // Was a bug (the framework error shell, `<html id="__next_error__">`, had no lang or dir); fixed by the Suspense
+    // boundaries in [...rest]/layout.tsx and events/[slug]/layout.tsx.
     test(`${p}: server HTML declares lang and dir`, async ({ request }) => {
-      test.fail(true, "BUG: 404 server HTML has <html id=__next_error__> without lang/dir");
       const html = await (await request.get(p, { maxRedirects: 0 })).text();
       const he = !p.startsWith("/en");
       expect(html).toMatch(new RegExp(`<html[^>]*lang="${he ? "he" : "en"}"`));
       expect(html).toMatch(new RegExp(`<html[^>]*dir="${he ? "rtl" : "ltr"}"`));
     });
 
-    // The title the VISITOR sees after hydration. The server HTML is right, but the client replaces it with the default site
-    // title a moment later (reproduced 25/25 for /nope and /en/nope, ~2/3 for /events/nope). test.fail() records the known bug
-    // (QA report to builder); when it is fixed this test goes red with "expected to fail" and the line should be removed.
+    // The title the VISITOR sees after hydration (was a bug: the client reset it to the default site title).
     test(`${p}: the title after hydration is still the 404 title`, async ({ page }) => {
-      test.fail(true, "BUG: client-side metadata resets the 404 <title> to the site default after hydration");
       await page.goto(p, { waitUntil: "networkidle" });
       await page.waitForTimeout(400);
       expect(await page.title()).toMatch(re);

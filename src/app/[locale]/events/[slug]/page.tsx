@@ -35,7 +35,11 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/events/[
   const { locale, slug } = await params;
   if (!hasLocale(routing.locales, locale)) return {};
   const event = await getEventBySlug(slug);
-  if (!event) return {};
+  if (!event) {
+    // This page 404s: title it like the 404 page (the route that throws keeps its metadata).
+    const tErr = await getTranslations({ locale, namespace: "errors" });
+    return { title: tErr("notFoundTitle"), robots: { index: false, follow: false } };
+  }
   // Public fields only (title, date, venue, speaker names, blurb). Never speaker contact data.
   const [t, te] = await Promise.all([
     getTranslations({ locale, namespace: "meta" }),
