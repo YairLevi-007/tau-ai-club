@@ -130,7 +130,7 @@ for (const l of L) {
       const allowed = new Set([
         "BEGIN", "END", "VERSION", "PRODID", "CALSCALE", "METHOD", "X-WR-CALNAME", "X-WR-CALDESC", "X-WR-TIMEZONE",
         "REFRESH-INTERVAL;VALUE=DURATION", "X-PUBLISHED-TTL", "UID", "DTSTAMP", "DTSTART", "DTEND", "SUMMARY",
-        "DESCRIPTION", "LOCATION", "URL", "STATUS",
+        "DESCRIPTION", "LOCATION", "URL", "STATUS", "LAST-MODIFIED", "SEQUENCE",
       ]);
       const { unfolded } = parse(ics);
       for (const line of unfolded.split("\r\n").filter(Boolean)) {
