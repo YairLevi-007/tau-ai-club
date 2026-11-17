@@ -136,8 +136,9 @@ $md$- **הגדרת האינטליגנציה היא מטרה נעה:** ככל ש�
 ) as c(section, body_he, body_en, visibility)
 where e.slug = 'cohort-02-opening';
 -- Confirmed 2026-11-17: Shai Yahel is a woman, so "בהרצאתה" is correct.
--- REVIEW: "בניסוי וטעייה" in 04.1 was garbled in the extraction ("בניסוי וטנייה קשרים").
--- REVIEW: "לשלול ממנו את התואר" in the takeaways reads "לנשל ממנו" in the PDF.
+-- 2026-11-17: summaries are written by members and the site only publishes them; the club
+-- does not review their wording. Two small extraction fixes stay as they are
+-- ("בניסוי וטעייה" in 04.1, "לשלול" for the PDF's "לנשל" in the takeaways).
 
 -- The original PDF, members only. The object itself is uploaded to Storage separately
 -- (bucket `event-files`, path below): see HANDOVER.md, "Lecture and workshop content".
