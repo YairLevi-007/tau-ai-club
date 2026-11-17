@@ -24,6 +24,7 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | same | `sb_publishable_…` (Supabase → Project Settings → API Keys) | No (RLS protects data) |
 | `NEXT_PUBLIC_SITE_URL` | Vercel **Production only**; `.env.local` | Production: **`https://tauaiclub.com`** (no trailing slash). Local: `http://localhost:3000`. Leave unset on Preview. It drives metadataBase, canonical/hreflang, OG URLs, `sitemap.xml`, `robots.txt` and calendar links | No |
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
+| `DATA_SOURCE` | **TEMPORARY until Supabase; remove after migration.** Vercel Production (and Preview) only during the seed launch | `seed` = serve the season from the committed seed (`src/lib/data/fixtures.json`, generated from `supabase/seed.sql`), production included. Unset = Supabase. Without Supabase vars and without this flag the site keeps showing "couldn't load the events" (it never falls back silently) | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
 | `SUPABASE_SECRET_KEY` | **M2+, server only**, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
@@ -73,6 +74,19 @@ Order: **A GitHub → B Vercel → B2 domain** can happen now. **C Supabase → 
 7. **Settings → Deployment Protection:** Hobby defaults to **Standard Protection**: preview URLs need a Vercel login, and the production domain is public. Keep it. QA runs against production or locally, or the previews owner shares a link.
 8. **Settings → Git:** Production Branch = `main`. Every other branch gets a Preview deploy automatically.
 9. Open `https://tau-ai-club.vercel.app`. You should see the site, with the "couldn't load the events" message until step D.
+
+### B1. Temporary seed launch (until Supabase exists)
+**Temporary until Supabase; remove after migration.** To launch M1 before the Supabase projects exist, the site can serve the season from the committed seed data. In Vercel → **Settings → Environment Variables**, set exactly:
+
+| Key | Value | Environments |
+|---|---|---|
+| `DATA_SOURCE` | `seed` | Production, Preview |
+| `NEXT_PUBLIC_SITE_URL` | `https://tauaiclub.com` | Production only |
+| `ENABLE_EXPERIMENTAL_COREPACK` | `1` | all |
+
+Leave `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` **unset** in this mode, and don't set `USE_FIXTURES` (production ignores it anyway). Redeploy (Deployments → ⋯ → **Redeploy**) after changing variables. Home, event pages, the calendar feed (`/calendar.ics`), `sitemap.xml` and OG images all come from the seed. The function logs say `DATA_SOURCE=seed` so nobody mistakes it for live data.
+
+What it means: event changes need a code change (edit `supabase/seed.sql`, run `pnpm db:fixtures`, commit, push). **After step D** (Supabase connected): delete `DATA_SOURCE` from Vercel, redeploy, check the site still shows the season, then remove `seedMode()` from `src/lib/events.ts` and this section.
 
 ### B2. Custom domain `tauaiclub.com` (~10 min + DNS wait)
 Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects to it, and `tau-ai-club.vercel.app` keeps working as a fallback.
@@ -132,7 +146,7 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
    | `NEXT_PUBLIC_SUPABASE_URL` | dev Project URL | **Preview**, **Development** |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | dev publishable key | **Preview**, **Development** |
 
-   Delete `USE_FIXTURES` if you added it in B.3.
+   Delete `USE_FIXTURES` if you added it in B.3, and **`DATA_SOURCE`** if you launched in seed mode (B1); otherwise the site keeps serving the seed instead of Supabase.
 2. `NEXT_PUBLIC_*` values are baked in at build time, so env changes need a **Redeploy**: Deployments → latest Production → ⋯ → **Redeploy** (untick "Use existing build cache"). Do the same for the latest Preview.
 3. Local dev: create `.env.local` from `.env.example` with the **dev** values, or run `npx vercel env pull .env.local` after `npx vercel link`.
 
