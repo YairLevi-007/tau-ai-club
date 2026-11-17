@@ -155,13 +155,23 @@ test.describe("404 titles", () => {
     ["/events/nope", /לא נמצא/],
     ["/en/events/nope", /not found/i],
   ] as const) {
-    test(`${p} has a localized, noindex 404 title`, async ({ page, request }) => {
+    test(`${p}: server HTML has a localized, noindex 404 title`, async ({ request }) => {
       const res = await request.get(p, { maxRedirects: 0 });
       expect(res.status()).toBe(404);
-      await page.goto(p);
+      const html = await res.text();
+      expect(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").toMatch(re);
+      expect(html).toMatch(/<meta name="robots" content="noindex/);
+      expect(html).toMatch(new RegExp(`<html[^>]*lang="${p.startsWith("/en") ? "en" : "he"}"`));
+    });
+
+    // The title the VISITOR sees after hydration. The server HTML is right, but the client replaces it with the default site
+    // title a moment later (reproduced 25/25 for /nope and /en/nope, ~2/3 for /events/nope). test.fail() records the known bug
+    // (QA report to builder); when it is fixed this test goes red with "expected to fail" and the line should be removed.
+    test(`${p}: the title after hydration is still the 404 title`, async ({ page }) => {
+      test.fail(true, "BUG: client-side metadata resets the 404 <title> to the site default after hydration");
+      await page.goto(p, { waitUntil: "networkidle" });
+      await page.waitForTimeout(400);
       expect(await page.title()).toMatch(re);
-      expect(await page.locator('meta[name="robots"]').first().getAttribute("content")).toMatch(/noindex/);
-      await expect(page.locator("html")).toHaveAttribute("lang", p.startsWith("/en") ? "en" : "he");
     });
   }
 });
