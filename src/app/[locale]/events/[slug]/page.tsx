@@ -19,6 +19,7 @@ import {
 } from "@/lib/event-format";
 import { jlmDay } from "@/lib/season-ruler";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
+import { eventJsonLd, jsonLdHtml } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
@@ -44,7 +45,9 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/events/[
   const when = `${formatEventDate(event.starts_at, locale)} · ${formatTimeRange(event.starts_at, event.ends_at)}`;
   const where = venueLabel(event, locale) ?? te("venueTbd");
   const who = speakerNames(event, locale).join(", ");
-  const description = [when, where, who, loc(event, "blurb", locale)].filter(Boolean).join(" · ");
+  // A tentative meetup says so first, so a link preview doesn't read as confirmed (QA audit S4).
+  const tentative = event.is_tentative ? te("tentative") : null;
+  const description = [tentative, when, where, who, loc(event, "blurb", locale)].filter(Boolean).join(" · ");
   const path = `/events/${slug}`;
   return {
     title,
@@ -53,7 +56,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/events/[
     ...shareMetadata({
       locale,
       path,
-      title: `${title} · ${t("siteName")}`,
+      title: `${tentative ? `${title} (${tentative})` : title} · ${t("siteName")}`,
       description,
       siteName: t("siteName"),
       imageAlt: t("ogAlt"),
@@ -78,7 +81,12 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
 
   const [event, season] = await Promise.all([getEventBySlug(slug), getSeason()]);
   if (!event || season.status !== "ok") notFound();
-  const [t, te] = await Promise.all([getTranslations("eventPage"), getTranslations("event")]);
+  const [t, te, tm] = await Promise.all([
+    getTranslations("eventPage"),
+    getTranslations("event"),
+    getTranslations("meta"),
+  ]);
+  const jsonLd = eventJsonLd(event, l, { siteName: tm("siteName"), venueTbd: te("venueTbd") });
 
   const past = event.state === "past";
   const live = event.state === "live";
@@ -127,6 +135,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
         <i className="absolute hidden lg:block start-[5%] top-[18rem] size-7 bg-logo-indigo" />
       </div>
 
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />}
       <article data-testid="event-page" data-state={event.state} className="mx-auto max-w-site px-4 pt-6 sm:px-8 lg:pt-12">
         <Link
           href="/"

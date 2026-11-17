@@ -250,15 +250,20 @@
     animation-delay: calc(var(--i, 0) * var(--stagger-intro));
   }
 }
+/*
+ * The intro starts at 1% opacity, not 0: it looks the same, but the browser counts the
+ * hero text as painted at first paint, so it doesn't push back Largest Contentful Paint
+ * (QA audit S1: LCP was 3.3 s on a phone because the tagline waited out the stagger).
+ */
 @keyframes intro-rise {
   from {
-    opacity: 0;
+    opacity: 0.01;
     transform: translateY(var(--intro-distance));
   }
 }
 @keyframes intro-fade {
   from {
-    opacity: 0;
+    opacity: 0.01;
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "cohort": {
-    "id": "42e9c0a0-246c-4ea5-8d51-0a060e074c84",
+    "id": "33ce6cf3-9bf4-4502-9c27-c116d034f14b",
     "slug": "02",
     "name_he": "מחזור 02",
     "name_en": "Cohort 02",
@@ -11,7 +11,7 @@
   },
   "events": [
     {
-      "id": "354f2e0b-17db-4067-8a2e-c4b33a6c5a27",
+      "id": "c3ba532c-8562-4728-a9d7-f73e3ae9ee40",
       "slug": "cohort-02-opening",
       "kind": "opening",
       "series": null,
@@ -26,8 +26,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": {
-        "id": "54d8dde5-2925-4800-aad7-fb579e5c2693",
+        "id": "870b9d06-9da8-408c-a4d7-4fc5b543543a",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -38,7 +39,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "d6ace83e-2887-4fb1-ad78-3f810060008d",
+            "id": "fb1f972c-2d2b-4e49-8b85-cf4e7eab3fbf",
             "slug": "shai-yahel",
             "name_he": "שי יהל",
             "name_en": "Shai Yahel",
@@ -52,7 +53,7 @@
       ]
     },
     {
-      "id": "8b362c4d-918c-484d-9fe5-d20cd3da7749",
+      "id": "96be4f26-8e9d-4bc3-8de4-adb848be969b",
       "slug": "zero-to-hero-1",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -67,12 +68,13 @@
       "venue_note_en": "On campus",
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "3ca892f8-443e-4ba0-bc44-433b053d8ea0",
+            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
             "slug": "oz",
             "name_he": "עוז",
             "name_en": "Oz",
@@ -86,7 +88,7 @@
       ]
     },
     {
-      "id": "c3ee2493-a880-462e-960e-3cbde8ec8d79",
+      "id": "c3b521d9-67f0-4ae2-8d04-9c3689b1f52b",
       "slug": "zero-to-hero-2",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -101,8 +103,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": {
-        "id": "2fff7b82-3017-4d0a-a45d-4c106f8a74df",
+        "id": "bbd08c0b-569c-4172-bab2-90a64ee83fc9",
         "name_he": "המרכז ליזמות",
         "name_en": "Entrepreneurship Center",
         "address_he": "אוניברסיטת תל אביב",
@@ -113,7 +116,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "3ca892f8-443e-4ba0-bc44-433b053d8ea0",
+            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
             "slug": "oz",
             "name_he": "עוז",
             "name_en": "Oz",
@@ -127,7 +130,7 @@
       ]
     },
     {
-      "id": "793145dc-ffa8-4ad1-a99b-bd5f491dfa22",
+      "id": "82a93cc0-c6cb-4207-8c3b-926ddb4c1448",
       "slug": "entrepreneurship-tech-or-maccabi",
       "kind": "lecture",
       "series": null,
@@ -142,8 +145,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": {
-        "id": "5cb81f71-a90e-4892-89e7-44d303972e29",
+        "id": "869b95f5-1192-4fae-a72f-8ffd257224a0",
         "name_he": "משרדי MongoDB",
         "name_en": "MongoDB offices",
         "address_he": null,
@@ -154,7 +158,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "ca8069cb-ef30-4fe9-b7bb-7129a7a7bd37",
+            "id": "20fe9a8c-677a-4070-abb4-64c61dd8105c",
             "slug": "or-maccabi",
             "name_he": "אור מכבי",
             "name_en": "Or Maccabi",
@@ -168,7 +172,7 @@
       ]
     },
     {
-      "id": "58ee2a0c-63a8-42b9-bf22-2f1dac4041f8",
+      "id": "9e43e9ff-2e38-4e14-85c3-341fd55acea2",
       "slug": "zero-to-hero-3",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -183,12 +187,13 @@
       "venue_note_en": "Off campus",
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "3ca892f8-443e-4ba0-bc44-433b053d8ea0",
+            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
             "slug": "oz",
             "name_he": "עוז",
             "name_en": "Oz",
@@ -202,7 +207,7 @@
       ]
     },
     {
-      "id": "762f8a08-cf3b-4651-b77a-fbfd52c20adc",
+      "id": "9724b854-9221-48f7-a6c3-ece7564b6faa",
       "slug": "entrepreneurship-tech-roee-margalit",
       "kind": "lecture",
       "series": null,
@@ -217,12 +222,13 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "1a809405-cae0-4476-9384-b55052e16eb3",
+            "id": "c7592cd5-feb1-4b26-8d1d-901833bfb31c",
             "slug": "roee-margalit",
             "name_he": "רועי מרגלית",
             "name_en": "Roee Margalit",
@@ -236,7 +242,7 @@
       ]
     },
     {
-      "id": "5d991726-8e6f-4793-9223-5fbc0f4a823a",
+      "id": "f85ee2ed-8327-4c29-aec6-939749c51a82",
       "slug": "growth-capital-tomer-diari",
       "kind": "lecture",
       "series": null,
@@ -251,8 +257,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": {
-        "id": "2216ec4f-f729-415a-8b32-9b5e37403a2b",
+        "id": "697b5a0c-2061-4721-8ef5-d0bfbb3930eb",
         "name_he": "משרדי Aleph",
         "name_en": "Aleph offices",
         "address_he": null,
@@ -263,7 +270,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "aebddcdc-910a-4a5b-9b32-4c2b4da87e04",
+            "id": "78f8e8e0-cf99-49f5-9bba-f5d371707972",
             "slug": "tomer-diari",
             "name_he": "תומר דיארי",
             "name_en": "Tomer Diari",
@@ -277,7 +284,7 @@
       ]
     },
     {
-      "id": "a1d3bf12-5517-4788-861d-eb085d61aed2",
+      "id": "ee97e96b-2fc6-4e69-96ee-36a490c932cc",
       "slug": "joint-event-ori-goshen",
       "kind": "joint",
       "series": null,
@@ -292,8 +299,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": true,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": {
-        "id": "54d8dde5-2925-4800-aad7-fb579e5c2693",
+        "id": "870b9d06-9da8-408c-a4d7-4fc5b543543a",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -304,7 +312,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "edc9f2a8-9f78-46dd-860f-59419cd2ab5b",
+            "id": "fc8b62f7-b4ef-4b10-a628-7cd831db9ffa",
             "slug": "ori-goshen",
             "name_he": "אורי גושן",
             "name_en": "Ori Goshen",
@@ -318,7 +326,7 @@
       ]
     },
     {
-      "id": "a903e0e2-ad56-4587-bf64-086d1233553d",
+      "id": "f0057d62-ddb1-4a0b-90d8-2fbdcc35b06c",
       "slug": "cohort-02-closing",
       "kind": "closing",
       "series": null,
@@ -333,6 +341,7 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
+      "updated_at": "2026-11-17T11:22:18.645+00:00",
       "venue": null,
       "event_speakers": []
     }

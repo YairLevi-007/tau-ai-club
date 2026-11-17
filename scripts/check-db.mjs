@@ -110,7 +110,7 @@ if (writeFixtures) {
   const res = await asAnon(`
     select coalesce(json_agg(row_to_json(t) order by t.starts_at), '[]'::json) as data from (
       select e.id, e.slug, e.kind, e.series, e.series_no, e.title_he, e.title_en, e.blurb_he, e.blurb_en,
-             e.starts_at, e.ends_at, e.venue_note_he, e.venue_note_en, e.luma_url, e.is_tentative,
+             e.starts_at, e.ends_at, e.venue_note_he, e.venue_note_en, e.luma_url, e.is_tentative, e.updated_at,
              case when v.id is null then null else
                (select row_to_json(x) from (select v.id, v.name_he, v.name_en, v.address_he, v.address_en, v.maps_url) x)
              end as venue,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { animate, inView } from "motion";
 import { dur, distance, ease, revealStagger } from "@/lib/motion";
 
 /**
@@ -32,26 +31,33 @@ export function RevealOnScroll() {
       (el) => el.getBoundingClientRect().top > window.innerHeight,
     );
     const stops: Array<() => void> = [];
+    let cancelled = false;
 
-    els.forEach((el, i) => {
-      el.style.opacity = "0";
-      el.style.transform = `translateY(${distance.reveal}px)`;
-      stops.push(
-        inView(
-          el,
-          () => {
-            animate(
-              el,
-              { opacity: 1, transform: "translateY(0px)" },
-              { duration: dur.reveal, ease: [...ease.out], delay: (i % 3) * revealStagger },
-            );
-          },
-          { margin: "0px 0px -10% 0px" },
-        ),
-      );
+    // `motion` loads after hydration, in its own chunk (QA audit S2). Elements are hidden
+    // only once it has arrived, and they're all below the fold, so nothing flashes.
+    void import("motion").then(({ animate, inView }) => {
+      if (cancelled) return;
+      els.forEach((el, i) => {
+        el.style.opacity = "0";
+        el.style.transform = `translateY(${distance.reveal}px)`;
+        stops.push(
+          inView(
+            el,
+            () => {
+              animate(
+                el,
+                { opacity: 1, transform: "translateY(0px)" },
+                { duration: dur.reveal, ease: [...ease.out], delay: (i % 3) * revealStagger },
+              );
+            },
+            { margin: "0px 0px -10% 0px" },
+          ),
+        );
+      });
     });
 
     return () => {
+      cancelled = true;
       stops.forEach((stop) => stop());
       els.forEach((el) => {
         el.style.opacity = "";

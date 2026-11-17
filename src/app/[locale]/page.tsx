@@ -5,6 +5,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { getSeason } from "@/lib/events";
 import { loc } from "@/lib/event-format";
 import { cn } from "@/lib/utils";
+import { jsonLdHtml, organizationJsonLd } from "@/lib/structured-data";
 import { NextEventCard } from "@/components/events/next-event-card";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 
@@ -25,7 +26,13 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   setRequestLocale(locale);
   const l = locale as Locale;
 
-  const [season, t, te] = await Promise.all([getSeason(), getTranslations("home"), getTranslations("errors")]);
+  const [season, t, te, tm] = await Promise.all([
+    getSeason(),
+    getTranslations("home"),
+    getTranslations("errors"),
+    getTranslations("meta"),
+  ]);
+  const orgJsonLd = organizationJsonLd(l, { name: tm("siteName"), description: tm("description") });
   const cohort = season.status === "ok" ? season.cohort : null;
   const tagline = cohort ? loc(cohort, "tagline", l) : null;
   const next = season.status === "ok" ? season.next : null;
@@ -34,6 +41,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
   return (
     <div className="relative isolate">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(orgJsonLd)} />
       {/* Backdrop: logo grid + the one glow + a few pixel blocks. Decorative, static. */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[46rem] overflow-hidden">
         <div className="hero-grid absolute inset-0" />

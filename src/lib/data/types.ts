@@ -52,6 +52,8 @@ export type ClubEvent = {
   venue_note_en: string | null;
   luma_url: string | null;
   is_tentative: boolean;
+  /** Last edit (DB trigger). Drives the calendar feed's SEQUENCE/LAST-MODIFIED and the sitemap's lastmod. */
+  updated_at: string;
   venue: Venue | null;
   event_speakers: { sort: number; speaker: Speaker }[];
 };
