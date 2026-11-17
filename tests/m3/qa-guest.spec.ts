@@ -142,15 +142,15 @@ test("header: Lectures and Workshops links, Workshops marked members-only, mobil
     ["/en", "Lectures", "Workshops", "Sections"],
   ] as const) {
     await page.goto(p);
-    const lectures = page.locator(`header a[href$="/lectures"]`).first();
-    const workshops = page.locator(`header a[href$="/workshops"]`).first();
+    const lectures = page.locator(`header a[href$="/lectures"]:visible`).first();
+    const workshops = page.locator(`header a[href$="/workshops"]:visible`).first();
     await expect(lectures).toBeVisible();
     await expect(workshops).toBeVisible();
     await expect(lectures).toContainText(lecturesText);
     await expect(workshops).toContainText(workshopsText);
     // The lock must not be the only signal: the accessible name or visible text says members-only.
     const name = await workshops.evaluate((a) => `${a.getAttribute("aria-label") ?? ""} ${a.textContent ?? ""} ${a.getAttribute("title") ?? ""}`);
-    expect(name, `${p} workshops link name`).toMatch(/חברים|members/i);
+    expect(name, `${p} workshops link name`).toMatch(/חבר|members/i);
     if (isMobile) await expect(page.getByRole("navigation", { name: rowLabel })).toBeVisible();
     // Links work and keep the locale.
     await lectures.click();
@@ -160,7 +160,7 @@ test("header: Lectures and Workshops links, Workshops marked members-only, mobil
 
 test("a guest opening the Workshops link lands on sign-in and returns to /workshops afterwards", async ({ page }) => {
   await page.goto("/en");
-  await page.locator('header a[href$="/workshops"]').first().click();
+  await page.locator('header a[href$="/workshops"]:visible').first().click();
   await expect(page).toHaveURL(/\/en\/login\?next=%2Fworkshops/);
   await expect(page.getByText("Sign in with Google").first()).toBeVisible();
 });

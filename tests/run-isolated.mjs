@@ -7,7 +7,7 @@
 //
 //   node tests/run-isolated.mjs m1                 # M1 suite: desktop + mobile + clock, production build
 //   node tests/run-isolated.mjs m2                 # M2 guest/leak page specs (next dev)
-//   node tests/run-isolated.mjs m3                 # M3 guest/leak specs (production build of the snapshot, port 3740)
+//   node tests/run-isolated.mjs m3                 # M3 guest/leak specs (production build of the snapshot, port 3795)
 //   node tests/run-isolated.mjs m2 -g "garbage"    # extra args go to playwright
 //   PW_M2_FAKE_SUPABASE=1 node tests/run-isolated.mjs m2 -g "garbage|forged"
 //
@@ -62,7 +62,7 @@ if (suite === "m3") {
   // The M3 config serves an existing production build (guest mode, seed fixtures): build it in the snapshot first.
   const b = spawnSync(process.execPath, [env.NEXT_BIN, "build"], { cwd: snap, stdio: "inherit", env: { ...env, USE_FIXTURES: "1", NEXT_TELEMETRY_DISABLED: "1" } });
   if (b.status !== 0) process.exit(b.status ?? 1);
-  env.PW_M3_PORT = process.env.PW_M3_PORT ?? "3740";
+  env.PW_M3_PORT = process.env.PW_M3_PORT ?? "3795";
 }
 const r = spawnSync(process.execPath, args, { cwd: snap, stdio: "inherit", env });
 process.exit(r.status ?? 1);
