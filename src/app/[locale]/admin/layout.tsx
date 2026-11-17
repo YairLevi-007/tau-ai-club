@@ -14,7 +14,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 export default async function AdminLayout({ children }: LayoutProps<"/[locale]/admin">) {
   const viewer = await getViewer();
   if (viewer.kind !== "member" || viewer.member.role !== "admin") return children;
-  const [t, locale] = await Promise.all([getTranslations("admin"), getLocale()]);
+  const [t, tc, locale] = await Promise.all([getTranslations("admin"), getTranslations("content"), getLocale()]);
   return (
     <div className="mx-auto grid max-w-site gap-8 px-4 pt-8 pb-20 sm:px-8 lg:pt-10">
       <div className="grid gap-4">
@@ -35,6 +35,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
             { href: "/admin/speaker-profiles", label: t("speakerProfilesTab") },
             { href: "/admin/members", label: t("membersTab") },
             { href: "/admin/attendance", label: t("attendanceTab") },
+            { href: "/admin/content", label: tc("adminTab") },
           ]}
         />
       </div>

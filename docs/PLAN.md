@@ -72,7 +72,8 @@ All content lives in the database. The design covers every milestone, and Milest
 | Table | anon / non-member | member | admin |
 |---|---|---|---|
 | events, event_speakers, speakers, venues, cohorts | read `published` | read `published` | full |
-| event_content | `visibility='public' AND published` | + `members` | full |
+| event_content | `visibility='public' AND published` (event published too) | + `members` | full |
+| event_files (+ private bucket `event-files`) | none | read published (signed URLs) | full |
 | members, member_emails | none | none (own via profile) | full |
 | profiles | none | read all, write own | full |
 | speaker_contacts, speaker_form_tokens | none | via RPC only | full |
@@ -83,6 +84,12 @@ All content lives in the database. The design covers every milestone, and Milest
 - **attendance**: `event_id, member_id, status (registered | checked_in | no_show), checked_in_at, source ('luma_csv'), imported_at, imported_by`. One row per member per event; re-importing an event replaces its rows.
 - **attendance_imports**: one row per event: `rows_total, guests_registered, guests_checked_in, imported_at, imported_by`. Numbers only: no guest's name or email is ever stored.
 - **admin_import_attendance(event, rows, commit)**: previews (commit = false) or saves, in one transaction. Going but not checked in is a no-show once the event has ended, `registered` before.
+
+### Lecture and workshop content (M3, built)
+- **event_content**: one row per event per section (`blurb, summary, goals, takeaways` for lectures; `prep, summary, commands, exercises, resources` for workshops). Markdown `body_he` (source) and `body_en` (null = "Hebrew only for now"), `visibility (public | members)`, `status (draft | published)`.
+- **event_files**: PDFs in the private `event-files` bucket (`<event slug>/<name>.pdf`). Storage RLS lets a member read an object only while a published row points at it.
+- Pages: `/lectures` and `/lectures/[slug]` are public and ISR (speaker, date, the public blurb); the members-only sections load in a client island from `/api/events/[slug]/content` (no-store), so they are never in the cached HTML. `/workshops` and `/workshops/[slug]` are members only (dynamic). Markdown goes through a small built-in renderer that escapes everything (`src/lib/content/markdown.ts`), no npm package.
+- Checks: `scripts/rls-m3-content.mjs` (db:check), `tests/m3` (`tests/playwright.m3.config.ts`).
 
 ### Backlog (designed, not built)
 - `feedback(event_id, member_id, rating, comment, created_at)`

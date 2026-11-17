@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/config/site";
-import { getEventSlugs } from "@/lib/events";
+import { getEventSlugs, getSeason } from "@/lib/events";
+import { contentKindOf } from "@/lib/content/sections";
 import { localizedPath } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 
@@ -8,7 +9,10 @@ export const revalidate = 3600;
 
 /** Every public page in both languages, each with hreflang alternates. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const paths = ["/", ...(await getEventSlugs()).map((slug) => `/events/${slug}`)];
+  const season = await getSeason();
+  // Workshops are members only, so only lectures (public blurbs) are listed.
+  const lectures = season.status === "ok" ? season.events.filter((e) => contentKindOf(e.kind) === "lecture").map((e) => `/lectures/${e.slug}`) : [];
+  const paths = ["/", ...(await getEventSlugs()).map((slug) => `/events/${slug}`), "/lectures", ...lectures];
   const abs = (p: string) => (p === "/" ? SITE_URL : `${SITE_URL}${p}`);
 
   return paths.flatMap((path) =>

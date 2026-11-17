@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { runM2Checks } from "./rls-m2.mjs";
 import { runProfileChecks } from "./rls-m2-profiles.mjs";
 import { runAttendanceChecks } from "./rls-m2-attendance.mjs";
+import { runContentChecks } from "./rls-m3-content.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
@@ -85,6 +86,8 @@ for (const file of readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).
 }
 await db.exec(readFileSync(join(root, "supabase", "seed.sql"), "utf8"));
 console.log("applied  seed.sql");
+await db.exec(readFileSync(join(root, "supabase", "seed-m3-content.sql"), "utf8"));
+console.log("applied  seed-m3-content.sql");
 
 // A draft event + a speaker only on that draft, to prove neither leaks.
 await db.exec(`
@@ -172,6 +175,17 @@ if (writeFixtures) {
   const out = join(root, "src", "lib", "data", "fixtures.json");
   writeFileSync(out, JSON.stringify({ cohort: cohort.rows[0], events: res.rows[0].data }, null, 2) + "\n");
   console.log(`wrote    ${out}`);
+
+  // Public, published lecture/workshop sections, keyed by event slug (no ids, so the file is stable).
+  const content = await asAnon(`
+    select coalesce(json_object_agg(slug, sections), '{}'::json) as data from (
+      select e.slug, json_object_agg(c.section, json_build_object('body_he', c.body_he, 'body_en', c.body_en)) as sections
+      from public.event_content c join public.events e on e.id = c.event_id
+      group by e.slug
+    ) t`);
+  const contentOut = join(root, "src", "lib", "data", "content-fixtures.json");
+  writeFileSync(contentOut, JSON.stringify(content.rows[0].data, null, 2) + "\n");
+  console.log(`wrote    ${contentOut}`);
 }
 
 // --- Milestone 2: roles, allowlist, speaker contact data ------------------------
@@ -179,6 +193,7 @@ if (writeFixtures) {
 await runM2Checks(db, check);
 await runProfileChecks(db, check);
 await runAttendanceChecks(db, check);
+await runContentChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);
