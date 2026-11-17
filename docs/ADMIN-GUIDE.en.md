@@ -26,7 +26,7 @@ New meetups are **Draft**s, so guests can't see them or their speakers. Switch t
 - **Delete event** is permanent. To hide a meetup, set it back to **Draft**.
 
 ## 4. Speaker contact details
-1. **Admin → Events → Edit** the meetup → the **Speaker contacts** section → **Create link** next to the speaker. The link lasts 14 days by default.
+1. **Admin → Events → Edit** the meetup → the **Speaker contact details** section → **Create link** next to the speaker. The link lasts 14 days by default.
 2. Copy it right away, because it's shown only once, and send it to the speaker. It works once; a new link cancels the old one.
 3. The speaker ticks each field separately, and anything left unticked isn't stored. Email and phone are visible only to signed-in members. LinkedIn is public only if the speaker opted in.
 4. The admin area shows only *which* fields were shared, not the values.
