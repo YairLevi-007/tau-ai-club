@@ -161,7 +161,16 @@ test.describe("404 titles", () => {
       const html = await res.text();
       expect(html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").toMatch(re);
       expect(html).toMatch(/<meta name="robots" content="noindex/);
-      expect(html).toMatch(new RegExp(`<html[^>]*lang="${p.startsWith("/en") ? "en" : "he"}"`));
+    });
+
+    // The 404 response is the framework error shell (`<html id="__next_error__">`): no lang or dir until the client swaps in the
+    // localized page. Screen readers, translation tools and no-JS clients get an untagged Hebrew/English document.
+    test(`${p}: server HTML declares lang and dir`, async ({ request }) => {
+      test.fail(true, "BUG: 404 server HTML has <html id=__next_error__> without lang/dir");
+      const html = await (await request.get(p, { maxRedirects: 0 })).text();
+      const he = !p.startsWith("/en");
+      expect(html).toMatch(new RegExp(`<html[^>]*lang="${he ? "he" : "en"}"`));
+      expect(html).toMatch(new RegExp(`<html[^>]*dir="${he ? "rtl" : "ltr"}"`));
     });
 
     // The title the VISITOR sees after hydration. The server HTML is right, but the client replaces it with the default site
