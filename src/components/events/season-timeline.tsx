@@ -63,7 +63,8 @@ export async function SeasonTimeline({
         const name = loc(sp, "name", locale) ?? "";
         return {
           name,
-          role: [loc(sp, "role", locale), loc(sp, "company", locale)].filter(Boolean).join(" · ") || null,
+          role: loc(sp, "role", locale) ?? null,
+          company: loc(sp, "company", locale) ?? null,
           photoUrl: sp.photo_url,
           initials: initialsOf(name),
         };

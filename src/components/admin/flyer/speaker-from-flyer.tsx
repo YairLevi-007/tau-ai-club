@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FileImage, LoaderCircle, UserRoundCheck } from "lucide-react";
+import { ChevronDown, FileImage, LoaderCircle, ScanText, UserRoundCheck } from "lucide-react";
 import { slugify } from "@/lib/flyer/match";
 import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people";
 import { uploadSpeakerPhoto } from "@/app/[locale]/admin/speaker-profiles/actions";
@@ -105,9 +105,13 @@ export function SpeakerFromFlyer() {
   const setSquare = (i: number, square: Square) => people && setPeople(people.map((p, j) => (j === i ? { ...p, square } : p)));
 
   return (
-    <details ref={root} className="rounded-md border border-border p-3 sm:col-span-2" data-testid="speaker-flyer">
-      <summary className="cursor-pointer text-sm font-semibold text-fg">{t("speakerFromFlyer")}</summary>
-      <div className="grid gap-3 pt-3">
+    <details ref={root} className="group/flyer min-w-0 rounded-lg border border-border-accent/70 bg-brand-purple-deeper/15 sm:col-span-2" data-testid="speaker-flyer">
+      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-fg [&::-webkit-details-marker]:hidden">
+        <ScanText aria-hidden className="size-4 text-brand-purple-soft" />
+        {t("speakerFromFlyer")}
+        <ChevronDown aria-hidden className="ms-auto size-4 text-fg-subtle transition-transform duration-200 group-open/flyer:rotate-180" />
+      </summary>
+      <div className="grid gap-3 border-t border-border px-4 pt-3 pb-4">
         <p className={hintClass}>{t("speakerFromFlyerHint")}</p>
         <div className="flex flex-wrap items-end gap-3">
           <label className={labelClass}>
@@ -123,7 +127,7 @@ export function SpeakerFromFlyer() {
           {busy === "using" ? t("speakerFlyerUsing") : (done ?? "")}
         </p>
         {error && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -131,17 +135,18 @@ export function SpeakerFromFlyer() {
         {people && picture && (
           <ul className="grid gap-3">
             {people.map((p, i) => (
-              <li key={i} className="grid gap-3 rounded-md border border-border p-3" data-testid="speaker-flyer-person">
-                <div className="flex flex-wrap items-start gap-3">
+              <li key={i} className="grid gap-4 rounded-lg border border-border-accent/70 bg-bg-deep/35 p-4" data-testid="speaker-flyer-person">
+                <div className="flex items-center gap-4">
                   <FacePreview src={picture.url} imgW={picture.img.naturalWidth} imgH={picture.img.naturalHeight} square={p.square} />
-                  <div className="grid min-w-0 grow gap-2">
-                    <CaptionChips chips={p.chips} onUse={(use, text) => fill({ ...placeChip(use, text) })} />
-                    <button type="button" className="btn btn-primary h-9 w-fit px-3 text-sm" disabled={!!busy} onClick={() => onUse(p)} data-testid="speaker-flyer-use">
+                  <div className="grid min-w-0 gap-2">
+                    <p className="text-sm font-semibold text-fg">{t("flyerFaceN", { n: i + 1 })}</p>
+                    <button type="button" className="btn btn-primary h-10 w-fit px-4 text-sm" disabled={!!busy} onClick={() => onUse(p)} data-testid="speaker-flyer-use">
                       <UserRoundCheck aria-hidden />
                       {t("speakerFlyerUse")}
                     </button>
                   </div>
                 </div>
+                <CaptionChips chips={p.chips} onUse={(use, text) => fill({ ...placeChip(use, text) })} />
                 <details>
                   <summary className="cursor-pointer text-sm text-fg-muted">{t("flyerAdjustCrop")}</summary>
                   <div className="pt-3">

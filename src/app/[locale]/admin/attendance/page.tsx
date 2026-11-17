@@ -10,6 +10,7 @@ import { formatShortDate, loc } from "@/lib/event-format";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { hintClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
+import { AttendanceMark, RateBar } from "@/components/admin/attendance/attendance-mark";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/attendance">): Promise<Metadata> {
   const { locale } = await params;
@@ -30,10 +31,9 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
   const supabase = await createClient();
   const cohort = supabase ? await currentCohort(supabase) : null;
   const season = supabase && cohort ? await getSeasonAttendance(supabase, cohort.id) : null;
-  const pct = (r: number | null) => (r === null ? "–" : `${Math.round(r * 100)}%`);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <AdminHeader title={t("seasonTitle")} body={t("seasonBody")} alert={season?.error ? t("errorLoad") : null} />
 
       {cohort && season && (
@@ -49,34 +49,44 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
       {!season || season.events.length === 0 ? (
         <p className="text-fg-muted">{t("seasonEmpty")}</p>
       ) : (
-        <div className={cn(panelClass, "overflow-x-auto")}>
-          <table className="w-full border-collapse text-sm" data-testid="attendance-grid">
+        <div className={cn(panelClass, "relative overflow-x-auto overscroll-x-contain")}>
+          <table className="w-full border-separate border-spacing-0 text-sm" data-testid="attendance-grid">
             <caption className="sr-only">{t("gridCaption")}</caption>
             <thead>
-              <tr className="border-b border-border text-fg-subtle">
-                <th scope="col" className="px-3 py-2 text-start font-medium">
+              <tr className="text-fg-subtle">
+                <th scope="col" className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-4 py-3 text-start text-xs font-medium">
                   {t("member")}
                 </th>
-                {season.events.map((e) => (
-                  <th key={e.id} scope="col" className="px-2 py-2 text-center font-medium whitespace-nowrap">
-                    <Link href={`/admin/events/${e.id}`} title={loc(e, "title", locale) ?? e.slug} className="underline-offset-4 hover:underline">
-                      <bdi>{formatShortDate(e.starts_at, locale)}</bdi>
-                    </Link>
-                    <span className="block text-[0.6875rem] font-normal">
-                      {season.imports.has(e.id) ? t("guestsShort", { n: season.imports.get(e.id)!.guests_checked_in }) : t("notImported")}
-                    </span>
-                  </th>
-                ))}
-                <th scope="col" className="px-3 py-2 text-end font-medium">
+                {season.events.map((e) => {
+                  const imp = season.imports.get(e.id);
+                  return (
+                    <th key={e.id} scope="col" className="border-b border-border px-2 py-3 text-center font-medium whitespace-nowrap">
+                      <Link
+                        href={`/admin/events/${e.id}`}
+                        title={loc(e, "title", locale) ?? e.slug}
+                        className="font-mono text-[0.8125rem] text-fg-muted underline-offset-4 hover:text-fg hover:underline"
+                      >
+                        <bdi>{formatShortDate(e.starts_at, locale)}</bdi>
+                      </Link>
+                      <span className={cn("mt-0.5 block text-[0.6875rem] font-normal", imp ? "text-fg-subtle" : "text-fg-faint")}>
+                        {imp ? t("guestsShort", { n: imp.guests_checked_in }) : t("notImported")}
+                      </span>
+                    </th>
+                  );
+                })}
+                <th scope="col" className="border-b border-border px-4 py-3 text-end text-xs font-medium">
                   {t("rate")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {season.members.map((m) => (
-                <tr key={m.id} className="border-b border-border last:border-0" data-testid="attendance-row">
-                  <th scope="row" className="px-3 py-2 text-start font-normal whitespace-nowrap">
-                    <Link href={`/admin/attendance/${m.id}`} className="text-fg underline-offset-4 hover:underline">
+                <tr key={m.id} className="group/row" data-testid="attendance-row">
+                  <th
+                    scope="row"
+                    className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-4 py-2.5 text-start font-normal whitespace-nowrap group-last/row:border-0 group-hover/row:[background-image:linear-gradient(var(--surface-hover),var(--surface-hover)),linear-gradient(var(--surface),var(--surface))]"
+                  >
+                    <Link href={`/admin/attendance/${m.id}`} className="font-medium text-fg underline-offset-4 hover:underline">
                       {m.full_name}
                     </Link>
                   </th>
@@ -86,16 +96,19 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
                     const came = c?.status === "checked_in";
                     const label = !imported ? t("cellNoData") : came ? t("status_checked_in") : c ? t(`status_${c.status}`) : t("cellNotRegistered");
                     return (
-                      <td key={e.id} className="px-2 py-2 text-center">
-                        <span aria-hidden className={came ? "text-brand-purple-soft" : "text-fg-faint"}>
-                          {!imported ? "–" : came ? "✓" : "✗"}
+                      <td
+                        key={e.id}
+                        className="border-b border-border px-2 py-2.5 transition-colors duration-150 group-last/row:border-0 group-hover/row:bg-surface-hover"
+                      >
+                        <span className="grid place-items-center" title={label}>
+                          <AttendanceMark status={!imported ? "nodata" : c ? c.status : "none"} />
                         </span>
                         <span className="sr-only">{label}</span>
                       </td>
                     );
                   })}
-                  <td className="px-3 py-2 text-end tabular-nums text-fg-muted">
-                    <bdi>{pct(m.rate)}</bdi>
+                  <td className="border-b border-border px-4 py-2.5 text-end transition-colors duration-150 group-last/row:border-0 group-hover/row:bg-surface-hover">
+                    <RateBar rate={m.rate} />
                   </td>
                 </tr>
               ))}
@@ -103,6 +116,22 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
           </table>
         </div>
       )}
+      <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-subtle" aria-label={t("legendTitle")}>
+        {(
+          [
+            ["checked_in", "status_checked_in"],
+            ["registered", "status_registered"],
+            ["no_show", "status_no_show"],
+            ["none", "cellNotRegistered"],
+            ["nodata", "cellNoData"],
+          ] as const
+        ).map(([st, key]) => (
+          <li key={st} className="inline-flex items-center gap-2">
+            <AttendanceMark status={st} />
+            {t(key)}
+          </li>
+        ))}
+      </ul>
       <p className={hintClass}>{t("gridLegend")}</p>
     </div>
   );

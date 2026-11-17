@@ -27,7 +27,7 @@ export type DialEvent = {
   speakers: DialSpeaker[];
 };
 
-export type DialSpeaker = FaceSpeaker & { role: string | null };
+export type DialSpeaker = FaceSpeaker & { role: string | null; company: string | null };
 
 type Props = {
   events: DialEvent[];
@@ -388,16 +388,24 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                 </button>
 
                 {selected.speakers.length > 0 && (
-                  <ul className="mb-4 grid gap-3 pe-8">
-                    {selected.speakers.map((sp) => (
-                      <li key={sp.name} className="flex items-center gap-3">
-                        <Face speaker={sp} size={selected.speakers.length > 1 ? 48 : 64} />
-                        <div className="min-w-0">
-                          <p className="leading-tight font-semibold text-fg">{sp.name}</p>
-                          {sp.role && <p className="mt-0.5 text-sm text-fg-subtle">{sp.role}</p>}
-                        </div>
-                      </li>
-                    ))}
+                  <ul className="mb-4 grid gap-3 border-b border-border pe-8 pb-4" data-testid="dial-popup-speakers">
+                    {selected.speakers.map((sp) => {
+                      const solo = selected.speakers.length === 1;
+                      return (
+                        <li key={sp.name} className="flex items-center gap-3.5">
+                          <Face speaker={sp} size={solo ? 76 : 52} className={cn("rounded-lg", sp.photoUrl && "shadow-[var(--shadow-featured)]")} />
+                          <div className="min-w-0">
+                            <p className={cn("leading-tight font-bold text-fg", solo && "text-[1.0625rem]")}>{sp.name}</p>
+                            {sp.role && <p className="mt-1 text-sm leading-snug text-fg-muted">{sp.role}</p>}
+                            {sp.company && (
+                              <p className="text-sm leading-snug font-medium text-brand-purple-soft">
+                                <bdi>{sp.company}</bdi>
+                              </p>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
 

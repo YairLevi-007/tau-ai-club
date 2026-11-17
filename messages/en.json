@@ -324,7 +324,13 @@
     "speakerFlyerUsing": "Saving the photo…",
     "speakerFlyerFilled": "Filled in from the flyer. Check every field, then save.",
     "speakerFlyerNoFaces": "No faces found on this flyer.",
-    "attendanceTab": "Attendance"
+    "attendanceTab": "Attendance",
+    "flyerChipName": "Name",
+    "flyerChipRole": "Role",
+    "flyerChipCompany": "Company",
+    "flyerChipUse": "Where \"{text}\" goes",
+    "flyerNoName": "No name yet",
+    "flyerLinked": "Already on the site"
   },
   "speakerForm": {
     "eyebrow": "Contact details",
@@ -450,11 +456,12 @@
     "rate": "Attended",
     "cellNoData": "no import yet",
     "cellNotRegistered": "didn't register",
-    "gridLegend": "✓ checked in · ✗ didn't come or didn't register · – no Luma import yet. The rate counts only imported meetups.",
+    "gridLegend": "The rate counts only meetups imported from Luma.",
     "memberTitle": "Member attendance",
     "memberBody": "Meetups this season that have a Luma import.",
     "memberRate": "Came to {came} of {total} meetups ({pct}%).",
     "memberNoData": "No meetups imported yet this season.",
-    "backToSeason": "All members"
+    "backToSeason": "All members",
+    "legendTitle": "Legend"
   }
 }

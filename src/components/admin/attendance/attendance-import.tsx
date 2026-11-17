@@ -7,7 +7,7 @@ import { useRouter } from "@/i18n/navigation";
 import { readLumaCsv, type AttendanceRow, type LumaCsv } from "@/lib/attendance/luma-csv";
 import { importAttendance, type AttendanceResult } from "@/app/[locale]/admin/events/attendance-actions";
 import { fileInputClass, hintClass, labelClass, smallBtn } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
+import { AttendanceTag } from "./attendance-mark";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -81,15 +81,15 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
         {busy === "reading" ? t("reading") : busy === "saving" ? t("saving") : saved ? t("saved") : ""}
       </p>
       {error && (
-        <p role="alert" className="text-sm text-destructive" data-testid="attendance-error">
+        <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive" data-testid="attendance-error">
           {error}
         </p>
       )}
 
       {preview && csv && (
-        <div className="grid gap-3 rounded-md border border-border p-3" data-testid="attendance-preview">
+        <div className="grid gap-3 rounded-lg border border-border-accent/70 bg-bg-deep/35 p-4" data-testid="attendance-preview">
           <p className="text-sm font-semibold text-fg">{t("previewTitle")}</p>
-          <ul className="grid gap-1 text-sm text-fg-muted">
+          <ul className="grid gap-1 text-sm text-fg-muted marker:text-brand-purple-soft">
             <li data-testid="preview-checked-in">{t("countCheckedIn", { n: count("checked_in") })}</li>
             <li data-testid="preview-no-show">{t("countNoShow", { n: count("no_show") })}</li>
             <li data-testid="preview-registered">{t("countRegistered", { n: count("registered") })}</li>
@@ -97,11 +97,11 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
             <li>{t("countIgnored", { n: preview.ignored, total: preview.rows_total })}</li>
           </ul>
           {preview.members.length > 0 && (
-            <ul className="grid gap-1 text-sm" aria-label={t("matchedMembers")} data-testid="preview-members">
+            <ul className="grid gap-1.5 border-t border-border pt-3 text-sm" aria-label={t("matchedMembers")} data-testid="preview-members">
               {preview.members.map((m) => (
-                <li key={m.member_id} className="flex flex-wrap gap-2">
-                  <span className="text-fg">{m.full_name}</span>
-                  <span className={cn("text-xs", m.status === "checked_in" ? "text-brand-purple-soft" : "text-fg-subtle")}>{t(`status_${m.status}`)}</span>
+                <li key={m.member_id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-medium text-fg">{m.full_name}</span>
+                  <AttendanceTag status={m.status} label={t(`status_${m.status}`)} />
                 </li>
               ))}
             </ul>
