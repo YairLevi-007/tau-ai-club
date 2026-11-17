@@ -57,7 +57,7 @@ for (const c of cases) {
         expect(states.lastIndexOf("past")).toBe(c.past.length - 1);
       }
     } finally {
-      srv.stop();
+      await srv.stop();
     }
   });
 }
@@ -72,6 +72,6 @@ test("tentative event shown without null/undefined copy", async ({ page }) => {
     await expect(card).not.toContainText(/null|undefined/);
     // TODO(qa): assert the localized "tentative" pill text once copy is final.
   } finally {
-    srv.stop();
+    await srv.stop();
   }
 });
