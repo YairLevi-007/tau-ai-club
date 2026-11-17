@@ -111,7 +111,7 @@ test.describe("response headers", () => {
       const r = await request.get(p, { maxRedirects: 0 });
       const h = r.headers();
       expect(h["x-powered-by"], "X-Powered-By").toBeUndefined();
-      expect(h["link"], "Link header (hreflang) was removed").toBeUndefined();
+      expect(h["link"] ?? "", "hreflang Link header was removed").not.toMatch(/hreflang|rel="?alternate/i); // font preload Link headers from Next are fine
       expect(h["x-content-type-options"]).toBe("nosniff");
       expect(h["referrer-policy"]).toMatch(/strict-origin|no-referrer|same-origin/);
       expect(h["permissions-policy"] ?? "").toMatch(/camera=\(\)|geolocation=\(\)/);
@@ -193,9 +193,11 @@ test.describe("sitemap and feeds", () => {
       for (const e of events) {
         expect(e).toMatch(/^LAST-MODIFIED:\d{8}T\d{6}Z\s*$/m);
         expect(e).toMatch(/^SEQUENCE:\d+\s*$/m);
-        const stamp = e.match(/^DTSTAMP:(\d{8}T\d{6}Z)/m)![1];
-        const lm = e.match(/^LAST-MODIFIED:(\d{8}T\d{6}Z)/m)![1];
-        expect(lm <= stamp, `LAST-MODIFIED ${lm} must not be after DTSTAMP ${stamp}`).toBe(true);
+        // DTSTAMP follows the pinned test clock (DEBUG_NOW), so compare LAST-MODIFIED with the real wall clock instead.
+        const lm = e.match(/^LAST-MODIFIED:(\d{4})(\d\d)(\d\d)T(\d\d)(\d\d)(\d\d)Z/m)!;
+        const t = Date.UTC(+lm[1], +lm[2] - 1, +lm[3], +lm[4], +lm[5], +lm[6]);
+        expect(t, "LAST-MODIFIED is not in the future").toBeLessThanOrEqual(Date.now() + 60_000);
+        expect(t, "LAST-MODIFIED is plausible (after 2026-01-01)").toBeGreaterThan(Date.UTC(2026, 0, 1));
       }
     });
   }
