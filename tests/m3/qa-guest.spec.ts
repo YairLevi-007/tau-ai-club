@@ -1,13 +1,23 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test, type APIRequestContext, type BrowserContext } from "@playwright/test";
+import fixtures from "../../src/lib/data/fixtures.json";
 
 /**
  * QA's independent M3 guest checks. Differences from the builder's spec: the "canary" text is DERIVED from the committed seed
  * (every line of every members-only or draft section, minus anything that also appears in a public section), so the scan keeps
  * working when the seed content changes; and it scans more surfaces (RSC payloads, JS bundles, OG/meta, feeds, sitemap, 404s).
- * Runs as a guest (no Supabase env): RLS itself is covered by tests/db/m3-rls.qa.mjs.
+ * Runs as a guest with the members area ON (fake Supabase URL): lectures and workshops are members only, so a guest is
+ * always sent to log in. RLS itself is covered by tests/db/m3-rls.qa.mjs.
  */
+const LECTURE_SLUGS = (fixtures.events as { slug: string; kind: string; status?: string }[])
+  .filter((e) => e.kind !== "workshop")
+  .map((e) => e.slug);
+
+/** The UI-only hint the server sets after a member logs in: it shows the members' tabs, never grants access. */
+async function memberHint(context: BrowserContext, baseURL: string | undefined) {
+  await context.addCookies([{ name: "tau_member", value: "1", url: baseURL ?? "http://localhost" }]);
+}
 const SEED = readFileSync(path.join(__dirname, "..", "..", "supabase", "seed-m3-content.sql"), "utf8");
 
 function seedCanaries() {
@@ -37,8 +47,7 @@ test("seed canaries: there are plenty of members-only fragments to scan for", ()
 });
 
 test("lectures: canary scan of HTML, RSC payload, metadata, sitemap, feeds and bundles (he + en)", async ({ request, page }) => {
-  const index = await (await request.get("/lectures")).text();
-  const slugs = [...new Set([...index.matchAll(/href="\/lectures\/([a-z0-9-]+)"/g)].map((m) => m[1]))];
+  const slugs = LECTURE_SLUGS;
   expect(slugs.length).toBeGreaterThanOrEqual(3);
   const paths = ["/lectures", "/en/lectures", ...slugs.flatMap((s) => [`/lectures/${s}`, `/en/lectures/${s}`]), "/", "/en", "/sitemap.xml", "/calendar.ics", "/calendar-en.ics", "/robots.txt"];
   for (const p of paths) {
@@ -70,27 +79,24 @@ test("lectures: canary scan of HTML, RSC payload, metadata, sitemap, feeds and b
   }
 });
 
-test("lectures are public and indexable-by-design; workshops and admin content are not", async ({ request }) => {
-  for (const p of ["/lectures", "/en/lectures"]) expect((await get(request, p)).status(), p).toBe(200);
-  for (const p of ["/workshops", "/en/workshops", "/workshops/zero-to-hero-1", "/en/workshops/zero-to-hero-1", "/admin/content", "/en/admin/content", "/admin/content/123e4567-e89b-42d3-a456-426614174000"]) {
+test("lectures, workshops and admin content are all members only: guests go to log in", async ({ request }) => {
+  for (const p of ["/lectures", "/en/lectures", "/lectures/cohort-02-opening", "/en/lectures/cohort-02-opening", "/workshops", "/en/workshops", "/workshops/zero-to-hero-1", "/en/workshops/zero-to-hero-1", "/admin/content", "/en/admin/content", "/admin/content/123e4567-e89b-42d3-a456-426614174000"]) {
     let r = await get(request, p);
     for (let hop = 0; hop < 3 && [303, 307, 308].includes(r.status()) && /^\/(en\/)?admin/.test(r.headers()["location"] ?? ""); hop++) r = await get(request, r.headers()["location"]!);
     const loc = r.headers()["location"] ?? "";
     expect(([303, 307, 308].includes(r.status()) && /\/login|\/members-only/.test(loc)) || [403, 404].includes(r.status()), `${p} -> ${r.status()} ${loc}`).toBe(true);
     const body = await r.text();
     expect(CANARIES.find((c) => body.includes(c)), `${p} body`).toBeUndefined();
-    expect(body, p).not.toMatch(/data-testid="(workshops-page|workshop-card|admin-content)/);
+    expect(body, p).not.toMatch(/data-testid="(workshops-page|workshop-card|admin-content|lectures-page|lecture-page|lecture-card)/);
     expect(r.headers()["cache-control"] ?? "", p).not.toMatch(/public|s-maxage/);
     if (r.status() >= 300 && r.status() < 400) expect(loc, p).toMatch(/next=/); // guests come back to the page after signing in
   }
 });
 
-test("sitemap lists lectures (he+en) and nothing members-only or private", async ({ request }) => {
+test("sitemap lists public pages only (no lectures, nothing members-only or private)", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
-  expect(xml).toMatch(/\/lectures<\/loc>/);
-  expect(xml).toMatch(/\/en\/lectures<\/loc>/);
-  expect(xml).toMatch(/\/lectures\/cohort-02-opening<\/loc>/);
-  expect(xml).not.toMatch(/\/workshops|\/admin|\/api\/|\/login|\/members-only|\/welcome|\/profile|\/speaker\//);
+  expect(xml).toMatch(/\/events\/cohort-02-opening<\/loc>/);
+  expect(xml).not.toMatch(/\/lectures|\/workshops|\/admin|\/api\/|\/login|\/members-only|\/welcome|\/profile|\/speaker\/|\/me</);
   // Every URL has both language alternates.
   const urls = xml.split("<url>").slice(1);
   for (const u of urls) {
@@ -136,7 +142,16 @@ test("file downloads: guests get 403/404, never a redirect or a signed URL", asy
   expect([403, 404, 405]).toContain(r.status());
 });
 
-test("header: Lectures and Workshops links, Workshops marked members-only, mobile section row labelled", async ({ page, isMobile }) => {
+test("header: guests see no members-only tabs", async ({ page }) => {
+  for (const p of ["/", "/en"]) {
+    await page.goto(p);
+    await expect(page.locator('header a[href$="/lectures"], header a[href$="/workshops"]'), p).toHaveCount(0);
+    await expect(page.locator('header a[href$="/login"]:visible'), p).toHaveCount(1);
+  }
+});
+
+test("header (member hint): Lectures and Workshops links, marked members-only, mobile section row labelled", async ({ page, context, baseURL, isMobile }) => {
+  await memberHint(context, baseURL);
   for (const [p, lecturesText, workshopsText, rowLabel] of [
     ["/", "הרצאות", "סדנאות", "מדורים"],
     ["/en", "Lectures", "Workshops", "Sections"],
@@ -153,20 +168,23 @@ test("header: Lectures and Workshops links, Workshops marked members-only, mobil
     expect(name, `${p} workshops link name`).toMatch(/חבר|members/i);
     if (isMobile) await expect(page.getByRole("navigation", { name: rowLabel })).toBeVisible();
     // Links work and keep the locale.
+    // The hint isn't a session: the link lands on log-in, coming back to /lectures.
     await lectures.click();
-    await expect(page).toHaveURL(new RegExp(`${p === "/" ? "" : "/en"}/lectures$`));
+    await expect(page).toHaveURL(new RegExp(`${p === "/" ? "" : "/en"}/login\\?next=%2Flectures$`));
   }
 });
 
-test("a guest opening the Workshops link lands on sign-in and returns to /workshops afterwards", async ({ page }) => {
+test("a guest opening the Workshops link lands on log-in and returns to /workshops afterwards", async ({ page, context, baseURL }) => {
+  await memberHint(context, baseURL);
   await page.goto("/en");
   await page.locator('header a[href$="/workshops"]:visible').first().click();
   await expect(page).toHaveURL(/\/en\/login\?next=%2Fworkshops/);
-  await expect(page.getByText("Sign in with Google").first()).toBeVisible();
+  await expect(page.getByTestId("email-form")).toBeVisible();
 });
 
-test("keyboard: the new header links are reachable in a sensible order and show focus", async ({ page, isMobile }) => {
+test("keyboard: the new header links are reachable in a sensible order and show focus", async ({ page, context, baseURL, isMobile }) => {
   test.skip(!!isMobile, "keyboard walk is desktop-only");
+  await memberHint(context, baseURL);
   await page.goto("/en");
   const seen: string[] = [];
   for (let i = 0; i < 10; i++) {

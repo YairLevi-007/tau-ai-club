@@ -72,8 +72,8 @@ test("no members-only text on any public page, feed or endpoint", async ({ reque
   expect(fromSitemap).toContain("/lectures");
   expect(fromSitemap.some((p) => /^\/en\/lectures\/[a-z0-9-]+$/.test(p))).toBe(true);
 
-  const extra = ["/workshops", "/workshops/zero-to-hero-1", "/login", "/admin", "/profile", "/speaker/" + "a".repeat(64), "/calendar.ics", "/calendar-en.ics"];
-  const paths = [...new Set([...fromSitemap, ...extra, ...extra.map((p) => `/en${p}`).filter((p) => !p.endsWith(".ics"))])];
+  const extra = ["/workshops", "/workshops/zero-to-hero-1", "/login", "/admin", "/profile", "/me", "/api/calendar/cohort-02-opening", "/speaker/" + "a".repeat(64), "/calendar.ics", "/calendar-en.ics"];
+  const paths = [...new Set([...fromSitemap, ...extra, ...extra.map((p) => `/en${p}`).filter((p) => !p.endsWith(".ics") && !p.startsWith("/en/api/"))])];
   const slugs = [...new Set(fromSitemap.map((p) => /\/lectures\/([a-z0-9-]+)$/.exec(p)?.[1]).filter(Boolean))] as string[];
   const endpoints = [...slugs, "zero-to-hero-1"].map((s) => `/api/events/${s}/content`);
 

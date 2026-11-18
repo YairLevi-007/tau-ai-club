@@ -22,7 +22,7 @@ export function authEnabled(): boolean {
 }
 
 /** Locale-free route prefixes that belong to the members/admin area. */
-export const AUTH_AREA_PREFIXES = ["/login", "/members-only", "/welcome", "/profile", "/members", "/admin", "/speaker"] as const;
+export const AUTH_AREA_PREFIXES = ["/login", "/members-only", "/welcome", "/me", "/profile", "/members", "/admin", "/speaker"] as const;
 
 /** "/admin/events" → true, "/events/x" → false, "/membership" → false. Path is locale-free. */
 export function isAuthArea(path: string): boolean {

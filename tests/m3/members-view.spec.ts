@@ -16,6 +16,11 @@ const payload = {
   files: [{ id: FILE_ID, title_he: "סיכום ההרצאה (PDF)", title_en: "Lecture summary (PDF, Hebrew)" }],
 };
 
+// With the members area on, the lecture page itself is members only (the server sends guests
+// to log in before the island ever loads), so this rendering check needs a real member session.
+test.skip(!process.env.E2E_MEMBER_STATE, "lecture pages are members only: needs E2E_MEMBER_STATE (member storageState) and a dev Supabase");
+test.use({ storageState: process.env.E2E_MEMBER_STATE });
+
 test.beforeEach(async ({ page }) => {
   await page.route(`**/api/events/${LECTURE}/content`, (route) => route.fulfill({ json: payload, headers: { "cache-control": "private, no-store" } }));
 });

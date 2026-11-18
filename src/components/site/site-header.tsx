@@ -7,29 +7,42 @@ import { authEnabled } from "@/lib/supabase/config";
 import { InstagramIcon } from "./instagram-icon";
 import { LinkedInIcon } from "./linkedin-icon";
 import { LanguageSwitch } from "./language-switch";
+import { MemberAction, MemberSectionLinks } from "./member-nav";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
   const meta = await getTranslations("meta");
   const tc = await getTranslations("content");
-  // Same HTML for everyone (public pages stay cacheable): Workshops shows a lock, and the
-  // page itself sends guests to sign in.
-  const sectionLinks = (className: string) => (
-    <ul className={className}>
-      <li>
-        <Link href="/lectures" className={navLinkClass}>
-          {tc("navLectures")}
-        </Link>
-      </li>
-      <li>
-        <Link href="/workshops" className={navLinkClass}>
-          {tc("navWorkshops")}
-          <LockKeyhole aria-hidden className="size-3.5 text-fg-subtle" />
-          <span className="sr-only"> ({tc("navMembersOnly")})</span>
-        </Link>
-      </li>
-    </ul>
-  );
+  const authOn = authEnabled();
+  // Same HTML for everyone (public pages stay cacheable).
+  // Members area on: Lectures and Workshops are members-only, so guests don't see them in the
+  // nav; a client island shows them after a member logs in (see member-nav.tsx).
+  // Members area off: the public preview tabs (Workshops with a lock) as before.
+  const sectionLinks = (className: string) =>
+    authOn ? (
+      <MemberSectionLinks
+        lectures={tc("navLectures")}
+        workshops={tc("navWorkshops")}
+        membersOnly={tc("navMembersOnly")}
+        className={className}
+        linkClassName={navLinkClass}
+      />
+    ) : (
+      <ul className={className}>
+        <li>
+          <Link href="/lectures" className={navLinkClass}>
+            {tc("navLectures")}
+          </Link>
+        </li>
+        <li>
+          <Link href="/workshops" className={navLinkClass}>
+            {tc("navWorkshops")}
+            <LockKeyhole aria-hidden className="size-3.5 text-fg-subtle" />
+            <span className="sr-only"> ({tc("navMembersOnly")})</span>
+          </Link>
+        </li>
+      </ul>
+    );
 
   return (
     <header className="relative z-10">
@@ -74,15 +87,14 @@ export async function SiteHeader() {
           >
             <LinkedInIcon className="size-[18px]" />
           </a>
-          {/* Static link (same HTML for everyone, so public pages stay cacheable). /login knows who you are.
-              Hidden while the members area is off (authEnabled(): no AUTH_ENABLED / Supabase, or seed mode). */}
-          {authEnabled() && (
-            <Link
-              href="/login"
-              className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
-            >
-              {t("signIn")}
-            </Link>
+          {/* Hidden while the members area is off (authEnabled(): no AUTH_ENABLED / Supabase, or seed mode).
+              Guests see "Member log in"; after a member logs in, "My area". */}
+          {authOn && (
+            <MemberAction
+              login={t("signIn")}
+              myArea={t("myArea")}
+              className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium whitespace-nowrap text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+            />
           )}
           <LanguageSwitch />
         </div>

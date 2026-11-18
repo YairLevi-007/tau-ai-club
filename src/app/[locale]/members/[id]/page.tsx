@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowUpRight, Globe, Link2, Pencil } from "lucide-react";
+import { ArrowUpRight, Globe, Link2, Mail, Pencil, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
 import { signPhotos } from "@/lib/members/photos";
-import { getMemberProfile, LINK_KEYS } from "@/lib/members/profile";
+import { getMemberContact, getMemberProfile, LINK_KEYS } from "@/lib/members/profile";
 import { panelClass, smallBtn } from "@/components/admin/styles";
 import { MemberAvatar } from "@/components/members/member-avatar";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
@@ -33,11 +33,11 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
   const profile = supabase ? await getMemberProfile(supabase, id) : null;
   if (!supabase || !profile) notFound();
 
-  const photos = await signPhotos(supabase, [profile.photo_url]);
+  const [photos, contact] = await Promise.all([signPhotos(supabase, [profile.photo_url]), getMemberContact(supabase, id)]);
   const photoSrc = profile.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const bio = loc(profile, "bio", locale);
   const links = LINK_KEYS.filter((k) => profile.links?.[k]);
-  const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty].filter(Boolean).join(" · ");
+  const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty, profile.program].filter(Boolean).join(" · ");
 
   return (
     <article className="mx-auto max-w-4xl px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="member-profile">
@@ -56,7 +56,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
         </div>
       </header>
 
-      <div className={cn("mt-5 grid items-start gap-5", links.length > 0 && "md:grid-cols-[minmax(0,1fr)_16rem]")}>
+      <div className={cn("mt-5 grid items-start gap-5", (links.length > 0 || contact) && "md:grid-cols-[minmax(0,1fr)_16rem]")}>
         <section aria-label={t("about")} className={cn(panelClass, "p-5 sm:p-6")}>
           <h2 className="text-sm font-semibold text-fg-subtle">{t("about")}</h2>
           {bio ? (
@@ -66,6 +66,35 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
           )}
         </section>
 
+        {(links.length > 0 || contact) && (
+          <div className="grid gap-5">
+            {contact && (
+              <section aria-labelledby="contact-heading" className={cn(panelClass, "p-5 sm:p-6")} data-testid="member-contact">
+                <h2 id="contact-heading" className="text-sm font-semibold text-fg-subtle">
+                  {t("contact")}
+                </h2>
+                <ul className="mt-3 grid gap-2 text-[0.9375rem]">
+                  {contact.phone && (
+                    <li className="flex items-center gap-2.5">
+                      <Phone aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                      <span className="sr-only">{t("phone")}: </span>
+                      <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} dir="ltr" className="font-mono text-fg underline-offset-4 hover:underline">
+                        {contact.phone}
+                      </a>
+                    </li>
+                  )}
+                  {contact.contact_email && (
+                    <li className="flex items-center gap-2.5">
+                      <Mail aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                      <span className="sr-only">{t("contactEmail")}: </span>
+                      <a href={`mailto:${contact.contact_email}`} dir="ltr" className="font-mono break-all text-fg underline-offset-4 hover:underline">
+                        {contact.contact_email}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </section>
+            )}
         {links.length > 0 && (
           <section aria-labelledby="links-heading" className={cn(panelClass, "p-5 sm:p-6")}>
             <h2 id="links-heading" className="text-sm font-semibold text-fg-subtle">
@@ -92,6 +121,8 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
               })}
             </ul>
           </section>
+        )}
+          </div>
         )}
       </div>
     </article>

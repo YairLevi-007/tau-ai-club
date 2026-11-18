@@ -134,3 +134,29 @@ export async function seasonIcsResponse(locale: Locale) {
     },
   });
 }
+
+/**
+ * One meetup as a downloadable .ics ("Add to calendar" in the members' area). Same UID as
+ * the season feed, so importing both never duplicates the meetup. Public fields only.
+ */
+export async function eventIcsResponse(slug: string, locale: Locale) {
+  const season = await getSeason();
+  if (season.status !== "ok") return new Response("Season unavailable", { status: 503 });
+  const event = season.events.find((e) => e.slug === slug);
+  if (!event) return new Response("Not found", { status: 404 });
+  const te = await getTranslations({ locale, namespace: "event" });
+  const t = await getTranslations({ locale, namespace: "calendarFeed" });
+  const body = buildSeasonIcs([event], locale, {
+    calName: "TAU AI Club",
+    calDesc: t("description"),
+    tbdLabel: te("venueTbd"),
+    now: new Date(season.now),
+  });
+  return new Response(body, {
+    headers: {
+      "Content-Type": "text/calendar; charset=utf-8",
+      "Content-Disposition": `attachment; filename="tau-ai-club-${slug}.ics"`,
+      "Cache-Control": "public, max-age=300",
+    },
+  });
+}

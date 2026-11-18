@@ -14,6 +14,7 @@ import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { Tag } from "@/components/events/event-bits";
 import { Eyebrow, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
 import { authEnabled } from "@/lib/supabase/config";
+import { requireMember } from "@/lib/auth/viewer";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersContent } from "@/components/content/members-content";
 
@@ -47,6 +48,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/lectures
     .filter(Boolean)
     .join(" · ");
   const path = `/lectures/${slug}`;
+  // Members area on: members-only, so not indexed or shared.
+  if (authEnabled()) return { title, robots: { index: false, follow: false } };
   return {
     title,
     description,
@@ -56,7 +59,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/lectures
 }
 
 /**
- * One lecture. Public (and cached): speaker, date, the public blurb. The members-only
+ * One lecture. Members only once the members area is on. While it's off, a public
+ * (cached) preview: speaker, date, the public blurb. The members-only
  * write-up (summary, goals, takeaways, the PDF) loads in a client island from a no-store
  * endpoint, so it is never in this page's HTML.
  */
@@ -65,6 +69,8 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const l = locale as Locale;
+  // Members area on: members only (guests log in and come back here).
+  if (authEnabled()) await requireMember(`/lectures/${slug}`);
   const event = await getLecture(slug);
   if (!event) notFound();
   const [t, te, sections] = await Promise.all([getTranslations("content"), getTranslations("event"), getPublicSections()]);

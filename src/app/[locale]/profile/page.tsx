@@ -6,7 +6,7 @@ import type { Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
-import { getMemberProfile } from "@/lib/members/profile";
+import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { ActionForm } from "@/components/admin/action-form";
 import {
   fileInputClass,
@@ -40,12 +40,14 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
   const t = await getTranslations("profile");
 
   const supabase = await createClient();
-  const profile = supabase ? await getMemberProfile(supabase, viewer.member.id) : null;
+  const [profile, contact] = supabase
+    ? await Promise.all([getMemberProfile(supabase, viewer.member.id), getMyContact(supabase)])
+    : [null, null];
   const photos = supabase && profile ? await signPhotos(supabase, [profile.photo_url]) : new Map<string, string>();
   const photoSrc = profile?.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const links = profile?.links ?? {};
   const name = profile?.full_name ?? viewer.member.fullName;
-  const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty].filter(Boolean).join(" · ");
+  const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program].filter(Boolean).join(" · ");
 
   return (
     <div className="mx-auto max-w-site px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="profile">
@@ -131,6 +133,10 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
                 <input name="faculty" maxLength={120} defaultValue={profile?.faculty ?? ""} className={inputClass} />
               </label>
             </div>
+            <label className={labelClass}>
+              {t("program")}
+              <input name="program" maxLength={160} defaultValue={profile?.program ?? ""} className={inputClass} />
+            </label>
             <div className="grid gap-5 sm:grid-cols-2">
               <label className={labelClass}>
                 {t("bioHe")}
@@ -166,6 +172,49 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
                 ))}
               </div>
               <p className={hintClass}>{t("linksHint")}</p>
+            </fieldset>
+            {/* Private: stored in member_contacts, shown to members only per toggle (both off by default). */}
+            <fieldset className="grid gap-4 border-t border-border pt-5" data-testid="contact-fields">
+              <legend className="float-start mb-1 w-full text-base font-bold text-fg">{t("contactTitle")}</legend>
+              <p className={hintClass}>{t("contactBody")}</p>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <label className={labelClass}>
+                    {t("phone")}
+                    <input
+                      name="phone"
+                      type="tel"
+                      dir="ltr"
+                      maxLength={24}
+                      autoComplete="tel"
+                      defaultValue={contact?.phone ?? ""}
+                      className={`${inputClass} text-start`}
+                    />
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-fg-muted">
+                    <input type="checkbox" name="share_phone" defaultChecked={contact?.share_phone ?? false} className="size-4 accent-brand-purple" />
+                    {t("sharePhone")}
+                  </label>
+                </div>
+                <div className="grid gap-2">
+                  <label className={labelClass}>
+                    {t("contactEmail")}
+                    <input
+                      name="contact_email"
+                      type="email"
+                      dir="ltr"
+                      maxLength={254}
+                      autoComplete="email"
+                      defaultValue={contact?.contact_email ?? ""}
+                      className={`${inputClass} text-start`}
+                    />
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-fg-muted">
+                    <input type="checkbox" name="share_email" defaultChecked={contact?.share_email ?? false} className="size-4 accent-brand-purple" />
+                    {t("shareEmail")}
+                  </label>
+                </div>
+              </div>
             </fieldset>
             <div className="border-t border-border pt-5">
               <button type="submit" className="btn btn-primary h-10 w-full px-6 text-sm sm:w-fit">

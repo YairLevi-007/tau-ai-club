@@ -3,8 +3,8 @@ import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-// Lectures and workshops as a GUEST (no Supabase env: everyone is a guest, data from the
-// seed fixtures). Members-only text must never reach a guest: not in the HTML, not in the
+// Lectures and workshops as a GUEST, with the members area ON (fake Supabase URL: everyone is a
+// guest, data from the seed fixtures). Both are members only. Members-only text must never reach a guest: not in the HTML, not in the
 // RSC payload, not from the content endpoint. RLS is covered by scripts/rls-m3-content.mjs.
 
 const SEED = readFileSync(path.join(__dirname, "..", "..", "supabase", "seed-m3-content.sql"), "utf8");
@@ -16,45 +16,31 @@ test("the members-only phrases really are in the members-only seed", () => {
   for (const p of MEMBERS_ONLY) expect(SEED).toContain(p);
 });
 
-test.describe("lectures (public)", () => {
-  test("he: /lectures lists the season's lectures, the opening one with its blurb", async ({ page }) => {
+test.describe("lectures (members only once the members area is on)", () => {
+  test("guests are sent to log in, and come back to the page", async ({ page }) => {
     await page.goto("/lectures");
+    await expect(page).toHaveURL(/\/login\?next=%2Flectures$/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await expect(page.getByRole("heading", { level: 1, name: "הרצאות" })).toBeVisible();
-    const cards = page.getByTestId("lecture-card");
-    await expect(cards).toHaveCount(6); // the 9 events minus the 3 workshops
-    const opening = cards.filter({ hasText: "AI, עבר ועתיד" });
-    await expect(opening).toContainText("שי יהל");
-    await expect(opening).toContainText("ממבחן טיורינג");
-    await opening.getByRole("link").click();
-    await expect(page).toHaveURL(new RegExp(`/lectures/${LECTURE}$`));
-  });
-
-  test("en: the lecture page shows the English blurb and a sign-in prompt for the rest", async ({ page }) => {
+    await expect(page.getByTestId("email-form")).toBeVisible();
     await page.goto(`/en/lectures/${LECTURE}`);
-    await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("AI, past and future");
-    await expect(page.getByTestId("content-speakers")).toContainText("Shay Yahal");
-    await expect(page.getByTestId("section-blurb")).toContainText("Turing's imitation game");
-    await expect(page.getByTestId("section-blurb").getByTestId("hebrew-only")).toHaveCount(0);
-    const locked = page.getByTestId("members-locked");
-    await expect(locked).toBeVisible();
-    await expect(locked.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", /\/en\/login\?next=%2Flectures%2Fcohort-02-opening/);
-    await expect(page.getByTestId("members-content")).toHaveCount(0);
+    await expect(page).toHaveURL(/\/en\/login\?next=%2Flectures%2Fcohort-02-opening$/);
+    await expect(page.getByTestId("lecture-page")).toHaveCount(0);
+    await expect(page.getByTestId("lectures-page")).toHaveCount(0);
   });
 
-  test("a lecture with no write-up yet says so; workshops aren't lectures", async ({ page }) => {
-    await page.goto("/lectures/growth-capital-tomer-diari");
-    await expect(page.getByText("הסיכום יעלה אחרי ההרצאה.").first()).toBeVisible();
-    expect((await page.goto("/lectures/zero-to-hero-1"))?.status()).toBe(404);
-    expect((await page.goto("/en/lectures/no-such-lecture"))?.status()).toBe(404);
+  test("unknown lectures still redirect a guest (no slug probing)", async ({ request }) => {
+    for (const p of ["/lectures/zero-to-hero-1", "/en/lectures/no-such-lecture"]) {
+      const res = await request.get(p, { maxRedirects: 0 });
+      expect([303, 307, 308], p).toContain(res.status());
+      expect(res.headers()["location"] ?? "", p).toMatch(/\/login\?next=/);
+    }
   });
 
-  test("no members-only text in the HTML, the RSC payload or the metadata", async ({ request }) => {
+  test("no members-only text in the redirects, the RSC payload or the sitemap", async ({ request }) => {
     for (const p of [`/lectures/${LECTURE}`, `/en/lectures/${LECTURE}`, "/lectures", "/en/lectures", "/sitemap.xml"]) {
       for (const headers of [{}, { RSC: "1" }] as Record<string, string>[]) {
         const res = await request.get(p, { headers });
-        expect(res.status(), p).toBe(200);
+        expect(res.status(), p).toBeLessThan(500);
         const body = await res.text();
         for (const phrase of MEMBERS_ONLY) expect(body, `${p} ${JSON.stringify(headers)}: ${phrase}`).not.toContain(phrase);
       }
@@ -79,17 +65,37 @@ test.describe("lectures (public)", () => {
     expect(res.headers()["location"]).toBeUndefined();
   });
 
-  test("the sitemap lists lectures but not workshops", async ({ request }) => {
+  test("the sitemap lists neither lectures nor workshops; event pages stay", async ({ request }) => {
     const xml = await (await request.get("/sitemap.xml")).text();
-    expect(xml).toContain(`/lectures/${LECTURE}</loc>`);
-    expect(xml).toContain(`/en/lectures/${LECTURE}</loc>`);
+    expect(xml).not.toContain("/lectures");
     expect(xml).not.toContain("/workshops");
+    expect(xml).toContain(`/events/${LECTURE}</loc>`);
   });
 
-  test("layout: no horizontal scroll, axe clean", async ({ page }) => {
-    for (const p of ["/lectures", `/lectures/${LECTURE}`, "/en/lectures", `/en/lectures/${LECTURE}`]) {
+  test("the public nav doesn't show Lectures or Workshops to guests", async ({ page }) => {
+    for (const p of ["/", "/en", `/en/events/${LECTURE}`]) {
       await page.goto(p);
-      await page.getByTestId("members-locked").or(page.getByTestId("lectures-page")).first().waitFor();
+      await expect(page.getByTestId("nav-login").first()).toBeVisible();
+      await expect(page.locator('header a[href$="/lectures"], header a[href$="/workshops"]'), p).toHaveCount(0);
+    }
+  });
+
+  test("a member hint cookie only changes the nav, never the access", async ({ page, context }) => {
+    await page.goto("/en");
+    await context.addCookies([{ name: "tau_member", value: "1", url: new URL(page.url()).origin }]);
+    await page.reload();
+    await expect(page.getByTestId("nav-my-area")).toBeVisible();
+    await expect(page.getByTestId("member-section-links").locator("visible=true").first()).toBeVisible();
+    await page.getByTestId("member-section-links").locator("visible=true").first().getByRole("link").first().click();
+    await expect(page).toHaveURL(/\/en\/login\?next=%2Flectures$/);
+  });
+
+  test("layout: no horizontal scroll, axe clean on the login page", async ({ page }) => {
+    // Check the settled page: the card's text eases in (opacity), which axe reads as low contrast mid-fade.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const p of ["/lectures", "/en/lectures"]) {
+      await page.goto(p);
+      await page.getByTestId("email-form").waitFor();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), p).toBe(true);
       const axe = await new AxeBuilder({ page }).analyze();
       const bad = axe.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
@@ -117,18 +123,16 @@ test.describe("workshops (members only)", () => {
 });
 
 test.describe("header", () => {
-  test("Lectures and Workshops links; Workshops is marked members-only in text", async ({ page, isMobile }) => {
+  test("guests see Member log in and no members-only tabs, in both languages", async ({ page }) => {
     await page.goto("/en");
-    // One copy per breakpoint (the other is display:none), so exactly one of each is visible.
-    await expect(page.getByRole("link", { name: "Lectures", exact: true }).locator("visible=true")).toHaveCount(1);
-    const workshops = page.getByRole("link", { name: /^Workshops/ }).locator("visible=true");
-    await expect(workshops).toHaveCount(1);
-    await expect(workshops).toHaveAccessibleName("Workshops (members only)");
+    await expect(page.getByRole("link", { name: "Member log in" }).locator("visible=true")).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Lectures", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /^Workshops/ })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "הרצאות" }).locator("visible=true")).toHaveCount(1);
-    await expect(page.getByRole("link", { name: /סדנאות/ }).locator("visible=true")).toHaveAccessibleName("סדנאות (לחברי המועדון)");
-    if (isMobile) await expect(page.getByRole("navigation", { name: "מדורים" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "כניסה לחברים" }).locator("visible=true")).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "הרצאות" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /סדנאות/ })).toHaveCount(0);
   });
 });
 

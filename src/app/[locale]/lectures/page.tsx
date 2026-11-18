@@ -14,6 +14,8 @@ import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { Tag } from "@/components/events/event-bits";
 import { ContentIntro, Eyebrow, SpeakerList } from "@/components/content/content-bits";
 import { cn } from "@/lib/utils";
+import { authEnabled } from "@/lib/supabase/config";
+import { requireMember } from "@/lib/auth/viewer";
 
 export const revalidate = 300;
 
@@ -24,6 +26,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/lectures
     getTranslations({ locale, namespace: "content" }),
     getTranslations({ locale, namespace: "meta" }),
   ]);
+  // Members area on: lectures are members-only, so not indexed or shared.
+  if (authEnabled()) return { title: t("lecturesTitle"), robots: { index: false, follow: false } };
   return {
     title: t("lecturesTitle"),
     description: t("lecturesBody"),
@@ -32,12 +36,16 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/lectures
   };
 }
 
-/** The season's lectures, newest first once they've happened. Public: blurbs only. */
+/**
+ * The season's lectures, newest first once they've happened. Members only once the members
+ * area is on (guests go to log in). While it's off: a public preview with blurbs only.
+ */
 export default async function LecturesPage({ params }: PageProps<"/[locale]/lectures">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const l = locale as Locale;
+  if (authEnabled()) await requireMember("/lectures");
   const [t, te, season, sections] = await Promise.all([getTranslations("content"), getTranslations("event"), getSeason(), getPublicSections()]);
 
   const lectures = season.status === "ok" ? season.events.filter((e) => contentKindOf(e.kind) === "lecture") : [];

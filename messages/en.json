@@ -12,9 +12,10 @@
     "switchLanguageLabel": "החלפה לעברית",
     "skipToContent": "Skip to content",
     "instagramLabel": "TAU AI Club on Instagram",
-    "signIn": "Members",
+    "signIn": "Member log in",
     "admin": "Admin",
-    "linkedinLabel": "TAU AI Club on LinkedIn"
+    "linkedinLabel": "TAU AI Club on LinkedIn",
+    "myArea": "My area"
   },
   "event": {
     "nextEvent": "Next up",
@@ -101,8 +102,8 @@
     "description": "Every meetup of the TAU AI Club season. Updates on its own."
   },
   "auth": {
-    "loginTitle": "Sign in for club members",
-    "loginBody": "The club is closed to this cohort. Sign in with the Google account whose email is on the list.",
+    "loginTitle": "Member log in",
+    "loginBody": "Members of the cohort log in with the email on the club list. We'll email you a 6-digit code.",
     "signInGoogle": "Sign in with Google",
     "signOut": "Sign out",
     "signedInAs": "Signed in as",
@@ -114,14 +115,27 @@
     "errorUnavailable": "Sign-in isn't switched on for this site yet.",
     "membersOnlyTitle": "Members only",
     "membersOnlyBody": "This part of the site is for members of the cohort. If you registered with a different email, sign out and sign in with that one, and we'll see you inside.",
-    "membersOnlyGuest": "Club members sign in with Google.",
+    "membersOnlyGuest": "Club members log in with the email on the club list.",
     "membersOnlyFollow": "Not in the cohort? Follow us on Instagram for open events and the next cohort.",
     "welcomeTitle": "Hi {name}, welcome to the AI Club",
     "welcomeBody": "You're signed in. From here you can see what's open to members of the cohort.",
     "membersOnlyFollowTitle": "Not in this cohort?",
     "membersOnlyFollowBody": "On Instagram we post events that are open to everyone, and when the next cohort opens.",
     "membersOnlyFollowCta": "Follow on Instagram",
-    "welcomeProfile": "Complete your profile"
+    "welcomeProfile": "Complete your profile",
+    "signIn": "Member log in",
+    "emailLabel": "Email",
+    "emailSubmit": "Send me a code",
+    "codeTitle": "Check your email",
+    "codeSent": "If this email is on the club list, a code is on its way. Didn't get one? Contact the club.",
+    "codeLabel": "6-digit code",
+    "codeHint": "The code only works for a short while. Check your spam folder too.",
+    "codeSubmit": "Log in",
+    "useAnotherEmail": "Use a different email",
+    "errorEmail": "Enter a valid email address.",
+    "errorCode": "That code didn't work. Check it, or ask for a new one.",
+    "errorExpired": "That took too long. Enter your email again for a new code.",
+    "errorThrottled": "Too many tries. Wait a few minutes and try again."
   },
   "admin": {
     "eyebrow": "Admin",
@@ -418,7 +432,19 @@
     "about": "About",
     "attendanceTitle": "My attendance",
     "attendanceCount": "{n, plural, =0 {No meetups attended yet this season.} one {You came to one meetup this season.} other {You came to # meetups this season.}}",
-    "attendanceHint": "From the check-in at the door (Luma). Only you and the club's admins see this."
+    "attendanceHint": "From the check-in at the door (Luma). Only you and the club's admins see this.",
+    "program": "Degree / program",
+    "contactTitle": "Contact details",
+    "contactBody": "Only signed-in members can ever see these, and only what you choose to show. Both start hidden.",
+    "phone": "Phone",
+    "contactEmail": "Contact email",
+    "sharePhone": "Show my phone to other members",
+    "shareEmail": "Show my contact email to other members",
+    "shown": "Shown to members",
+    "hidden": "Hidden",
+    "errorPhone": "That phone number doesn't look right.",
+    "errorContactEmail": "That email address doesn't look right.",
+    "contact": "Contact"
   },
   "attendance": {
     "title": "Attendance from Luma",
@@ -573,5 +599,23 @@
     "body": "The club's members and admin area isn't open yet. Meanwhile every meetup, date and registration link is open to everyone on the site.",
     "home": "See all meetups",
     "instagram": "Updates on Instagram"
+  },
+  "me": {
+    "title": "My area",
+    "hello": "Hi {name}",
+    "body": "Everything open to members of the cohort, in one place.",
+    "editProfile": "Edit my profile",
+    "viewProfile": "My profile as members see it",
+    "sectionsTitle": "For members",
+    "upcomingTitle": "Upcoming meetups",
+    "upcomingEmpty": "No upcoming meetups right now.",
+    "addToCalendar": "Add to calendar",
+    "seasonFeedTitle": "The whole season in your calendar",
+    "seasonFeedBody": "Subscribe once and every meetup, and every change, shows up in your calendar.",
+    "seasonFeedDownload": "Download the season file",
+    "seasonFeedGoogle": "Add to Google Calendar",
+    "gameTitle": "Meeting games",
+    "gameBody": "Games to meet each other before every meetup. Coming here soon.",
+    "gameSoon": "Coming soon"
   }
 }

@@ -54,11 +54,19 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
     if (error) return { ok: false, message: t("errorName") };
   }
 
+  const phone = str(fd, "phone");
+  const contactEmail = str(fd, "contact_email").toLowerCase();
+  if (phone && !/^\+?[0-9][0-9 ()-]{5,22}$/.test(phone)) return { ok: false, message: t("errorPhone") };
+  if (contactEmail && (contactEmail.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contactEmail))) {
+    return { ok: false, message: t("errorContactEmail") };
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
       year,
       faculty: str(fd, "faculty") || null,
+      program: str(fd, "program") || null,
       bio_he: str(fd, "bio_he") || null,
       bio_en: str(fd, "bio_en") || null,
       links,
@@ -67,6 +75,15 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
     .select("member_id");
   if (error) return { ok: false, message: error.code === "23514" ? t("errorLinks") : t("errorGeneric") };
   if (!data?.length) return { ok: false, message: t("errorGeneric") };
+
+  // Contact details live in member_contacts (no table access): the RPC only ever writes the caller's row.
+  const contact = await supabase.rpc("update_my_contact", {
+    p_phone: phone || null,
+    p_contact_email: contactEmail || null,
+    p_share_phone: fd.get("share_phone") === "on",
+    p_share_email: fd.get("share_email") === "on",
+  });
+  if (contact.error) return { ok: false, message: contact.error.code === "23514" ? t("errorPhone") : t("errorGeneric") };
 
   revalidateProfile(member.id);
   return { ok: true, message: t("saved") };
