@@ -11,6 +11,7 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
 import { ClubAbout } from "@/components/home/club-about";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { authEnabled } from "@/lib/supabase/config";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
@@ -50,16 +51,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   return (
     <div className="relative isolate">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(orgJsonLd)} />
-      {/* Backdrop: logo grid + the one glow + a few pixel blocks. Decorative, static. */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[46rem] overflow-hidden">
-        <div className="hero-grid absolute inset-0" />
-        <div className="hero-glow absolute inset-0" />
-        <i className="absolute hidden lg:block start-[6%] top-[11rem] size-7 bg-logo-indigo" />
-        <i className="absolute hidden lg:block start-[calc(6%+1.75rem)] top-[12.75rem] size-7 bg-logo-block" />
-        <i className="absolute end-[12%] top-[9.5rem] size-3.5 bg-brand-purple" />
-        <i className="absolute hidden lg:block end-[4%] top-[22rem] size-7 bg-logo-indigo" />
-        <i className="absolute hidden lg:block end-[calc(4%+1.75rem)] top-[24rem] size-3.5 bg-logo-block" />
-      </div>
+      <PageBackdrop />
 
       <div className={cn(
           "mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",

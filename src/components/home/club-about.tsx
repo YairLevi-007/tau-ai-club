@@ -39,7 +39,7 @@ export async function ClubAbout({ locale }: { locale: Locale }) {
 
       <ul className="mt-8 grid gap-3 md:grid-cols-3 md:gap-4">
         {cards.map((n) => (
-          <li key={n} className="rounded-lg border border-border bg-surface p-5 shadow-[var(--highlight-top)]">
+          <li key={n} className="rounded-lg border border-brand-purple/40 bg-bg-raised p-5 shadow-[var(--highlight-top)]">
             <span aria-hidden className="font-pixel text-[0.6875rem] tracking-[0.2em] text-brand-purple-soft">
               {`0${n}`}
             </span>

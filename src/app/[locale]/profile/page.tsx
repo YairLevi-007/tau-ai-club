@@ -12,7 +12,7 @@ import {
   hintClass,
   inputClass,
   labelClass,
-  panelClass,
+  raisedPanelClass,
   panelTitle,
   smallBtn,
 } from "@/components/admin/styles";
@@ -22,6 +22,7 @@ import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { removePhoto, saveProfile, uploadPhoto } from "./actions";
 import { MyAttendance } from "@/components/members/my-attendance";
 
@@ -51,6 +52,8 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
   const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program];
 
   return (
+    <div className="relative isolate">
+    <PageBackdrop />
     <div className="mx-auto max-w-site px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="profile">
       <Link
         href="/me"
@@ -73,7 +76,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
 
       <div className="mt-8 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-8">
         {/* ---------- Card: photo, how others see you, sign out ---------- */}
-        <aside className={cn(panelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6 lg:sticky lg:top-8")}>
+        <aside className={cn(raisedPanelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6 lg:sticky lg:top-8")}>
           <section aria-labelledby="photo-heading" className="grid gap-4">
             <h2 id="photo-heading" className="sr-only">
               {t("photo")}
@@ -115,7 +118,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
         </aside>
 
         {/* ---------- Details form ---------- */}
-        <section aria-labelledby="details-heading" className={cn(panelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6 lg:p-7")}>
+        <section aria-labelledby="details-heading" className={cn(raisedPanelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6 lg:p-7")}>
           <h2 id="details-heading" className={panelTitle}>
             {t("details")}
           </h2>
@@ -232,6 +235,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
       </div>
 
       {supabase && <MyAttendance supabase={supabase} memberId={viewer.member.id} />}
+    </div>
     </div>
   );
 }

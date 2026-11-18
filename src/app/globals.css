@@ -98,6 +98,12 @@
   }
   body {
     @apply bg-bg text-fg-muted text-base leading-[1.7] antialiased;
+    /* Option 3 (user, 18.11): soft purple glows down the page, behind everything. */
+    background-image:
+      radial-gradient(60% 900px at 50% 0%, rgba(138, 43, 255, 0.28), transparent 70%),
+      radial-gradient(70% 700px at 80% 1500px, rgba(138, 43, 255, 0.18), transparent 70%),
+      radial-gradient(70% 700px at 20% 2600px, rgba(138, 43, 255, 0.16), transparent 70%);
+    background-repeat: no-repeat;
   }
   h1,
   h2,
@@ -307,4 +313,16 @@
   header a {
     min-height: 44px;
   }
+}
+
+/* NavProgress: the bar slides across while the next page loads. */
+@keyframes nav-progress-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+[data-active] > .nav-progress-bar {
+  animation: nav-progress-slide 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-active] > .nav-progress-bar { animation: none; width: 100%; }
 }

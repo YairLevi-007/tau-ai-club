@@ -7,5 +7,7 @@ export const labelClass = "grid gap-1.5 text-sm font-medium text-fg-muted";
 export const hintClass = "text-xs leading-relaxed text-fg-subtle";
 /** A flat surface for grouping a form or a list (admin is denser than the public pages, but the same material). */
 export const panelClass = "rounded-lg border border-border bg-surface";
+/** Option 3 (user, 18.11): the purple raised card used on the home page and in the personal area. */
+export const raisedPanelClass = "rounded-lg border border-brand-purple/40 bg-bg-raised";
 /** Section heading inside a panel. */
 export const panelTitle = "text-lg font-bold text-fg";

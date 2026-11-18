@@ -11,8 +11,9 @@ import { calendarFeedKey } from "@/lib/calendar-access";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, getMyContact } from "@/lib/members/profile";
-import { hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
+import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
 import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
@@ -66,7 +67,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   const Forward = locale === "he" ? ChevronLeft : ChevronRight;
 
   const profileCard = (
-    <section aria-labelledby="profile-heading" className={cn(panelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6")}>
+    <section aria-labelledby="profile-heading" className={cn(raisedPanelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6")}>
       <h2 id="profile-heading" className="sr-only">
         {t("profileTitle")}
       </h2>
@@ -121,6 +122,8 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   );
 
   return (
+    <div className="relative isolate">
+    <PageBackdrop />
     <div className="mx-auto grid max-w-site gap-8 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="me">
       <header className="grid gap-2">
         <MembersEyebrow />
@@ -144,7 +147,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
         <div className="lg:sticky lg:top-8 lg:col-start-2 lg:row-start-1">{profileCard}</div>
 
         <div className="grid gap-5 lg:col-start-1 lg:row-start-1">
-          <section aria-labelledby="upcoming-heading" className={cn(panelClass, "grid gap-4 p-5 sm:p-6")} data-testid="me-upcoming">
+          <section aria-labelledby="upcoming-heading" className={cn(raisedPanelClass, "grid gap-4 p-5 sm:p-6")} data-testid="me-upcoming">
             <h2 id="upcoming-heading" className={panelTitle}>
               {t("upcomingTitle")}
             </h2>
@@ -235,7 +238,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
                   <Link
                     href={href}
                     className={cn(
-                      panelClass,
+                      raisedPanelClass,
                       "group flex h-full items-center gap-4 p-4 transition-colors duration-150 hover:border-border-accent hover:bg-surface-hover",
                     )}
                   >
@@ -261,6 +264,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
 
       {/* The season dial (speakers around the season): members only, since it shows the schedule. */}
       {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={season.cohort ? loc(season.cohort, "name", locale) : null} embedded />}
+    </div>
     </div>
   );
 }

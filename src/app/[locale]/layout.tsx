@@ -7,6 +7,8 @@ import { localeDir, routing, type Locale } from "@/i18n/routing";
 import { IS_PRODUCTION, SITE_URL } from "@/config/site";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { SiteHeader } from "@/components/site/site-header";
+import { NavProgress } from "@/components/site/nav-progress";
+import { Suspense } from "react";
 import { SiteFooter } from "@/components/site/site-footer";
 import "../globals.css";
 
@@ -90,6 +92,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           {t("skipToContent")}
         </a>
         <NextIntlClientProvider>
+          <Suspense fallback={null}>
+            <NavProgress />
+          </Suspense>
           <SiteHeader />
           <main id="main" className="flex-1">
             {children}
