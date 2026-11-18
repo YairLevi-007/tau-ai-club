@@ -48,7 +48,7 @@ html[lang=he] .only-en,html[lang=en] .only-he{display:none!important}
 /* Dashed border = not here yet. Same surface family as the other cards; no new colour. */
 .teaser{position:relative;display:grid;gap:24px;align-items:center;padding:24px 20px;border:1.5px dashed var(--border-strong);border-radius:var(--r-lg);background:var(--bg-deep)}
 @media (min-width:768px){.teaser{grid-template-columns:1fr auto;gap:48px;padding:36px 40px}}
-.teaser h2{margin-top:14px;color:var(--fg);font:800 clamp(1.625rem,4vw,2.25rem)/1.1 var(--font-sans);letter-spacing:-.01em}
+.teaser h2{margin-top:14px;text-wrap:balance;color:var(--fg);font:800 clamp(1.625rem,4vw,2.25rem)/1.1 var(--font-sans);letter-spacing:-.01em}
 html[lang=en] .teaser h2{font-weight:700}
 .teaser p.body{margin-top:8px;max-width:52ch;color:var(--fg-muted);font-size:16px;line-height:1.6}
 .teaser bdi{font-family:var(--font-mono);font-weight:500}
@@ -78,7 +78,7 @@ html[lang=en] .teaser h2{font-weight:700}
     <div class="teaser">
       <div>
         <p class="chip"><span class="heb only-he">בקרוב</span><span class="lat only-en">Coming soon</span></p>
-        <h2 id="icebreakers-heading"><span class="only-he">משחקי היכרות</span><span class="only-en">Icebreakers</span></h2>
+        <h2 id="icebreakers-heading"><span class="only-he">משחקי היכרות לחברי המועדון</span><span class="only-en">Icebreaker games for club members</span></h2>
         <p class="body only-he">לפני כל מפגש נשדך אתכם לשיחת <bdi dir="ltr">1:1</bdi> קצרה עם מישהו מהמחזור. ככה עד סוף השנה, כולם מכירים את כולם.</p>
         <p class="body only-en">Before each meetup we'll pair you up for a quick <bdi>1:1</bdi> chat with someone from the cohort. By the end of the year, everyone knows everyone.</p>
       </div>
