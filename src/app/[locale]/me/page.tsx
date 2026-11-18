@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CalendarPlus, ChevronLeft, ChevronRight, Eye, Gamepad2, Mail, Pencil, Phone, Presentation, Wrench } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Eye, Mail, Pencil, Phone, Presentation, Wrench } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { TIME_ZONE, type Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
@@ -12,7 +12,8 @@ import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
-import { FlyerChip } from "@/components/events/flyer-bits";
+import { SeasonTimeline } from "@/components/events/season-timeline";
+import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
 import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
@@ -218,20 +219,6 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
             </div>
           </section>
 
-          {/* The meeting games slot. Another team builds the game, so this only says it's coming;
-              their program plugs in here (a link, an embed or our own page) once it's ready. */}
-          <section
-            aria-labelledby="game-heading"
-            className="grid justify-items-start gap-3 rounded-lg border-[1.5px] border-dashed border-border-strong bg-bg-deep p-5 sm:p-6"
-            data-testid="me-game-slot"
-          >
-            <FlyerChip locale={locale}>{t("gameSoon")}</FlyerChip>
-            <h2 id="game-heading" className={cn(panelTitle, "flex items-center gap-2")}>
-              <Gamepad2 aria-hidden className="size-5 text-brand-purple-soft" />
-              {t("gameTitle")}
-            </h2>
-            <p className="max-w-[60ch] text-fg-muted">{t("gameBody")}</p>
-          </section>
 
           <section aria-labelledby="sections-heading" className="grid gap-3">
             <h2 id="sections-heading" className={panelTitle}>
@@ -267,6 +254,13 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
           </section>
         </div>
       </div>
+
+      {/* The meeting games (another team builds the game; this says it's coming). The design the
+          user chose on 18.11: the big card with the two seats (docs/DECISIONS.md). */}
+      <IcebreakersTeaser locale={locale} embedded />
+
+      {/* The season dial (speakers around the season): members only, since it shows the schedule. */}
+      {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={season.cohort ? loc(season.cohort, "name", locale) : null} embedded />}
     </div>
   );
 }

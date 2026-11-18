@@ -8,11 +8,15 @@ import { FlyerChip } from "./flyer-bits";
  * A teaser only: no button, no link, no motion. Server-rendered, visible without JS.
  * The dashed border is the "not here yet" cue; the chip says it in words.
  */
-export async function IcebreakersTeaser({ locale }: { locale: Locale }) {
+export async function IcebreakersTeaser({ locale, embedded = false }: { locale: Locale; embedded?: boolean }) {
   const t = await getTranslations({ locale, namespace: "home" });
   return (
-    <section aria-labelledby="icebreakers-heading" data-testid="icebreakers-teaser" className="mx-auto max-w-site px-4 pt-12 sm:px-8 lg:pt-16">
-      <div className="sm:px-8">
+    <section
+      aria-labelledby="icebreakers-heading"
+      data-testid={embedded ? "me-game-slot" : "icebreakers-teaser"}
+      className={embedded ? undefined : "mx-auto max-w-site px-4 pt-12 sm:px-8 lg:pt-16"}
+    >
+      <div className={embedded ? undefined : "sm:px-8"}>
         <div className="grid items-center gap-6 rounded-lg border-[1.5px] border-dashed border-border-strong bg-bg-deep px-5 py-6 md:grid-cols-[1fr_auto] md:gap-12 md:px-10 md:py-9">
           <div>
             <FlyerChip locale={locale}>{t("icebreakersSoon")}</FlyerChip>
@@ -25,7 +29,6 @@ export async function IcebreakersTeaser({ locale }: { locale: Locale }) {
             >
               {t("icebreakersTitle")}
             </h2>
-            {/* Generic on purpose: another team builds the game, so we don't describe how it works. */}
             <p className="mt-2 max-w-[52ch] text-fg-muted">{t("icebreakersBody")}</p>
           </div>
           <PairMotif />

@@ -31,10 +31,13 @@ export async function SeasonTimeline({
   events,
   now,
   cohortName,
+  embedded = false,
 }: {
   events: SeasonEvent[];
   now: string;
   cohortName?: string | null;
+  /** Inside a page that already has the site container (/me): no own padding, no subscribe box (the page has its own). */
+  embedded?: boolean;
 }) {
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations("season");
@@ -94,7 +97,7 @@ export async function SeasonTimeline({
     <section
       aria-labelledby="season-heading"
       data-testid="season-timeline"
-      className="mx-auto max-w-site px-4 pt-14 sm:px-8 lg:pt-24"
+      className={embedded ? "pt-4" : "mx-auto max-w-site px-4 pt-14 sm:px-8 lg:pt-24"}
     >
       <RevealOnScroll />
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
@@ -138,7 +141,7 @@ export async function SeasonTimeline({
         </div>
       )}
 
-      {events.length > 0 && (
+      {events.length > 0 && !embedded && (
         <div
           data-reveal
           data-testid="season-subscribe"
