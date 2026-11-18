@@ -295,7 +295,10 @@
   select {
     font-size: 16px;
   }
+}
 
+/* Separate block on purpose: Vercel's cached build once dropped this rule (QA, 18.11). */
+@media (max-width: 639.98px) {
   /* Phones: 44px touch targets (Apple HIG, WCAG 2.5.5) for fields, buttons and the header's links,
      without changing their desktop size. min-height, so it wins over any h-* utility. */
   input:not([type="checkbox"], [type="radio"], [type="file"], [type="hidden"]),
