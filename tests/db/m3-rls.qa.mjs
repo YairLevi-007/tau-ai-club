@@ -86,8 +86,8 @@ await db.exec(`
 `);
 const sp = async (slug) => (await db.query(`select id from public.speakers where slug = $1`, [slug])).rows[0].id;
 const S = {
-  a: await sp("shai-yahel"), // on a published event
-  b: await sp("oz"),
+  a: await sp("shay-yahal"), // on a published event
+  b: await sp("oz-altagar"),
   c: await sp("or-maccabi"),
   draft: await sp("secret-speaker"),
 };

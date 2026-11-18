@@ -8,6 +8,9 @@ export const routing = defineRouting({
   // Visitors always land on Hebrew at `/`. Their choice is remembered via the
   // NEXT_LOCALE cookie only after they pick a language with the switcher.
   localeDetection: false,
+  // No `Link:` hreflang response header: it uses the request origin, not SITE_URL
+  // (QA audit N6). The same alternates are in each page's <head> and in sitemap.xml.
+  alternateLinks: false,
 });
 
 export type Locale = (typeof routing.locales)[number];

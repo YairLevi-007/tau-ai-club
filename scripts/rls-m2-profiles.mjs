@@ -124,7 +124,7 @@ export async function runProfileChecks(db, check) {
 
   // ---- 15. admin_save_event() --------------------------------------------------
   {
-    const ids = (await db.query("select id from public.speakers where slug in ('shai-yahel', 'oz') order by slug")).rows.map((r) => r.id);
+    const ids = (await db.query("select id from public.speakers where slug in ('shay-yahal', 'oz-altagar') order by slug")).rows.map((r) => r.id);
     const [oz, shai] = ids;
     const cohort = (await db.query("select id from public.cohorts where slug = '02'")).rows[0].id;
     const payload = {

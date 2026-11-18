@@ -84,8 +84,8 @@ await db.exec(`
 `);
 const sp = async (slug) => (await db.query(`select id from public.speakers where slug = $1`, [slug])).rows[0].id;
 const S = {
-  a: await sp("shai-yahel"), // on a published event
-  b: await sp("oz"),
+  a: await sp("shay-yahal"), // on a published event
+  b: await sp("oz-altagar"),
   c: await sp("or-maccabi"),
   draft: await sp("secret-speaker"),
 };
@@ -331,7 +331,7 @@ section("4. Speaker form tokens: single-use, expiring, hashed");
 // =====================================================================================================
 section("5. Writes: only admins change content, members or the allowlist");
 {
-  const evId = (await su(`select id from public.events where slug='zero-to-hero-1'`))[0].id;
+  const { id: evId, title_en: evTitle } = (await su(`select id, title_en from public.events where slug='zero-to-hero-1'`))[0];
   const cohort = (await su(`select id from public.cohorts limit 1`))[0].id;
   const writers = {
     "insert event": `insert into public.events (slug, cohort_id, title_he, title_en, starts_at, ends_at, status) values ('qa-hack','${cohort}','x','x',now(),now()+interval '1 hour','published')`,
@@ -352,7 +352,7 @@ section("5. Writes: only admins change content, members or the allowlist");
       ok(!changed, `[${who}] ${label}: refused or affects 0 rows`, JSON.stringify(r).slice(0, 120));
     }
   }
-  ok((await su(`select title_en from public.events where id=$1`, [evId]))[0].title_en === "Zero to Hero 1: Claude", "event untouched after non-admin attempts");
+  ok((await su(`select title_en from public.events where id=$1`, [evId]))[0].title_en === evTitle, "event untouched after non-admin attempts");
   ok((await su(`select role from public.members where id=$1`, [M.member]))[0].role === "member", "member could not promote themself");
   ok((await su(`select count(*)::int c from public.member_emails`))[0].c >= 8, "allowlist untouched");
   ok(rowsOf(await run("member", "select * from public.members")).length === 0, "plain member cannot read the members table");
@@ -587,10 +587,10 @@ section("10. Content writes are admin-only; drafts invisible");
   ok(!created.error, "admin_save_event creates an event", created.error);
   const id = rowsOf(created)[0]?.id;
   const lineup = async () => (await su(`select s.slug from public.event_speakers es join public.speakers s on s.id=es.speaker_id where es.event_id=$1 order by es.sort`, [id])).map((r) => r.slug);
-  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz", "shai-yahel"]), "line-up saved in the given order", JSON.stringify(await lineup()));
+  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz-altagar", "shay-yahal"]), "line-up saved in the given order", JSON.stringify(await lineup()));
   const badUpdate = await save("admin", base({ id, ends_at: "2027-03-03T17:00:00+02:00", speaker_ids: [S.c] }));
   ok(!!badUpdate.error, "update with ends_at before starts_at is rejected");
-  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz", "shai-yahel"]), "failed update left the line-up untouched (atomic)");
+  ok(JSON.stringify(await lineup()) === JSON.stringify(["oz-altagar", "shay-yahal"]), "failed update left the line-up untouched (atomic)");
   ok(!!(await save("admin", base({ id, slug: "Bad Slug!" }))).error, "bad slug rejected");
   ok(!!(await save("admin", base({ id: "00000000-0000-0000-0000-000000000000" }))).error, "unknown event id rejected");
   ok(!!(await save("admin", base({ luma_url: "javascript:alert(1)" }))).error, "non-https luma_url rejected");

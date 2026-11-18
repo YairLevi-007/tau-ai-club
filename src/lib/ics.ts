@@ -51,6 +51,13 @@ function fold(line: string) {
 const stamp = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 /**
+ * RFC 5545 SEQUENCE: must grow whenever the event changes. Seconds between the season's
+ * epoch and the row's last edit, so every edit (updated_at trigger) bumps it.
+ */
+const SEQUENCE_EPOCH = Date.UTC(2026, 0, 1);
+const sequence = (updatedAt: string) => Math.max(0, Math.floor((Date.parse(updatedAt) - SEQUENCE_EPOCH) / 1000));
+
+/**
  * The whole season as an iCalendar feed. Only public fields (titles, blurbs,
  * speaker names, venue): never speaker contact data.
  */
@@ -85,8 +92,12 @@ export function buildSeasonIcs(
 
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${e.id}@tau-ai-club`,
+      // The slug, not the row id: seed-mode ids are regenerated with the fixtures, and a new
+      // UID would duplicate every meetup in subscribers' calendars.
+      `UID:${e.slug}@tau-ai-club`,
       `DTSTAMP:${dtstamp}`,
+      `LAST-MODIFIED:${stamp(e.updated_at)}`,
+      `SEQUENCE:${sequence(e.updated_at)}`,
       `DTSTART:${stamp(e.starts_at)}`,
       `DTEND:${stamp(e.ends_at)}`,
       `SUMMARY:${esc(`TAU AI Club · ${loc(e, "title", locale) ?? e.slug}`)}`,

@@ -115,17 +115,80 @@ check(events.rows.length === 9, `anon sees 9 published events (got ${events.rows
 check(!events.rows.some((r) => r.slug === "draft-event"), "anon cannot see draft events");
 
 const speakers = await asAnon("select slug from public.speakers");
-check(speakers.rows.length === 6, `anon sees 6 speakers (got ${speakers.rows.length})`);
+check(speakers.rows.length === 7, `anon sees 7 speakers (got ${speakers.rows.length})`);
 check(!speakers.rows.some((r) => r.slug === "secret-speaker"), "anon cannot see speakers only on drafts");
 
 const lineups = await asAnon("select count(*)::int as n from public.event_speakers");
-check(lineups.rows[0].n === 8, `anon sees 8 line-up rows (got ${lineups.rows[0].n})`);
+check(lineups.rows[0].n === 9, `anon sees 9 line-up rows (got ${lineups.rows[0].n})`);
+
+// speakers.linkedin_url: public, readable by anon; only https://www.linkedin.com/in/<handle>.
+const linkedin = await asAnon("select slug, linkedin_url from public.speakers where linkedin_url is not null order by slug");
+check(
+  JSON.stringify(linkedin.rows.map((r) => [r.slug, r.linkedin_url])) ===
+    JSON.stringify([
+      ["gavriel-goidel", "https://www.linkedin.com/in/goidelg/"],
+      ["or-maccabi", "https://www.linkedin.com/in/ormaccabi/"],
+      ["ori-goshen", "https://www.linkedin.com/in/ori-goshen/"],
+      ["oz-altagar", "https://www.linkedin.com/in/oz-altagar-0a50861b3/"],
+      ["roee-margalit", "https://www.linkedin.com/in/roee-margalit/"],
+      ["shay-yahal", "https://www.linkedin.com/in/shay-yahal/"],
+      ["tomer-diari", "https://www.linkedin.com/in/diari"],
+    ]),
+  `anon reads speakers.linkedin_url (all seven confirmed by the club; got ${JSON.stringify(linkedin.rows)})`,
+);
+for (const bad of [
+  "http://www.linkedin.com/in/diari",
+  "https://linkedin.com/in/diari",
+  "https://www.linkedin.com/company/aleph",
+  "https://www.linkedin.com/in/diari?trk=x",
+  "https://www.linkedin.com/in/diari#x",
+  "https://www.linkedin.com.evil.example/in/diari",
+  "javascript:alert(1)//https://www.linkedin.com/in/x",
+]) {
+  let rejected = false;
+  try {
+    await db.query("update public.speakers set linkedin_url = $1 where slug = 'or-maccabi'", [bad]);
+  } catch {
+    rejected = true;
+  }
+  check(rejected, `linkedin_url rejects ${bad}`);
+}
+for (const good of ["https://www.linkedin.com/in/some-one_1/", "https://www.linkedin.com/in/%D7%A9%D7%99"]) {
+  let ok = true;
+  try {
+    await db.query("update public.speakers set linkedin_url = $1 where slug = 'or-maccabi'", [good]);
+  } catch {
+    ok = false;
+  }
+  check(ok, `linkedin_url accepts ${good}`);
+}
+await db.exec("update public.speakers set linkedin_url = null where slug = 'or-maccabi'");
+
+// speakers.photo_url: https:// or one of our own /speakers/<slug>.webp files, nothing else.
+for (const [url, ok] of [
+  ["/speakers/or-maccabi.webp", true],
+  ["https://abc.supabase.co/storage/v1/object/public/x.webp", true],
+  ["/speakers/../secret.webp", false],
+  ["//evil.example/x.webp", false],
+  ["javascript:alert(1)", false],
+  ["http://example.com/x.webp", false],
+]) {
+  let accepted = true;
+  try {
+    await db.query("update public.speakers set photo_url = $1 where slug = 'or-maccabi'", [url]);
+  } catch {
+    accepted = false;
+  }
+  check(accepted === ok, `photo_url ${ok ? "accepts" : "rejects"} ${url}`);
+}
+await db.exec("update public.speakers set photo_url = '/speakers/or-maccabi.webp' where slug = 'or-maccabi'");
 
 for (const [label, sql] of [
   ["insert event", "insert into public.events (slug, cohort_id, title_he, title_en, starts_at, ends_at) select 'x', id, 'x', 'x', now(), now() + interval '1 hour' from public.cohorts"],
   ["update event", "update public.events set title_en = 'hacked'"],
   ["delete venue", "delete from public.venues"],
   ["insert speaker", "insert into public.speakers (slug, name_he, name_en) values ('x', 'x', 'x')"],
+  ["set a speaker's LinkedIn", "update public.speakers set linkedin_url = 'https://www.linkedin.com/in/attacker'"],
 ]) {
   let blocked = false;
   try {
@@ -155,7 +218,7 @@ if (writeFixtures) {
   const res = await asAnon(`
     select coalesce(json_agg(row_to_json(t) order by t.starts_at), '[]'::json) as data from (
       select e.id, e.slug, e.kind, e.series, e.series_no, e.title_he, e.title_en, e.blurb_he, e.blurb_en,
-             e.starts_at, e.ends_at, e.venue_note_he, e.venue_note_en, e.luma_url, e.is_tentative,
+             e.starts_at, e.ends_at, e.venue_note_he, e.venue_note_en, e.luma_url, e.is_tentative, e.updated_at,
              case when v.id is null then null else
                (select row_to_json(x) from (select v.id, v.name_he, v.name_en, v.address_he, v.address_en, v.maps_url) x)
              end as venue,
@@ -163,7 +226,7 @@ if (writeFixtures) {
                select json_agg(json_build_object('sort', es.sort, 'speaker', row_to_json(sp)) order by es.sort)
                from public.event_speakers es
                join lateral (select s.id, s.slug, s.name_he, s.name_en, s.company_he, s.company_en,
-                                    s.role_he, s.role_en, s.photo_url
+                                    s.role_he, s.role_en, s.photo_url, s.linkedin_url
                              from public.speakers s where s.id = es.speaker_id) sp on true
                where es.event_id = e.id
              ), '[]'::json) as event_speakers

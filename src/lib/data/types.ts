@@ -34,6 +34,8 @@ export type Speaker = {
   role_he: string | null;
   role_en: string | null;
   photo_url: string | null;
+  /** Public, admin-entered profile link (https://www.linkedin.com/in/...). Not contact data. */
+  linkedin_url: string | null;
 };
 
 export type ClubEvent = {
@@ -52,6 +54,8 @@ export type ClubEvent = {
   venue_note_en: string | null;
   luma_url: string | null;
   is_tentative: boolean;
+  /** Last edit (DB trigger). Drives the calendar feed's SEQUENCE/LAST-MODIFIED and the sitemap's lastmod. */
+  updated_at: string;
   venue: Venue | null;
   event_speakers: { sort: number; speaker: Speaker }[];
 };

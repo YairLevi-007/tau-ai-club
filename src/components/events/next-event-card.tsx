@@ -2,10 +2,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { TIME_ZONE } from "@/i18n/routing";
 import type { SeasonEvent } from "@/lib/data/types";
-import { loc } from "@/lib/event-format";
+import { formatEventDate, formatShortDate, formatTimeRange, isoAttr, loc, venueIsTbd, venueLabel } from "@/lib/event-format";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { EventActions, EventMeta, EventPills } from "./event-bits";
+import { EventActions, EventPills, Tag } from "./event-bits";
+import { FlyerChip, InfoTile, SpeakerAvatar, splitTitle } from "./flyer-bits";
 
 /** Whole calendar days from `nowIso` to the event's start, counted in Israel time. */
 function daysUntil(startIso: string, nowIso: string) {
@@ -40,7 +41,12 @@ export async function NextEventCard({
   const locale = (await getLocale()) as Locale;
   const t = await getTranslations("event");
   const live = event?.state === "live";
+  const tp = await getTranslations("eventPage");
   const blurb = event ? loc(event, "blurb", locale) : null;
+  const title = splitTitle(event ? (loc(event, "title", locale) ?? event.slug) : "");
+  const venue = event ? venueLabel(event, locale) : null;
+  const weekday = (iso: string) =>
+    new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", { timeZone: TIME_ZONE, weekday: "short" }).format(new Date(iso));
 
   return (
     <section
@@ -56,11 +62,10 @@ export async function NextEventCard({
       <span aria-hidden className="absolute -top-px -start-px size-3.5 rounded-ss-lg border-s-2 border-t-2 border-brand-purple" />
       <span aria-hidden className="absolute -top-px -end-px size-3.5 rounded-se-lg border-e-2 border-t-2 border-brand-purple" />
 
-      <div className="flex items-center justify-between gap-3">
-        <p id="next-event-heading" className="inline-flex items-center gap-2 text-sm font-semibold text-fg">
-          <span aria-hidden className="size-2 bg-brand-purple" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <FlyerChip locale={locale} id="next-event-heading">
           {live ? t("happeningNow") : t("nextEvent")}
-        </p>
+        </FlyerChip>
         {event && !live && daysUntil(event.starts_at, now) === 0 && (
           // Meetup is today: say it loudly (text, not just color).
           <p className="tag tag-next gap-2 text-[0.8125rem]">
@@ -73,14 +78,20 @@ export async function NextEventCard({
             {t("relativeDays", { days: daysUntil(event.starts_at, now) })}
           </p>
         )}
-
       </div>
 
       {event ? (
         <>
-          <h2 className="mt-4 text-[clamp(1.5rem,6vw,1.875rem)] leading-[1.15] font-bold text-balance">
+          <h2 className="mt-5 text-[clamp(1.5rem,6vw,2rem)] leading-[1.12] font-extrabold text-balance">
             <Link href={`/events/${event.slug}`} className="rounded-sm transition-colors duration-150 hover:text-brand-purple-softer">
-              {loc(event, "title", locale)}
+              {title.head}
+              {title.accent && (
+                <>
+                  {" "}
+                  <span className="text-brand-purple">{title.accent}</span>
+                </>
+              )}
+              {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted">{title.tail}</span>}
             </Link>
           </h2>
           {event.series_no && seriesTotal && seriesTotal > 1 ? (
@@ -92,9 +103,68 @@ export async function NextEventCard({
             <EventPills event={event} showState={false} />
           </div>
 
-          <div className="mt-4 border-t border-border pt-4">
-            <EventMeta event={event} />
-          </div>
+          {event.event_speakers.length > 0 && (
+            <ul className="mt-4 grid gap-3">
+              {event.event_speakers.map(({ speaker }) => {
+                const name = loc(speaker, "name", locale) ?? "";
+                const line = [loc(speaker, "role", locale), loc(speaker, "company", locale)].filter(Boolean).join(" · ");
+                return (
+                  <li key={speaker.id} className="flex items-center gap-3">
+                    <SpeakerAvatar name={name} photoUrl={speaker.photo_url} size={48} />
+                    <div className="min-w-0">
+                      <p className="leading-tight font-semibold text-fg">
+                        <span className="sr-only">{tp("speakers")}: </span>
+                        {name}
+                      </p>
+                      {line && <p className="mt-0.5 text-sm leading-snug text-fg-subtle">{line}</p>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <dl className="mt-4 grid grid-cols-2 gap-2.5">
+            <InfoTile
+              compact
+              locale={locale}
+              label={tp("date")}
+              value={
+                <>
+                  {weekday(event.starts_at)},{" "}
+                  <bdi dir="ltr" className="font-mono font-medium">
+                    {formatShortDate(event.starts_at, locale)}
+                  </bdi>
+                  <span className="sr-only">
+                    {" "}
+                    <time dateTime={isoAttr(event.starts_at)}>{formatEventDate(event.starts_at, locale)}</time>
+                  </span>
+                </>
+              }
+            />
+            <InfoTile
+              compact
+              locale={locale}
+              label={tp("time")}
+              value={
+                <bdi dir="ltr" className="font-mono font-medium whitespace-nowrap">
+                  {formatTimeRange(event.starts_at, event.ends_at)}
+                </bdi>
+              }
+            />
+            <InfoTile
+              compact
+              locale={locale}
+              className="col-span-2"
+              label={tp("where")}
+              value={
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  {venue && <span>{venue}</span>}
+                  {venueIsTbd(event) && <Tag tone="tbd">{t("venueTbd")}</Tag>}
+                </span>
+              }
+            />
+          </dl>
 
           {blurb && (
             <p className="mt-4 max-w-[68ch] rounded-md border border-border bg-bg-deep/45 px-3.5 py-3 text-[0.9375rem] leading-relaxed text-fg-muted">

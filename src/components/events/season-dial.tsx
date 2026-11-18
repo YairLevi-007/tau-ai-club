@@ -8,6 +8,8 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { dur, ease } from "@/lib/motion";
 import { SpeakerFace as Face, type FaceSpeaker } from "./speaker-face";
+import { SpeakerLinkedIn } from "./speaker-linkedin";
+import { SpeakerAvatar } from "./flyer-bits";
 
 export type DialEvent = {
   slug: string;
@@ -27,7 +29,7 @@ export type DialEvent = {
   speakers: DialSpeaker[];
 };
 
-export type DialSpeaker = FaceSpeaker & { role: string | null; company: string | null };
+export type DialSpeaker = FaceSpeaker & { role: string | null; company: string | null; linkedinUrl: string | null };
 
 type Props = {
   events: DialEvent[];
@@ -78,6 +80,20 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
   const selRef = useRef(homeIndex);
   const [readDay, setReadDay] = useState(events[homeIndex]?.day ?? startDay);
   const rot = useMotionValue(-angleOf(events[homeIndex]?.day ?? startDay));
+  // Audit N5: a month label whose screen angle is in the lower half gets an extra half turn so it
+  // never reads upside down. Re-renders only when a label crosses the horizon, not every frame.
+  const flipKey = (r: number) =>
+    months
+      .map((m) => {
+        const screen = (((angleOf(m.day) + r) % 360) + 360) % 360;
+        return screen > 90 && screen < 270 ? "1" : "0";
+      })
+      .join("");
+  const [flips, setFlips] = useState(() => flipKey(rot.get()));
+  useMotionValueEvent(rot, "change", (r) => {
+    const k = flipKey(r);
+    if (k !== flips) setFlips(k);
+  });
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const dialRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ lastAngle: number; lastT: number; vel: number; moved: boolean; id: number } | null>(null);
@@ -260,8 +276,9 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                     />
                   );
                 })}
-                {months.map((m) => {
+                {months.map((m, mi) => {
                   const a = angleOf(m.day);
+                  const turn = flips[mi] === "1" ? 180 : 0;
                   const rad = (a * Math.PI) / 180;
                   const r = R_TICKS - 26;
                   const x = round2(C + Math.sin(rad) * r);
@@ -271,7 +288,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                       key={m.day}
                       x={x}
                       y={y}
-                      transform={`rotate(${round2(a)} ${x} ${y})`}
+                      transform={`rotate(${round2(a + turn)} ${x} ${y})`}
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fill="var(--fg-subtle)"
@@ -388,24 +405,22 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                 </button>
 
                 {selected.speakers.length > 0 && (
-                  <ul className="mb-4 grid gap-3 border-b border-border pe-8 pb-4" data-testid="dial-popup-speakers">
-                    {selected.speakers.map((sp) => {
-                      const solo = selected.speakers.length === 1;
-                      return (
-                        <li key={sp.name} className="flex items-center gap-3.5">
-                          <Face speaker={sp} size={solo ? 76 : 52} className={cn("rounded-lg", sp.photoUrl && "shadow-[var(--shadow-featured)]")} />
-                          <div className="min-w-0">
-                            <p className={cn("leading-tight font-bold text-fg", solo && "text-[1.0625rem]")}>{sp.name}</p>
-                            {sp.role && <p className="mt-1 text-sm leading-snug text-fg-muted">{sp.role}</p>}
-                            {sp.company && (
-                              <p className="text-sm leading-snug font-medium text-brand-purple-soft">
-                                <bdi>{sp.company}</bdi>
-                              </p>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
+                  <ul className="mb-4 grid gap-3 border-b border-border pe-8 pb-4">
+                    {selected.speakers.map((sp) => (
+                      <li key={sp.name} className="flex items-center gap-3">
+                        <SpeakerAvatar name={sp.name} photoUrl={sp.photoUrl} size={selected.speakers.length > 1 ? 52 : 72} />
+                        <div className="min-w-0 flex-1">
+                          <p className="leading-tight font-bold text-fg">{sp.name}</p>
+                          {sp.role && <p className="mt-1 text-sm leading-snug text-fg-muted">{sp.role}</p>}
+                          {sp.company && (
+                            <p className="text-sm leading-snug font-medium text-brand-purple-soft">
+                              <bdi>{sp.company}</bdi>
+                            </p>
+                          )}
+                        </div>
+                        <SpeakerLinkedIn url={sp.linkedinUrl} name={sp.name} />
+                      </li>
+                    ))}
                   </ul>
                 )}
 

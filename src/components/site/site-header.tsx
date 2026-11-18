@@ -47,6 +47,8 @@ export async function SiteHeader() {
             alt=""
             width={520}
             height={322}
+            // Audit N4: the slot is 65px wide (78px from lg), so ask for a small file, not w=640.
+            sizes="(min-width: 1024px) 78px, 65px"
             priority
             className="h-10 w-auto [image-rendering:pixelated] lg:h-12"
           />

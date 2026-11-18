@@ -137,6 +137,7 @@ Workshop prep (shown on Zero to Hero events): Claude Code installed, Pro plan, b
 
 ## 5. Open questions
 1. **GitHub repo visibility.** Vercel Hobby can't deploy a *private* repo owned by an org. Options: (a) a **public** repo in `tau-ai-club` (fine, since there are no secrets in code), or (b) private under your personal account for now, moved to the org at handover. **Recommendation: (a).**
-2. Hebrew spellings for speakers and venues: you said they're coming. Until then I'll seed my best transliteration and mark it for review.
-3. Is the 3.1 joint event really on a Sunday? Every other event is on a Wednesday.
-4. Who is "Oz"? I need a full name and company for the speaker card.
+2. Hebrew spellings for venues (speaker names are approved): until confirmed, the seed has my best spelling, marked for review.
+
+### Backlog: managers section (2026-11-18)
+A "Meet our managers" section (Aviv Valyevich, Tali Amram, Ido Perry, Eric Berezin; source brand/instagram/meet-our-managers.jpg) goes in the signed-in area once guest and member sign-in exist. Not on the public site for now.

@@ -66,6 +66,7 @@ export async function SeasonTimeline({
           role: loc(sp, "role", locale) ?? null,
           company: loc(sp, "company", locale) ?? null,
           photoUrl: sp.photo_url,
+          linkedinUrl: sp.linkedin_url,
           initials: initialsOf(name),
         };
       }),

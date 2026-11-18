@@ -35,7 +35,8 @@
     "relativeDays": "{days, plural, =0 {היום} =1 {מחר} other {בעוד # ימים}}",
     "seriesPosition": "סדנה {n} מתוך {total} בסדרה",
     "speakersWith": "עם {names}",
-    "relativePast": "{days, plural, =1 {אתמול} other {לפני # ימים}}"
+    "relativePast": "{days, plural, =1 {אתמול} other {לפני # ימים}}",
+    "seriesShort": "מפגש {n}/{total}"
   },
   "season": {
     "title": "העונה",
@@ -66,7 +67,10 @@
     "contactTitle": "פרטי קשר (לחברי המועדון בלבד)",
     "contactEmail": "אימייל",
     "contactPhone": "טלפון",
-    "contactLinkedin": "LinkedIn"
+    "contactLinkedin": "LinkedIn",
+    "date": "תאריך",
+    "time": "שעה",
+    "until": "עד {time}"
   },
   "footer": {
     "instagram": "אינסטגרם",
@@ -81,7 +85,10 @@
   },
   "home": {
     "heroLine1": "בונים עם AI,",
-    "heroLine2": "ביחד."
+    "heroLine2": "ביחד.",
+    "seasonSpeakers": "המרצים של המחזור",
+    "speakersLine1": "הכירו את",
+    "speakersLine2": "המרצים"
   },
   "calendarFeed": {
     "description": "כל מפגשי העונה של מועדון ה-AI של אוניברסיטת תל אביב. מתעדכן לבד."

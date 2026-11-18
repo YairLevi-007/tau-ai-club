@@ -81,20 +81,20 @@ export async function runM2Checks(db, check) {
       insert into public.member_emails (email, member_id, is_primary) select 'unverified@club.test', id, true from m;
 
     -- Contact rows, written as the service role.
-    --  shai-yahel (public speaker): email + phone + LinkedIn shared, LinkedIn public.
+    --  shay-yahal (public speaker): email + phone + LinkedIn shared, LinkedIn public.
     --  oz (public speaker): only LinkedIn shared with members, NOT public. No email/phone.
     --  secret-speaker (only on a draft event): LinkedIn shared + "public", must still not leak.
     insert into public.speaker_contacts (speaker_id, email, phone, linkedin_url, share_email, share_phone, share_linkedin, linkedin_public, consented_at)
       select id, '${SECRET.email}', '${SECRET.phone}', '${SECRET.linkedin}', true, true, true, true, now()
-      from public.speakers where slug = 'shai-yahel';
+      from public.speakers where slug = 'shay-yahal';
     insert into public.speaker_contacts (speaker_id, linkedin_url, share_linkedin, linkedin_public, consented_at)
-      select id, '${SECRET.linkedinPrivate}', true, false, now() from public.speakers where slug = 'oz';
+      select id, '${SECRET.linkedinPrivate}', true, false, now() from public.speakers where slug = 'oz-altagar';
     insert into public.speaker_contacts (speaker_id, linkedin_url, share_linkedin, linkedin_public, consented_at)
       select id, 'https://www.linkedin.com/in/secret', true, true, now() from public.speakers where slug = 'secret-speaker';
   `);
   const speakerId = async (slug) => (await db.query("select id from public.speakers where slug = $1", [slug])).rows[0].id;
-  const shai = await speakerId("shai-yahel");
-  const oz = await speakerId("oz");
+  const shai = await speakerId("shay-yahal");
+  const oz = await speakerId("oz-altagar");
   const secret = await speakerId("secret-speaker");
   const roee = await speakerId("roee-margalit");
 
@@ -322,7 +322,7 @@ export async function runM2Checks(db, check) {
     const stored = await db.query("select encode(token_hash, 'hex') as h from public.speaker_form_tokens where speaker_id = $1", [roee]);
     check(stored.rows.every((r) => r.h !== token), "only the token's hash is stored, never the raw token");
   }
-  check((await one("guest", "select * from public.speaker_form_info($1)", [token]))?.name_en === "Roee Margalit", "[guest] speaker_form_info() works with a valid token");
+  check((await one("guest", "select * from public.speaker_form_info($1)", [token]))?.name_en === "Ro'ee Margalit", "[guest] speaker_form_info() works with a valid token");
   check(empty(await as("guest", "select * from public.speaker_form_info($1)", ["0".repeat(64)])), "speaker_form_info() returns nothing for a wrong token");
   check(denied(await submit("guest", token, { consent: false })), "submit without explicit consent is rejected");
   check(denied(await submit("guest", token, { shareEmail: true, email: "" })), "submit with a shared-but-empty field is rejected");
@@ -365,7 +365,7 @@ export async function runM2Checks(db, check) {
   }
   {
     const st = await as("admin", "select * from public.admin_speaker_contact_status()");
-    const shaiRow = st.rows?.find((r) => r.slug === "shai-yahel");
+    const shaiRow = st.rows?.find((r) => r.slug === "shay-yahal");
     check(shaiRow?.has_email === true && !("email" in shaiRow), "[admin] overview reports which fields exist without the values");
     check(!(await as("admin", "select public.admin_delete_speaker_contact($1)", [shai])).error, "[admin] deletes a speaker's contact data");
     const gone = (await db.query("select count(*)::int as n from public.speaker_contacts where speaker_id = $1", [shai])).rows[0].n;

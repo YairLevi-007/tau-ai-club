@@ -5,9 +5,9 @@ import type { ClubEvent, Cohort, EventState, Season, SeasonEvent } from "@/lib/d
 
 const EVENT_COLUMNS = `
   id, slug, kind, series, series_no, title_he, title_en, blurb_he, blurb_en,
-  starts_at, ends_at, venue_note_he, venue_note_en, luma_url, is_tentative,
+  starts_at, ends_at, venue_note_he, venue_note_en, luma_url, is_tentative, updated_at,
   venue:venues ( id, name_he, name_en, address_he, address_en, maps_url ),
-  event_speakers ( sort, speaker:speakers ( id, slug, name_he, name_en, company_he, company_en, role_he, role_en, photo_url ) )
+  event_speakers ( sort, speaker:speakers ( id, slug, name_he, name_en, company_he, company_en, role_he, role_en, photo_url, linkedin_url ) )
 `;
 
 /**
