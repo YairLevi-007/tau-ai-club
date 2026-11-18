@@ -24,6 +24,7 @@ export const IS_PRODUCTION = process.env.VERCEL_ENV === "production";
 
 export const SOCIAL = {
   instagram: "https://www.instagram.com/tau.ai.club/",
+  linkedin: "https://www.linkedin.com/company/tau-ai-club/",
 } as const;
 
 /** How often public pages re-render (seconds). The Next event card can lag its 20:00 switch by up to this. */

@@ -47,7 +47,7 @@ export function organizationJsonLd(locale: Locale, opts: { name: string; descrip
     description: opts.description,
     url: abs(localizedPath(locale, "/")),
     logo: abs("/brand/logo-mark.png"),
-    sameAs: [SOCIAL.instagram],
+    sameAs: [SOCIAL.instagram, SOCIAL.linkedin],
     parentOrganization: { "@type": "CollegeOrUniversity", name: locale === "he" ? "אוניברסיטת תל אביב" : "Tel Aviv University" },
   };
 }

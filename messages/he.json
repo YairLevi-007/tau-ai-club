@@ -13,7 +13,8 @@
     "skipToContent": "דילוג לתוכן",
     "instagramLabel": "TAU AI Club באינסטגרם",
     "signIn": "כניסה לחברים",
-    "admin": "ניהול"
+    "admin": "ניהול",
+    "linkedinLabel": "TAU AI Club בלינקדאין"
   },
   "event": {
     "nextEvent": "המפגש הבא",
@@ -75,7 +76,8 @@
   "footer": {
     "instagram": "אינסטגרם",
     "tagline": "LET'S BUILD",
-    "follow": "לא במחזור? עקבו אחרינו באינסטגרם, שם מעדכנים על אירועים פתוחים והמחזור הבא."
+    "follow": "לא במחזור? עקבו אחרינו באינסטגרם ובלינקדאין, שם מעדכנים על אירועים פתוחים והמחזור הבא.",
+    "linkedin": "לינקדאין"
   },
   "errors": {
     "dataUnavailable": "לא הצלחנו לטעון את האירועים כרגע. נסו שוב בעוד רגע.",
@@ -90,7 +92,10 @@
     "speakersLine1": "הכירו את",
     "speakersLine2": "המרצים",
     "foundersLine1": "תכירו את",
-    "foundersLine2": "מקימי המועדון"
+    "foundersLine2": "מקימי המועדון",
+    "icebreakersSoon": "בקרוב",
+    "icebreakersTitle": "משחקי היכרות לחברי המועדון",
+    "icebreakersBody": "לפני כל מפגש נשדך אתכם לשיחת <pair>1:1</pair> קצרה עם מישהו מהמחזור. ככה עד סוף השנה, כולם מכירים את כולם."
   },
   "calendarFeed": {
     "description": "כל מפגשי העונה של מועדון ה-AI של אוניברסיטת תל אביב. מתעדכן לבד."
