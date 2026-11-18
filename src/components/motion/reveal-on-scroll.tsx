@@ -26,6 +26,9 @@ export function RevealOnScroll() {
     const root = marker.current?.parentElement;
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Audit N9: automated captures (full-page screenshots, crawlers driven by WebDriver) never
+    // scroll, so they'd see the hidden state. They get the static page; print is handled in CSS.
+    if (navigator.webdriver) return;
 
     const els = Array.from(root.querySelectorAll<HTMLElement>("[data-reveal]")).filter(
       (el) => el.getBoundingClientRect().top > window.innerHeight,

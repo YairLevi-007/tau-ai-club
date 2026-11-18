@@ -33,7 +33,8 @@
     "relativeDays": "{days, plural, =0 {Today} =1 {Tomorrow} other {In # days}}",
     "seriesPosition": "Session {n} of {total} in the series",
     "speakersWith": "with {names}",
-    "relativePast": "{days, plural, =1 {Yesterday} other {# days ago}}"
+    "relativePast": "{days, plural, =1 {Yesterday} other {# days ago}}",
+    "seriesShort": "Session {n}/{total}"
   },
   "season": {
     "title": "The season",
@@ -60,7 +61,10 @@
     "openMaps": "Open in Maps",
     "prevMeetup": "Previous meetup",
     "nextMeetup": "Next meetup",
-    "seasonNav": "More meetups this season"
+    "seasonNav": "More meetups this season",
+    "date": "Date",
+    "time": "Time",
+    "until": "Until {time}"
   },
   "footer": {
     "instagram": "Instagram",
@@ -76,7 +80,9 @@
   "home": {
     "heroLine1": "Building with AI,",
     "heroLine2": "together.",
-    "seasonSpeakers": "This season's speakers"
+    "seasonSpeakers": "This season's speakers",
+    "speakersLine1": "Meet our",
+    "speakersLine2": "speakers"
   },
   "calendarFeed": {
     "description": "Every meetup of the TAU AI Club season. Updates on its own."

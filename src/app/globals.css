@@ -277,3 +277,11 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Audit N9: a printed page shows everything, even what hasn't been scrolled into view. */
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
