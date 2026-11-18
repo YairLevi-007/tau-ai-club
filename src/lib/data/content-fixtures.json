@@ -2,7 +2,7 @@
   "cohort-02-opening": {
     "blurb": {
       "body_he": "ההרצאה של שי יהל פתחה את מחזור 02 בסיור בשאלה מהי אינטליגנציה: ממבחן טיורינג ו-Deep Blue, דרך למידת מכונה והמעבר ל-Deep Learning, ועד סוכני ה-LLM של היום (המודל כמנוע, ה-Harness כשלדה) והבעיות שעדיין פתוחות: אליגנמנט, הגאו-פוליטיקה של ה-GPUs ושאלת התודעה.",
-      "body_en": "Shai Yahel opened Cohort 02 with a tour of what we mean by \"intelligence\": from Turing's imitation game and Deep Blue, through classic machine learning and the deep learning shift, to today's LLM agents (the model as the engine, the harness as the chassis) and the problems still open: alignment, the geopolitics of GPUs, and consciousness."
+      "body_en": "Shay Yahal opened Cohort 02 with a tour of what we mean by \"intelligence\": from Turing's imitation game and Deep Blue, through classic machine learning and the deep learning shift, to today's LLM agents (the model as the engine, the harness as the chassis) and the problems still open: alignment, the geopolitics of GPUs, and consciousness."
     }
   }
 }

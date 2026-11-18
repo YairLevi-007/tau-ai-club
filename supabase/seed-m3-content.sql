@@ -9,7 +9,7 @@
 begin;
 
 -- ---------------------------------------------------------------------------
--- Opening lecture: "AI: past & future", Shai Yahel, 11.11
+-- Opening lecture: "AI: past & future", Shay Yahal, 11.11
 -- ---------------------------------------------------------------------------
 insert into public.event_content (event_id, section, body_he, body_en, visibility, status)
 select e.id, c.section::public.content_section, c.body_he, c.body_en,
@@ -18,7 +18,7 @@ from public.events e
 cross join (values
   ('blurb',
 $md$ההרצאה של שי יהל פתחה את מחזור 02 בסיור בשאלה מהי אינטליגנציה: ממבחן טיורינג ו-Deep Blue, דרך למידת מכונה והמעבר ל-Deep Learning, ועד סוכני ה-LLM של היום (המודל כמנוע, ה-Harness כשלדה) והבעיות שעדיין פתוחות: אליגנמנט, הגאו-פוליטיקה של ה-GPUs ושאלת התודעה.$md$,
-$md$Shai Yahel opened Cohort 02 with a tour of what we mean by "intelligence": from Turing's imitation game and Deep Blue, through classic machine learning and the deep learning shift, to today's LLM agents (the model as the engine, the harness as the chassis) and the problems still open: alignment, the geopolitics of GPUs, and consciousness.$md$,
+$md$Shay Yahal opened Cohort 02 with a tour of what we mean by "intelligence": from Turing's imitation game and Deep Blue, through classic machine learning and the deep learning shift, to today's LLM agents (the model as the engine, the harness as the chassis) and the problems still open: alignment, the geopolitics of GPUs, and consciousness.$md$,
    'public'),
 
   ('summary',
@@ -135,7 +135,7 @@ $md$- **הגדרת האינטליגנציה היא מטרה נעה:** ככל ש�
    null, 'members')
 ) as c(section, body_he, body_en, visibility)
 where e.slug = 'cohort-02-opening';
--- Confirmed 2026-11-17: Shai Yahel is a woman, so "בהרצאתה" is correct.
+-- Confirmed 2026-11-17: Shay Yahal is a woman, so "בהרצאתה" is correct.
 -- 2026-11-17: summaries are written by members and the site only publishes them; the club
 -- does not review their wording. Two small extraction fixes stay as they are
 -- ("בניסוי וטעייה" in 04.1, "לשלול" for the PDF's "לנשל" in the takeaways).
