@@ -35,11 +35,15 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g
 const PHONE = /(?<![\w.-])(\+?972|0)[-\s]?([23489]|5\d|7\d)[-\s]?\d{3}[-\s]?\d{4}(?![\w])/g;
 // "linkedin.com/in/your-name" is the speaker form's placeholder hint (ships in the shared messages bundle), not data.
 const LINKEDIN_PERSON = /linkedin\.com\/(?:in|pub)\/(?!your-name)[A-Za-z0-9_%-]+/gi;
-// The public speaker profile column (speakers.linkedin_url, confirmed by the club) is shown on purpose.
-// Anything else (a private LinkedIn from speaker_contacts) is a leak.
+// Public profile columns (speakers.linkedin_url and the founders' club_team.linkedin_url, confirmed
+// by the club) are shown on purpose. Anything else (a private LinkedIn from speaker_contacts) is a leak.
 const PUBLIC_LINKEDIN = new Set(
-  (fixtures.events as { event_speakers: { speaker: { linkedin_url: string | null } }[] }[])
-    .flatMap((e) => e.event_speakers.map((es) => es.speaker.linkedin_url))
+  [
+    ...(fixtures.events as { event_speakers: { speaker: { linkedin_url: string | null } }[] }[]).flatMap((e) =>
+      e.event_speakers.map((es) => es.speaker.linkedin_url),
+    ),
+    ...((fixtures as { team?: { linkedin_url: string | null }[] }).team ?? []).map((m) => m.linkedin_url),
+  ]
     .filter((u): u is string => Boolean(u))
     .map((u) => /linkedin\.com\/(?:in|pub)\/[A-Za-z0-9_%-]+/i.exec(u)?.[0].toLowerCase()),
 );

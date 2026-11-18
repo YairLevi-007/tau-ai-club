@@ -155,9 +155,10 @@ export async function getEventSlugs(): Promise<string[]> {
  * section is simply not shown.
  */
 export const getTeam = cache(async (): Promise<TeamMember[]> => {
-  if (seedMode()) return (await loadFixtures()).team ?? [];
+  // Same order as the season: seed, then explicit fixtures (local/QA), then Supabase.
+  if (seedMode() || fixturesAllowed()) return (await loadFixtures()).team ?? [];
   const supabase = createPublicClient();
-  if (!supabase) return fixturesAllowed() ? ((await loadFixtures()).team ?? []) : [];
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("club_team")
     .select("id, slug, name_he, name_en, role_en, company_en, photo_url, linkedin_url, sort")
