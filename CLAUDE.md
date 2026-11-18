@@ -3,6 +3,8 @@
 The official site of the TAU AI Club (Tel Aviv University), Cohort 02, 2026–27.
 Plan and scope: `docs/PLAN.md`. Hosting: `docs/hosting-options.md`. Handover: `HANDOVER.md`.
 
+**Before any task, read `docs/DECISIONS.md`.** It lists what the user already approved (designs, copy, behaviour). Don't change or replace any of it without asking the user first. If a doc elsewhere (HANDOVER, PLAN, a mockup) disagrees with DECISIONS.md, DECISIONS.md wins; say so in your report.
+
 @AGENTS.md
 
 ## Stack

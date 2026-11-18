@@ -224,7 +224,7 @@ Subject:
 ```
 קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code
 ```
-Body (HTML): the dark, club-style email the user approved on 18.11 (live in Supabase since then; the user preferred it over a light phone variant). Paste it as is in Magic Link and Confirm signup:
+Body (HTML): the dark, club-style email the user approved on 18.11 (live in Supabase since then; the user preferred it over a light phone variant). Paste it as is in Magic Link and Confirm signup (same file: `design/email/code-email.html`; see `docs/DECISIONS.md`):
 ```html
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0B0A1F;padding:32px 12px;font-family:Arial,Helvetica,sans-serif">
   <tr><td align="center">

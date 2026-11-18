@@ -1,0 +1,27 @@
+# Decisions the user approved
+
+**Every agent reads this before starting work.** Everything here was approved by the user.
+Don't change, replace or "improve" any of it without asking the user first (through the manager).
+If a task seems to need a change here, stop and ask.
+
+**The manager keeps this file current.** When the user approves something, the manager adds a line here
+in the same step it's applied (before or with the commit, not later), and tells every agent whose area
+it touches. A decision made in a chat, in a dashboard (Supabase, Vercel) or in a mockup folder outside
+the repo isn't finished until it's written here.
+
+Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
+
+| Date | Decision | Area | Where it lives |
+|---|---|---|---|
+| 18.11 | **Login code email: the dark, club-style design.** The user chose it over a light phone variant. Subject: `קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code`. | Design, auth | `design/email/code-email.html` (+ `.png`), HANDOVER G4. Live in Supabase → Email Templates → Magic link + Confirm sign up. |
+| 18.11 | No public sign-up. Guests see only a "כניסה לחברים" button. Login is a 6-digit email code, only for emails on the club list. | Auth, design | `src/app/api/auth/*`, `hook_before_user_created` |
+| 18.11 | The schedule (dates, times, places) is for members only **for now**. Guests see the vision, speakers (no dates) and founders. Meetup pages and calendar files are members only. Stopgap: still an open question for the club. | Home, events | `docs/OPEN-QUESTIONS.md` #1, `showSchedule`, `src/lib/calendar-access.ts` |
+| 18.11 | No "במחזור?" card on the home page. The header's "כניסה לחברים" is the only way in. | Home | `src/app/[locale]/page.tsx` |
+| 18.11 | Meeting games: built by another team. The site has only a "בקרוב" slot, and only in the personal area (/me), not on the public home page. | /me | `src/app/[locale]/me/page.tsx` |
+| 18.11 | Personal area fields: name, photo, description, faculty, degree, year, LinkedIn, phone, Gmail. Phone and Gmail have "show to members" toggles, **default off**. | /me, /profile, DB | `member_contacts` + RPCs |
+| 18.11 | Luma stays manual: a Luma link per event, plus a CSV upload after each meetup. | Admin | `/admin/events`, `/admin/attendance` |
+| 18.11 | Phones: 44px tap targets site-wide (header included), fields at 16px. The admin attendance grid stays dense. | Design | `src/app/globals.css` |
+| 18.11 | Speaker and founder roles stay in English on both languages. Speaker photos only from the club's flyers. | Content | `supabase/seed.sql` |
+| 17.11 | Lecture summaries are written by people and published as given (no AI summaries, no proofreading). | Content | `docs/PLAN.md` |
+| 16.11 | Brand tokens are frozen (v1.1). Changes need the user's OK. | Design | `src/app/tokens.css` |
+| — | No Claude tokens or paid AI APIs on the site. | All | |
