@@ -175,4 +175,31 @@ export async function runLaunchChecks(db, check) {
     }
     check(ok, "[supabase_auth_admin] can call the auth hook");
   }
+
+  // ---- L8. save_my_profile(): the whole form in one transaction ------------------------
+  {
+    const save = (who, phone, email, faculty) =>
+      as(who, "select public.save_my_profile($1, null, $2, 'Prog', null, null, '{}'::jsonb, $3, $4, false, false)", ["Carol Member", faculty, phone, email]);
+    check(!denied(await save("carol", "050-111-2222", "carol@x.test", "Engineering")), "[carol] saves the whole profile form in one call");
+    const bad = await save("carol", "not a phone", "carol@x.test", "Changed Faculty");
+    check(denied(bad), "[carol] an invalid phone fails the save");
+    const after = (await db.query("select p.faculty, c.phone from public.profiles p join public.member_contacts c using (member_id) where p.member_id = $1", [carol])).rows[0];
+    check(after.faculty === "Engineering" && after.phone === "050-111-2222", "a failed save changes nothing (faculty and phone kept: atomic)");
+    check(denied(await save("outsider", null, null, "x")), "[outsider] cannot save a profile");
+    check(denied(await as("guest", "select public.save_my_profile('x', null, null, null, null, null, '{}'::jsonb, null, null, false, false)")), "[guest] cannot save a profile");
+  }
+
+  // ---- L9. email_on_club_list(): server only (secret key) ---------------------------------
+  {
+    check(denied(await as("guest", "select public.email_on_club_list('carol@club.test')")), "[guest] cannot probe the allowlist");
+    check(denied(await as("carol", "select public.email_on_club_list('carol@club.test')")), "[member] cannot probe the allowlist");
+    await db.exec("set role service_role");
+    try {
+      const yes = (await db.query("select public.email_on_club_list(' Carol@Club.test ') as r")).rows[0].r;
+      const no = (await db.query("select public.email_on_club_list('stranger@gmail.test') as r")).rows[0].r;
+      check(yes === true && no === false, "[service_role] allowlist lookup: listed (any case, padded) true, unlisted false");
+    } finally {
+      await db.exec("reset role");
+    }
+  }
 }

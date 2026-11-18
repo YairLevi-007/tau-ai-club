@@ -1,7 +1,6 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { LockKeyhole } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 
 /**
@@ -9,7 +8,8 @@ import { Link } from "@/i18n/navigation";
  * After a member logs in, the server sets a non-HttpOnly `tau_member=1` hint cookie, and
  * these islands show the members' links. This is a UI hint, NOT access control: the
  * members' pages check membership on the server and RLS checks it in the database.
- * The server render (and any guest) gets the guest version.
+ * The server render (and any guest) gets the guest version. No padlocks here: the person
+ * who sees these links can open them (the guest preview with locks is the auth-off header).
  */
 const subscribe = () => () => {};
 const isMember = () => /(?:^|;\s*)tau_member=1(?:;|$)/.test(document.cookie);
@@ -18,13 +18,11 @@ const useMemberHint = () => useSyncExternalStore(subscribe, isMember, () => fals
 export function MemberSectionLinks({
   lectures,
   workshops,
-  membersOnly,
   className,
   linkClassName,
 }: {
   lectures: string;
   workshops: string;
-  membersOnly: string;
   className: string;
   linkClassName: string;
 }) {
@@ -35,15 +33,11 @@ export function MemberSectionLinks({
       <li>
         <Link href="/lectures" className={linkClassName}>
           {lectures}
-          <LockKeyhole aria-hidden className="size-3.5 text-fg-subtle" />
-          <span className="sr-only"> ({membersOnly})</span>
         </Link>
       </li>
       <li>
         <Link href="/workshops" className={linkClassName}>
           {workshops}
-          <LockKeyhole aria-hidden className="size-3.5 text-fg-subtle" />
-          <span className="sr-only"> ({membersOnly})</span>
         </Link>
       </li>
     </ul>

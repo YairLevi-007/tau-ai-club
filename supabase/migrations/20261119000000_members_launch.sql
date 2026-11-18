@@ -119,6 +119,69 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
+-- The whole profile form in one transaction: name, profile fields, contact details and
+-- toggles. Any invalid value (a check constraint, a bad name) rolls back everything.
+-- ---------------------------------------------------------------------------
+create or replace function public.save_my_profile(
+  p_full_name text, p_year smallint, p_faculty text, p_program text,
+  p_bio_he text, p_bio_en text, p_links jsonb,
+  p_phone text, p_contact_email text, p_share_phone boolean, p_share_email boolean
+)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  v_member uuid := public.current_member_id();
+  v_name   text := btrim(coalesce(p_full_name, ''));
+begin
+  if v_member is null then
+    raise exception 'members only' using errcode = '42501';
+  end if;
+  if char_length(v_name) not between 1 and 120 then
+    raise exception 'name must be 1-120 characters' using errcode = '22023';
+  end if;
+
+  update public.members m set full_name = v_name
+    where m.id = v_member and m.full_name is distinct from v_name;
+
+  insert into public.profiles (member_id) values (v_member) on conflict (member_id) do nothing;
+  update public.profiles p set
+    year    = p_year,
+    faculty = nullif(btrim(coalesce(p_faculty, '')), ''),
+    program = nullif(btrim(coalesce(p_program, '')), ''),
+    bio_he  = nullif(btrim(coalesce(p_bio_he, '')), ''),
+    bio_en  = nullif(btrim(coalesce(p_bio_en, '')), ''),
+    links   = coalesce(p_links, '{}'::jsonb)
+  where p.member_id = v_member;
+
+  perform public.update_my_contact(p_phone, p_contact_email, p_share_phone, p_share_email);
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- Allowlist lookup for the log-in route (server only, secret key). An RPC, so the email
+-- travels in a POST body, never in a URL or the API request logs.
+-- ---------------------------------------------------------------------------
+create or replace function public.email_on_club_list(p_email text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.member_emails me
+    join public.members m on m.id = me.member_id
+    where me.email operator(extensions.=) lower(btrim(coalesce(p_email, '')))::extensions.citext
+      and m.status = 'active'
+  )
+$$;
+
+-- ---------------------------------------------------------------------------
 -- Auth hook: only allowlisted emails become users
 -- ---------------------------------------------------------------------------
 -- Supabase → Authentication → Hooks → "Before User Created" → Postgres function
@@ -155,13 +218,20 @@ $$;
 revoke all on function
   public.member_profile(uuid), public.my_contact(),
   public.update_my_contact(text, text, boolean, boolean), public.member_contact(uuid),
-  public.hook_before_user_created(jsonb)
+  public.save_my_profile(text, smallint, text, text, text, text, jsonb, text, text, boolean, boolean),
+  public.email_on_club_list(text), public.hook_before_user_created(jsonb)
   from public, anon, authenticated;
 
 grant execute on function
   public.member_profile(uuid), public.my_contact(),
-  public.update_my_contact(text, text, boolean, boolean), public.member_contact(uuid)
+  public.update_my_contact(text, text, boolean, boolean), public.member_contact(uuid),
+  public.save_my_profile(text, smallint, text, text, text, text, jsonb, text, text, boolean, boolean)
   to authenticated;
 
--- Only Supabase Auth calls the hook.
+-- Server only: the log-in route calls it with the secret key.
+grant execute on function public.email_on_club_list(text) to service_role;
+
+-- Only Supabase Auth calls the hook. Supabase's hook setup also needs USAGE on the schema
+-- (without it the hook can fail with "permission denied for schema public").
+grant usage on schema public to supabase_auth_admin;
 grant execute on function public.hook_before_user_created(jsonb) to supabase_auth_admin;

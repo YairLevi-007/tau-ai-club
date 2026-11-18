@@ -23,7 +23,6 @@ export async function SiteHeader() {
       <MemberSectionLinks
         lectures={tc("navLectures")}
         workshops={tc("navWorkshops")}
-        membersOnly={tc("navMembersOnly")}
         className={className}
         linkClassName={navLinkClass}
       />

@@ -150,7 +150,7 @@ test("header: guests see no members-only tabs", async ({ page }) => {
   }
 });
 
-test("header (member hint): Lectures and Workshops links, marked members-only, mobile section row labelled", async ({ page, context, baseURL, isMobile }) => {
+test("header (member hint): Lectures and Workshops links, no padlock for members (QA S3), mobile section row labelled", async ({ page, context, baseURL, isMobile }) => {
   await memberHint(context, baseURL);
   for (const [p, lecturesText, workshopsText, rowLabel] of [
     ["/", "הרצאות", "סדנאות", "מדורים"],
@@ -163,9 +163,10 @@ test("header (member hint): Lectures and Workshops links, marked members-only, m
     await expect(workshops).toBeVisible();
     await expect(lectures).toContainText(lecturesText);
     await expect(workshops).toContainText(workshopsText);
-    // The lock must not be the only signal: the accessible name or visible text says members-only.
+    // The person seeing these links can open them: no lock icon and no "members only" label (QA S3).
+    await expect(workshops.locator("svg")).toHaveCount(0);
     const name = await workshops.evaluate((a) => `${a.getAttribute("aria-label") ?? ""} ${a.textContent ?? ""} ${a.getAttribute("title") ?? ""}`);
-    expect(name, `${p} workshops link name`).toMatch(/חבר|members/i);
+    expect(name, `${p} workshops link name`).not.toMatch(/לחברי|members only/i);
     if (isMobile) await expect(page.getByRole("navigation", { name: rowLabel })).toBeVisible();
     // Links work and keep the locale.
     // The hint isn't a session: the link lands on log-in, coming back to /lectures.

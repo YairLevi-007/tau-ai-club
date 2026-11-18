@@ -95,12 +95,8 @@ export async function isAllowlisted(email: string): Promise<boolean | null> {
   const secret = process.env.SUPABASE_SECRET_KEY;
   if (!env || !secret) return null;
   const admin = createClient(env.url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await admin
-    .from("member_emails")
-    .select("member_id, members!inner(status)")
-    .eq("email", email)
-    .eq("members.status", "active")
-    .limit(1);
+  // An RPC (POST body), so the email never lands in a URL or the API request logs.
+  const { data, error } = await admin.rpc("email_on_club_list", { p_email: email });
   if (error) throw new Error(`allowlist lookup failed: ${error.code ?? "unknown"}`);
-  return (data?.length ?? 0) > 0;
+  return data === true;
 }

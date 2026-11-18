@@ -49,7 +49,8 @@ await db.exec(`
   create function auth.uid() returns uuid language sql stable as $$
     select nullif(auth.jwt() ->> 'sub', '')::uuid
   $$;
-  grant usage on schema public to anon, authenticated, service_role, supabase_auth_admin;
+  grant usage on schema public to anon, authenticated, service_role;
+  -- No USAGE for supabase_auth_admin here: the members-launch migration must grant it (QA M1).
   grant usage on schema auth to anon, authenticated;
   grant usage on schema extensions to anon, authenticated, service_role;
   grant execute on all functions in schema auth to anon, authenticated;
@@ -320,4 +321,7 @@ await runContentChecks(db, check);
 await runLaunchChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
-process.exit(failures ? 1 : 0);
+// QA's independent members-launch suite (its own PGlite instance), so db:check fails when it does.
+const { spawnSync } = await import("node:child_process");
+const qa = spawnSync(process.execPath, [join(root, "tests", "db", "launch-rls.qa.mjs")], { stdio: "inherit" });
+process.exit(failures || qa.status !== 0 ? 1 : 0);

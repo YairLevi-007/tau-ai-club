@@ -207,6 +207,8 @@ Replaces Google as the way in (the Google path in F stays in the code, dormant).
 
 Two gates, both must stay: the site checks the list with `SUPABASE_SECRET_KEY` before it asks Supabase for a code, and the database hook `public.hook_before_user_created` refuses to create a user whose email isn't on the list (if the key is missing, the hook alone still blocks new outsiders).
 
+**Known limit (accepted for launch, QA S2):** the log-in route's own throttle (3 code requests per email and 8 per IP per 10 min; 6 code tries per email) lives in each server instance's memory, so on Vercel it resets on a cold start and isn't shared between instances. Supabase Auth's rate limits (**Authentication → Rate Limits**) are the real backstop. Side effect: someone who knows a member's email can block that email's code requests for about 10 minutes. If that ever happens in practice, move the counters to the database or rely on Supabase's limits alone.
+
 **G1. Migration** (dev first, then prod): `20261119000000_members_launch.sql`. Adds `profiles.program`, the private `member_contacts` table (phone, contact email, two "show to other members" toggles, both **off** by default, readable only through RPCs) and the auth hook function.
 
 **G2. Gmail SMTP** (club account `tauaiclub＠gmail.com`; Supabase's built-in mailer only sends to the team and is capped at a few emails an hour):
@@ -239,7 +241,7 @@ Body (HTML):
 </div>
 ```
 
-**G5. Auth hook**: **Authentication → Hooks** → **Before User Created** → type **Postgres** → schema `public`, function `hook_before_user_created` → **Create**. The migration already granted it to `supabase_auth_admin` only.
+**G5. Auth hook**: **Authentication → Hooks** → **Before User Created** → type **Postgres** → schema `public`, function `hook_before_user_created` → **Create**. The migration grants it (and USAGE on schema `public`) to `supabase_auth_admin` only. Then do **one real first login on `tau-ai-club-dev`** before prod: a listed email must get in, an unlisted one must not get a user.
 
 **G6. URL Configuration**: Site URL `https://tauaiclub.com` (prod) / `http://localhost:3000` (dev). Codes need no redirect URL; the `/api/auth/callback**` entries from F2.3 can stay for the dormant Google path.
 

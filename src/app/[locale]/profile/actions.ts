@@ -33,6 +33,16 @@ function normalizeUrl(value: string) {
   return /^[a-z]+:\/\//i.test(value) ? value : `https://${value}`;
 }
 
+/** Which field a save_my_profile() error is about (check constraint names / raised messages). */
+function saveErrorKey(message: string) {
+  if (/phone/i.test(message)) return "errorPhone" as const;
+  if (/contact_email/i.test(message)) return "errorContactEmail" as const;
+  if (/links/i.test(message)) return "errorLinks" as const;
+  if (/year/i.test(message)) return "errorYear" as const;
+  if (/name/i.test(message)) return "errorName" as const;
+  return "errorGeneric" as const;
+}
+
 export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionState> {
   const { supabase, member } = await memberClient();
   const t = await getTranslations("profile");
@@ -49,11 +59,6 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
     if (v) links[key] = v;
   }
 
-  if (fullName !== member.fullName) {
-    const { error } = await supabase.rpc("update_my_name", { p_full_name: fullName });
-    if (error) return { ok: false, message: t("errorName") };
-  }
-
   const phone = str(fd, "phone");
   const contactEmail = str(fd, "contact_email").toLowerCase();
   if (phone && !/^\+?[0-9][0-9 ()-]{5,22}$/.test(phone)) return { ok: false, message: t("errorPhone") };
@@ -61,29 +66,22 @@ export async function saveProfile(_: ActionState, fd: FormData): Promise<ActionS
     return { ok: false, message: t("errorContactEmail") };
   }
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .update({
-      year,
-      faculty: str(fd, "faculty") || null,
-      program: str(fd, "program") || null,
-      bio_he: str(fd, "bio_he") || null,
-      bio_en: str(fd, "bio_en") || null,
-      links,
-    })
-    .eq("member_id", member.id)
-    .select("member_id");
-  if (error) return { ok: false, message: error.code === "23514" ? t("errorLinks") : t("errorGeneric") };
-  if (!data?.length) return { ok: false, message: t("errorGeneric") };
-
-  // Contact details live in member_contacts (no table access): the RPC only ever writes the caller's row.
-  const contact = await supabase.rpc("update_my_contact", {
+  // One transaction (save_my_profile): name, profile, contact details and toggles are saved
+  // together or not at all. Contact details go to member_contacts, never to profiles.
+  const { error } = await supabase.rpc("save_my_profile", {
+    p_full_name: fullName,
+    p_year: year,
+    p_faculty: str(fd, "faculty") || null,
+    p_program: str(fd, "program") || null,
+    p_bio_he: str(fd, "bio_he") || null,
+    p_bio_en: str(fd, "bio_en") || null,
+    p_links: links,
     p_phone: phone || null,
     p_contact_email: contactEmail || null,
     p_share_phone: fd.get("share_phone") === "on",
     p_share_email: fd.get("share_email") === "on",
   });
-  if (contact.error) return { ok: false, message: contact.error.code === "23514" ? t("errorPhone") : t("errorGeneric") };
+  if (error) return { ok: false, message: t(saveErrorKey(error.message)) };
 
   revalidateProfile(member.id);
   return { ok: true, message: t("saved") };
