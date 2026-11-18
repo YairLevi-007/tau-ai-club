@@ -66,7 +66,7 @@ export async function SiteHeader() {
             className="h-10 w-auto [image-rendering:pixelated] lg:h-12"
           />
         </Link>
-        {sectionLinks("intro-fade me-auto ms-4 hidden items-center gap-1 sm:flex [--i:1] lg:ms-8")}
+        {sectionLinks("intro-fade me-auto ms-4 hidden items-center gap-1.5 sm:flex [--i:1] lg:ms-8")}
         <div className="intro-fade flex items-center gap-1.5 [--i:1]">
           <a
             href={SOCIAL.instagram}
@@ -101,11 +101,12 @@ export async function SiteHeader() {
         </div>
       </nav>
       <nav aria-label={tc("navLabel")} className="sm:hidden">
-        {sectionLinks("-mt-1 flex items-center gap-1 overflow-x-auto px-2.5 pb-2")}
+        {sectionLinks("-mt-1 flex items-center gap-1.5 overflow-x-auto px-2.5 pb-2")}
       </nav>
     </header>
   );
 }
 
 const navLinkClass =
-  "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-[0.875rem] font-medium whitespace-nowrap text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg";
+  // Option 1 (user, 18.11): a thin frame on each tab so it reads as something to tap.
+  "inline-flex h-9 items-center gap-1.5 rounded-md border border-fg/25 px-3 text-[0.875rem] font-medium whitespace-nowrap text-fg transition-colors duration-150 hover:border-border-accent hover:bg-surface-hover";
