@@ -16,8 +16,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
   if (viewer.kind !== "member" || viewer.member.role !== "admin") return children;
   const [t, tc, locale] = await Promise.all([getTranslations("admin"), getTranslations("content"), getLocale()]);
   return (
-    <div className="mx-auto grid max-w-site gap-8 px-4 pt-8 pb-20 sm:px-8 lg:pt-10">
-      <div className="grid gap-4">
+    <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)] gap-8 px-4 pt-8 pb-20 sm:px-8 lg:pt-10">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p className={locale === "he" ? "eyebrow-he text-sm" : "eyebrow-pixel text-[0.6875rem]"}>{t("eyebrow")}</p>
           <div className="flex min-w-0 items-center gap-3 text-sm text-fg-subtle">

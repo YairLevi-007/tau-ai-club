@@ -70,7 +70,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
         </p>
       )}
 
-      <div className="mt-8 grid items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-8">
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-8">
         {/* ---------- Card: photo, how others see you, sign out ---------- */}
         <aside className={cn(panelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6 lg:sticky lg:top-8")}>
           <section aria-labelledby="photo-heading" className="grid gap-4">
