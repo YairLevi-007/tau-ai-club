@@ -91,7 +91,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
             <ActionForm action={uploadPhoto} resetOnSuccess className="grid gap-3">
               <label className={labelClass}>
                 {t("photoPick")}
-                <FilePicker name="photo" accept="image/jpeg,image/png,image/webp" required />
+                <FilePicker name="photo" accept="image/*" required shrinkPhoto />
               </label>
               <p className={hintClass}>{t("photoHint")}</p>
               <div className="flex flex-wrap gap-2">

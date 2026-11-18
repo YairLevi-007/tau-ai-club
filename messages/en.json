@@ -420,7 +420,7 @@
     "photo": "Photo",
     "photoPick": "Choose a photo",
     "photoUpload": "Upload",
-    "photoHint": "JPEG, PNG or WebP, up to 2 MB. Only members can see it.",
+    "photoHint": "Any photo from your phone works; we'll shrink it for you. Only club members see it.",
     "photoRemove": "Remove photo",
     "photoRemoveConfirm": "Remove your photo?",
     "photoSaved": "Photo updated.",
@@ -651,6 +651,7 @@
     "icsHint": "Downloads an .ics file that opens in Google Calendar, Apple Calendar or Outlook. Times are Israel time."
   },
   "filePicker": {
+    "preparing": "Preparing the photo…",
     "choose": "Choose a file",
     "change": "Change file",
     "none": "No file chosen yet"

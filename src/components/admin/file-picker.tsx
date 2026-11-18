@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { shrinkImage } from "@/lib/members/shrink-image";
 
 /**
  * A file input in the page's language. The browser's own picker always says "Choose File /
@@ -17,6 +18,7 @@ export function FilePicker({
   accept,
   required,
   onChange,
+  shrinkPhoto,
   className,
   "data-testid": testId,
 }: {
@@ -24,12 +26,15 @@ export function FilePicker({
   accept?: string;
   required?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Photos: shrink big phone photos (and convert HEIC) to a small JPEG before the form sends it. */
+  shrinkPhoto?: boolean;
   className?: string;
   "data-testid"?: string;
 }) {
   const t = useTranslations("filePicker");
   const ref = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   // A form reset (e.g. after a successful upload) clears the input; clear the name with it.
   useEffect(() => {
@@ -50,9 +55,23 @@ export function FilePicker({
           accept={accept}
           required={required}
           data-testid={testId}
-          onChange={(e) => {
-            setFileName(e.target.files?.[0]?.name ?? null);
+          onChange={async (e) => {
+            const input = e.currentTarget;
+            const file = input.files?.[0];
+            setFileName(file?.name ?? null);
             onChange?.(e);
+            if (!shrinkPhoto || !file) return;
+            // Block the submit while the photo is being shrunk (a few hundred ms).
+            input.setCustomValidity(t("preparing"));
+            setBusy(true);
+            const small = await shrinkImage(file);
+            setBusy(false);
+            input.setCustomValidity("");
+            if (small && small !== file && typeof DataTransfer !== "undefined") {
+              const dt = new DataTransfer();
+              dt.items.add(small);
+              input.files = dt.files;
+            }
           }}
           className="peer absolute inset-0 z-10 size-full cursor-pointer opacity-0"
         />
@@ -66,7 +85,7 @@ export function FilePicker({
       </span>
       {/* The input itself announces the chosen file to screen readers; this is the visible copy. */}
       <span aria-hidden className={cn("min-w-0 truncate text-sm", fileName ? "text-fg" : "text-fg-subtle")}>
-        {fileName ? <bdi>{fileName}</bdi> : t("none")}
+        {busy ? t("preparing") : fileName ? <bdi>{fileName}</bdi> : t("none")}
       </span>
     </span>
   );

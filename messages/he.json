@@ -420,7 +420,7 @@
     "photo": "תמונה",
     "photoPick": "בחירת תמונה",
     "photoUpload": "העלאה",
-    "photoHint": "JPEG,‏ PNG או WebP, עד 2MB. רק חברי המועדון רואים אותה.",
+    "photoHint": "כל תמונה מהטלפון מתאימה, נקטין אותה לבד. רק חברי המועדון רואים אותה.",
     "photoRemove": "הסרת התמונה",
     "photoRemoveConfirm": "להסיר את התמונה?",
     "photoSaved": "התמונה עודכנה.",
@@ -651,6 +651,7 @@
     "icsHint": "מוריד קובץ ‎.ics שנפתח ב-Google Calendar, ביומן של אפל או ב-Outlook. השעות לפי שעון ישראל."
   },
   "filePicker": {
+    "preparing": "מכינים את התמונה…",
     "choose": "בחירת קובץ",
     "change": "החלפת קובץ",
     "none": "עוד לא נבחר קובץ"
