@@ -222,29 +222,33 @@ Two gates, both must stay: the site checks the list with `SUPABASE_SECRET_KEY` b
 
 Subject:
 ```
-קוד הכניסה למועדון ה-AI · Your TAU AI Club code
+קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code
 ```
-Body (HTML). Built for phones and mail apps: one column, table layout, inline styles, a light card (mail apps invert dark emails unpredictably), the code once, large and selectable, plural Hebrew like the site:
+Body (HTML): the dark, club-style email the user approved on 18.11 (live in Supabase since then; the user preferred it over a light phone variant). Paste it as is in Magic Link and Confirm signup:
 ```html
-<div style="display:none;max-height:0;overflow:hidden">הקוד שלכם: {{ .Token }} · Your code: {{ .Token }}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3fb;padding:24px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0B0A1F;padding:32px 12px;font-family:Arial,Helvetica,sans-serif">
   <tr><td align="center">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:440px;background:#ffffff;border-radius:12px;border-top:4px solid #8a2bff;font-family:Rubik,Arial,Helvetica,sans-serif;color:#17152e">
-      <tr><td dir="rtl" lang="he" style="padding:28px 24px 8px;text-align:right">
-        <p style="margin:0 0 6px;font-size:14px;color:#5c1cab;font-weight:bold">TAU AI Club · מועדון ה-AI</p>
-        <h1 style="margin:0 0 10px;font-size:22px;line-height:1.3">קוד הכניסה לאתר</h1>
-        <p style="margin:0;font-size:16px;line-height:1.6;color:#45425e">מעתיקים את הקוד לחלון הכניסה באתר:</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background:#120B3A;border:1px solid #2A2540;border-radius:16px">
+      <tr><td align="center" style="padding:32px 24px 8px">
+        <img src="https://tauaiclub.com/brand/logo.png" width="104" height="64" alt="TAU AI Club" style="display:block;border:0">
       </td></tr>
-      <tr><td align="center" style="padding:18px 24px">
-        <div dir="ltr" style="display:inline-block;padding:14px 22px;border-radius:10px;background:#f1eaff;border:1px solid #d9c4ff;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#17152e;-webkit-user-select:all;user-select:all">{{ .Token }}</div>
+      <tr><td dir="rtl" lang="he" align="right" style="padding:16px 32px 0;color:#F6F4FF">
+        <p style="margin:0 0 4px;font-size:12px;letter-spacing:2px;color:#A970FF">■ כניסה לחברים</p>
+        <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#F6F4FF">קוד הכניסה שלך</h1>
+        <p style="margin:0;font-size:15px;line-height:1.6;color:#CFC8F0">היי, זה הקוד לכניסה לאתר מועדון ה-AI של אוניברסיטת תל אביב:</p>
       </td></tr>
-      <tr><td dir="rtl" lang="he" style="padding:0 24px 20px;text-align:right;font-size:15px;line-height:1.6;color:#45425e">
-        הקוד תקף ל-10 דקות. לא ניסיתם להיכנס? אפשר להתעלם מהמייל הזה, בלי הקוד אף אחד לא נכנס.
+      <tr><td align="center" style="padding:20px 32px">
+        <div dir="ltr" style="display:inline-block;padding:14px 26px;border:2px solid #8A2BFF;border-radius:12px;background:#0B0A1F;font-family:'Courier New',Courier,monospace;font-size:34px;font-weight:bold;letter-spacing:10px;color:#F6F4FF">{{ .Token }}</div>
       </td></tr>
-      <tr><td dir="ltr" lang="en" style="padding:16px 24px 26px;border-top:1px solid #ebe8f5;text-align:left;font-size:15px;line-height:1.6;color:#45425e">
-        <strong style="color:#17152e">Your log-in code</strong> for the TAU AI Club website is above. It works for 10 minutes. Didn't try to log in? Ignore this email: nobody gets in without the code.
+      <tr><td dir="rtl" lang="he" align="right" style="padding:0 32px 24px;font-size:13px;line-height:1.6;color:#9C93C9">
+        הקוד תקף ל-10 דקות. לא ביקשתם להיכנס? אפשר פשוט להתעלם מהמייל הזה.
+      </td></tr>
+      <tr><td style="padding:0 32px"><div style="height:1px;background:#2A2540;line-height:1px">&nbsp;</div></td></tr>
+      <tr><td dir="ltr" lang="en" align="left" style="padding:20px 32px 28px;font-size:13px;line-height:1.6;color:#9C93C9">
+        <b style="color:#CFC8F0">Your TAU AI Club log-in code</b> is above. It works for 10 minutes. Didn't ask to log in? You can ignore this email.
       </td></tr>
     </table>
+    <p style="margin:16px 0 0;font-size:12px;color:#5B5575"><a href="https://tauaiclub.com" style="color:#A970FF;text-decoration:none">tauaiclub.com</a> · Tel Aviv University AI Club</p>
   </td></tr>
 </table>
 ```
