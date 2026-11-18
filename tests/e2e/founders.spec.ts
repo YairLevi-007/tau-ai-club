@@ -14,7 +14,8 @@ for (const [lang, path] of [["he", "/"], ["en", "/en"]] as const) {
       await expect(cards).toHaveCount(4);
       for (let i = 0; i < 4; i++) {
         const c = cards.nth(i);
-        await expect(c.locator("p").first()).toHaveText(NAMES[i]); // Latin names are kept in both languages
+        if (lang === "en") await expect(c.locator("p").first()).toHaveText(NAMES[i]);
+        else await expect(c.locator("p").first()).toHaveText(/[֐-׿]/); // Hebrew names on the Hebrew page
         const paragraphs = await c.locator("p").allTextContents();
         expect(paragraphs.length, `card ${i} has name + company + role`).toBeGreaterThanOrEqual(3);
         expect(paragraphs.join(" "), `card ${i}`).not.toMatch(/undefined|null|NaN/);
@@ -36,6 +37,11 @@ for (const [lang, path] of [["he", "/"], ["en", "/en"]] as const) {
       await page.goto(path, { waitUntil: "networkidle" });
       const section = page.getByTestId("club-founders");
       await section.scrollIntoViewIfNeeded();
+      // Photos are lazy: scroll each into view and wait until the browser has decoded it.
+      for (const img of await section.locator("img").all()) await img.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => section.locator("img").evaluateAll((els) => els.every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0)), { timeout: 10_000 })
+        .toBe(true);
       const imgs = await section.locator("img").evaluateAll((els) =>
         els.map((i) => ({ alt: i.getAttribute("alt"), loading: (i as HTMLImageElement).loading, w: i.getBoundingClientRect().width, h: i.getBoundingClientRect().height, ok: (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0 })),
       );
