@@ -42,11 +42,11 @@ insert into public.speakers (slug, name_he, name_en, company_he, company_en, rol
    'AI Agents Israel', 'AI Agents Israel',
    '/speakers/or-maccabi.webp', null),
   ('roee-margalit',  'רועי מרגלית', 'Ro''ee Margalit', 'Rotate · Check Point', 'Rotate · Check Point',
-   'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role. LinkedIn: two candidate profiles, left empty
-   '/speakers/roee-margalit.webp', null),
+   'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role. LinkedIn confirmed by the club
+   '/speakers/roee-margalit.webp', 'https://www.linkedin.com/in/roee-margalit/'),
   ('tomer-diari',    'תומר דיארי',  'Tomer Diari',    'Aleph',                'Aleph',
    'שותף כללי', 'General Partner', -- REVIEW Hebrew role
-   '/speakers/tomer-diari.webp', 'https://www.linkedin.com/in/diari'),
+   '/speakers/tomer-diari.webp', 'https://www.linkedin.com/in/diari'), -- LinkedIn confirmed by the club (matches Aleph's site)
   ('ori-goshen',     'אורי גושן',   'Ori Goshen',     'AI21 Labs',            'AI21 Labs',
    'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role
    '/speakers/ori-goshen.webp', null),

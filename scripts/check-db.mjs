@@ -77,10 +77,11 @@ const lineups = await asAnon("select count(*)::int as n from public.event_speake
 check(lineups.rows[0].n === 9, `anon sees 9 line-up rows (got ${lineups.rows[0].n})`);
 
 // speakers.linkedin_url: public, readable by anon; only https://www.linkedin.com/in/<handle>.
-const linkedin = await asAnon("select slug, linkedin_url from public.speakers where linkedin_url is not null");
+const linkedin = await asAnon("select slug, linkedin_url from public.speakers where linkedin_url is not null order by slug");
 check(
-  linkedin.rows.length === 1 && linkedin.rows[0].linkedin_url === "https://www.linkedin.com/in/diari",
-  `anon reads speakers.linkedin_url (only Tomer's is set; got ${JSON.stringify(linkedin.rows)})`,
+  JSON.stringify(linkedin.rows.map((r) => [r.slug, r.linkedin_url])) ===
+    JSON.stringify([["roee-margalit", "https://www.linkedin.com/in/roee-margalit/"], ["tomer-diari", "https://www.linkedin.com/in/diari"]]),
+  `anon reads speakers.linkedin_url (Ro'ee's and Tomer's are set; got ${JSON.stringify(linkedin.rows)})`,
 );
 for (const bad of [
   "http://www.linkedin.com/in/diari",
