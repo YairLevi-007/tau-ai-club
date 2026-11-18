@@ -24,6 +24,7 @@ async function memberClient() {
 
 function revalidateProfile(memberId: string) {
   revalidatePath("/[locale]/profile", "page");
+  revalidatePath("/[locale]/me", "page");
   revalidatePath(`/[locale]/members/${memberId}`, "page");
 }
 

@@ -625,6 +625,8 @@
     "instagram": "Updates on Instagram"
   },
   "me": {
+    "todayTitle": "Happening today",
+    "detailsBody": "Fill in and update your details here. Only club members see them.",
     "title": "My area",
     "hello": "Hi, <hl>{name}</hl>",
     "body": "Everything open to members of the cohort, in one place.",
