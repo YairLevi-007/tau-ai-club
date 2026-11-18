@@ -9,7 +9,8 @@ import { getSeason } from "@/lib/events";
 import { hasBody } from "@/lib/content/sections";
 import { formatEventDate, isoAttr, loc } from "@/lib/event-format";
 import { Tag } from "@/components/events/event-bits";
-import { ContentIntro, MembersOnlyMark, SpeakerList } from "@/components/content/content-bits";
+import { ContentIntro, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { authEnabled } from "@/lib/supabase/config";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { cn } from "@/lib/utils";
 
@@ -19,12 +20,17 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/workshop
   return { title: t("workshopsTitle"), robots: { index: false, follow: false } };
 }
 
-/** Zero to Hero workshops: members only (guests sign in, outsiders get the members-only page). */
+/**
+ * Zero to Hero workshops: members only (guests sign in, outsiders get the members-only page).
+ * While the members area is off, everyone sees the public overview (titles, dates,
+ * speakers, all public on the event pages anyway) and a "members only, coming soon" note.
+ */
 export default async function WorkshopsPage({ params }: PageProps<"/[locale]/workshops">) {
   const { locale: lc } = await params;
   const l = lc as Locale;
   setRequestLocale(l);
-  await requireMember("/workshops");
+  const authOn = authEnabled();
+  if (authOn) await requireMember("/workshops");
   const [t, te, season, supabase] = await Promise.all([getTranslations("content"), getTranslations("event"), getSeason(), createClient()]);
 
   const workshops = season.status === "ok" ? season.events.filter((e) => e.kind === "workshop") : [];
@@ -45,6 +51,7 @@ export default async function WorkshopsPage({ params }: PageProps<"/[locale]/wor
   return (
     <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="workshops-page">
       <ContentIntro eyebrow={<MembersEyebrow />} title={t("workshopsTitle")} body={t("workshopsBody")} />
+      {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
       {workshops.length === 0 ? (
         <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
       ) : (

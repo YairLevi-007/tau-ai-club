@@ -11,7 +11,8 @@ import { getEventContent } from "@/lib/content/data";
 import { WORKSHOP_SECTIONS, bodyFor, hasBody } from "@/lib/content/sections";
 import { formatEventDate, formatTimeRange, isoAttr, loc } from "@/lib/event-format";
 import { Tag } from "@/components/events/event-bits";
-import { SpeakerList } from "@/components/content/content-bits";
+import { MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { authEnabled } from "@/lib/supabase/config";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { Download } from "lucide-react";
@@ -22,12 +23,16 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/workshop
   return { title: t("workshopsTitle"), robots: { index: false, follow: false } };
 }
 
-/** One workshop: prep checklist, summary, key commands, exercises, resources. Members only. */
+/**
+ * One workshop: prep checklist, summary, key commands, exercises, resources. Members only.
+ * While the members area is off: the public header and a "members only, coming soon" note.
+ */
 export default async function WorkshopPage({ params }: PageProps<"/[locale]/workshops/[slug]">) {
   const { locale: lc, slug } = await params;
   const l = lc as Locale;
   setRequestLocale(l);
-  await requireMember(`/workshops/${slug}`);
+  const authOn = authEnabled();
+  if (authOn) await requireMember(`/workshops/${slug}`);
 
   const event = await getEventBySlug(slug);
   if (!event || event.kind !== "workshop") notFound();
@@ -67,7 +72,9 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
         <SpeakerList event={event} locale={l} size={56} />
       </header>
 
-      {WORKSHOP_SECTIONS.map((section) => {
+      {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
+
+      {authOn && WORKSHOP_SECTIONS.map((section) => {
         const row = content?.sections.find((s) => s.section === section);
         const title = t(`section_${section}`);
         if (!row || !hasBody(row)) {

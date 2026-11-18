@@ -12,7 +12,8 @@ import { markdownToText } from "@/lib/content/markdown";
 import { formatEventDate, formatTimeRange, isoAttr, loc, speakerNames } from "@/lib/event-format";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { Tag } from "@/components/events/event-bits";
-import { Eyebrow, MembersOnlyMark, SpeakerList } from "@/components/content/content-bits";
+import { Eyebrow, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { authEnabled } from "@/lib/supabase/config";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersContent } from "@/components/content/members-content";
 
@@ -115,7 +116,12 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
 
       <div className="grid gap-6 border-t border-border pt-10">
         <MembersOnlyMark label={t("membersPart")} />
-        <MembersContent slug={slug} order={membersOrder} path={`/lectures/${slug}`} />
+        {/* While the members area is off there is nothing to fetch and no one to sign in. */}
+        {authEnabled() ? (
+          <MembersContent slug={slug} order={membersOrder} path={`/lectures/${slug}`} />
+        ) : (
+          <MembersSoon title={t("soonTitle")} body={t("soonBody")} />
+        )}
       </div>
     </article>
   );

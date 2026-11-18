@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from "@playwright/test";
+import fixtures from "../../src/lib/data/fixtures.json";
 
 /**
  * M2 guest-level page checks + leak scans (TEST-PLAN section 2). Everything here runs as a guest.
@@ -33,7 +34,15 @@ const PUBLIC_PATHS = [
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
 const PHONE = /(?<![\w.-])(\+?972|0)[-\s]?([23489]|5\d|7\d)[-\s]?\d{3}[-\s]?\d{4}(?![\w])/g;
 // "linkedin.com/in/your-name" is the speaker form's placeholder hint (ships in the shared messages bundle), not data.
-const LINKEDIN_PERSON = /linkedin\.com\/(in|pub)\/(?!your-name)/gi;
+const LINKEDIN_PERSON = /linkedin\.com\/(?:in|pub)\/(?!your-name)[A-Za-z0-9_%-]+/gi;
+// The public speaker profile column (speakers.linkedin_url, confirmed by the club) is shown on purpose.
+// Anything else (a private LinkedIn from speaker_contacts) is a leak.
+const PUBLIC_LINKEDIN = new Set(
+  (fixtures.events as { event_speakers: { speaker: { linkedin_url: string | null } }[] }[])
+    .flatMap((e) => e.event_speakers.map((es) => es.speaker.linkedin_url))
+    .filter((u): u is string => Boolean(u))
+    .map((u) => /linkedin\.com\/(?:in|pub)\/[A-Za-z0-9_%-]+/i.exec(u)?.[0].toLowerCase()),
+);
 const TABLE_NAMES = /speaker_contacts|speaker_form_tokens|member_speaker_contact|share_email|share_phone|linkedin_public|service_role/g;
 
 function scan(text: string) {
@@ -41,7 +50,7 @@ function scan(text: string) {
   return {
     emails: (t.match(EMAIL) ?? []).filter((e) => !/\.(png|jpe?g|webp|svg|gif|woff2?|css|js)$/i.test(e)),
     phones: t.match(PHONE) ?? [],
-    linkedin: t.match(LINKEDIN_PERSON) ?? [],
+    linkedin: (t.match(LINKEDIN_PERSON) ?? []).filter((u) => !PUBLIC_LINKEDIN.has(u.toLowerCase())),
     tables: t.match(TABLE_NAMES) ?? [],
   };
 }

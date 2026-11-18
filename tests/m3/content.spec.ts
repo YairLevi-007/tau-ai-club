@@ -23,7 +23,7 @@ test.describe("lectures (public)", () => {
     await expect(page.getByRole("heading", { level: 1, name: "הרצאות" })).toBeVisible();
     const cards = page.getByTestId("lecture-card");
     await expect(cards).toHaveCount(6); // the 9 events minus the 3 workshops
-    const opening = cards.filter({ hasText: "פתיחת מחזור 02" });
+    const opening = cards.filter({ hasText: "AI, עבר ועתיד" });
     await expect(opening).toContainText("שי יהל");
     await expect(opening).toContainText("ממבחן טיורינג");
     await opening.getByRole("link").click();
@@ -33,8 +33,8 @@ test.describe("lectures (public)", () => {
   test("en: the lecture page shows the English blurb and a sign-in prompt for the rest", async ({ page }) => {
     await page.goto(`/en/lectures/${LECTURE}`);
     await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("AI, past & future");
-    await expect(page.getByTestId("content-speakers")).toContainText("Shai Yahel");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("AI, past and future");
+    await expect(page.getByTestId("content-speakers")).toContainText("Shay Yahal");
     await expect(page.getByTestId("section-blurb")).toContainText("Turing's imitation game");
     await expect(page.getByTestId("section-blurb").getByTestId("hebrew-only")).toHaveCount(0);
     const locked = page.getByTestId("members-locked");

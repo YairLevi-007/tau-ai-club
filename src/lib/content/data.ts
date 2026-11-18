@@ -19,11 +19,10 @@ function fixturesAllowed() {
  * RLS returns nothing members-only and no drafts). Cookie-less, so ISR pages can use it.
  */
 export const getPublicSections = cache(async (): Promise<PublicSections> => {
+  // Seed/fixtures first, as in lib/events.ts: the season and its content come from the same place.
+  if (fixturesAllowed()) return (await import("@/lib/data/content-fixtures.json")).default as PublicSections;
   const supabase = createPublicClient();
-  if (!supabase) {
-    if (fixturesAllowed()) return (await import("@/lib/data/content-fixtures.json")).default as PublicSections;
-    return {};
-  }
+  if (!supabase) return {};
   const { data, error } = await supabase
     .from("event_content")
     .select("section, body_he, body_en, event:events!inner(slug)")

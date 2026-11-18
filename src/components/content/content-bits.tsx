@@ -58,3 +58,19 @@ export function MembersOnlyMark({ label, className }: { label: string; className
     </span>
   );
 }
+
+/**
+ * Stands in for the members-only part while the members area is off (authEnabled() false).
+ * Server-rendered and static: no fetch, no sign-in link, and no members-only text.
+ */
+export function MembersSoon({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-border-accent bg-surface p-5 sm:p-6" data-testid="members-soon">
+      <p className="flex items-center gap-2 font-semibold text-fg">
+        <LockKeyhole aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+        {title}
+      </p>
+      <p className="max-w-[60ch] text-fg-muted">{body}</p>
+    </div>
+  );
+}
