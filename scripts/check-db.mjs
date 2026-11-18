@@ -44,6 +44,12 @@ for (const file of readdirSync(migrationsDir).filter((f) => f.endsWith(".sql")).
 await db.exec(readFileSync(join(root, "supabase", "seed.sql"), "utf8"));
 console.log("applied  seed.sql");
 
+// Snapshot of the seeded speaker links (LinkedIn, photo). Validation tests below must never change real rows;
+// this is compared again right before the fixtures are written.
+const seededSpeakers = JSON.stringify(
+  (await db.query("select slug, linkedin_url, photo_url from public.speakers where slug <> 'secret-speaker' order by slug")).rows,
+);
+
 // A draft event + a speaker only on that draft, to prove neither leaks.
 await db.exec(`
   insert into public.speakers (slug, name_he, name_en) values ('secret-speaker', 'סוד', 'Secret');
@@ -102,7 +108,7 @@ for (const bad of [
 ]) {
   let rejected = false;
   try {
-    await db.query("update public.speakers set linkedin_url = $1 where slug = 'or-maccabi'", [bad]);
+    await db.query("update public.speakers set linkedin_url = $1 where slug = 'secret-speaker'", [bad]);
   } catch {
     rejected = true;
   }
@@ -111,13 +117,13 @@ for (const bad of [
 for (const good of ["https://www.linkedin.com/in/some-one_1/", "https://www.linkedin.com/in/%D7%A9%D7%99"]) {
   let ok = true;
   try {
-    await db.query("update public.speakers set linkedin_url = $1 where slug = 'or-maccabi'", [good]);
+    await db.query("update public.speakers set linkedin_url = $1 where slug = 'secret-speaker'", [good]);
   } catch {
     ok = false;
   }
   check(ok, `linkedin_url accepts ${good}`);
 }
-await db.exec("update public.speakers set linkedin_url = null where slug = 'or-maccabi'");
+await db.exec("update public.speakers set linkedin_url = null where slug = 'secret-speaker'");
 
 // speakers.photo_url: https:// or one of our own /speakers/<slug>.webp files, nothing else.
 for (const [url, ok] of [
@@ -130,13 +136,13 @@ for (const [url, ok] of [
 ]) {
   let accepted = true;
   try {
-    await db.query("update public.speakers set photo_url = $1 where slug = 'or-maccabi'", [url]);
+    await db.query("update public.speakers set photo_url = $1 where slug = 'secret-speaker'", [url]);
   } catch {
     accepted = false;
   }
   check(accepted === ok, `photo_url ${ok ? "accepts" : "rejects"} ${url}`);
 }
-await db.exec("update public.speakers set photo_url = '/speakers/or-maccabi.webp' where slug = 'or-maccabi'");
+await db.exec("update public.speakers set photo_url = null where slug = 'secret-speaker'");
 
 for (const [label, sql] of [
   ["insert event", "insert into public.events (slug, cohort_id, title_he, title_en, starts_at, ends_at) select 'x', id, 'x', 'x', now(), now() + interval '1 hour' from public.cohorts"],
@@ -168,8 +174,16 @@ check(
   "every event is a Wednesday except the Sunday joint event",
 );
 
+// The validation tests above must leave every real speaker exactly as seeded.
+const afterTests = JSON.stringify(
+  (await db.query("select slug, linkedin_url, photo_url from public.speakers where slug <> 'secret-speaker' order by slug")).rows,
+);
+check(afterTests === seededSpeakers, "every speaker's linkedin_url and photo_url still equal the seed");
+
 // --- Fixtures (exactly what the app's anon query returns) ----------------------
-if (writeFixtures) {
+if (writeFixtures && failures) {
+  console.log("not writing fixtures: fix the failed checks first");
+} else if (writeFixtures) {
   const res = await asAnon(`
     select coalesce(json_agg(row_to_json(t) order by t.starts_at), '[]'::json) as data from (
       select e.id, e.slug, e.kind, e.series, e.series_no, e.title_he, e.title_en, e.blurb_he, e.blurb_en,
