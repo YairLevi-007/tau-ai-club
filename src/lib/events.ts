@@ -28,6 +28,17 @@ function fixturesAllowed() {
   return process.env.USE_FIXTURES === "1" && process.env.VERCEL_ENV !== "production";
 }
 
+/**
+ * TEMPORARY launch mode, until the Supabase projects exist: `DATA_SOURCE=seed` serves the
+ * season from the committed seed (src/lib/data/fixtures.json, generated from seed.sql),
+ * production included. It must be set explicitly: with no Supabase vars and no flag the site
+ * still reports "not configured". Remove this (and the env var) once Supabase is live.
+ */
+export function seedMode() {
+  return process.env.DATA_SOURCE === "seed";
+}
+let seedWarned = false;
+
 async function loadFixtures(): Promise<{ cohort: Cohort; events: ClubEvent[] }> {
   return (await import("@/lib/data/fixtures.json")).default as unknown as {
     cohort: Cohort;
@@ -65,10 +76,17 @@ export function classifyEvents(events: ClubEvent[], now: Date): { events: Season
 async function fetchCurrentSeason(): Promise<
   { cohort: Cohort | null; events: ClubEvent[] } | { error: "not-configured" | "error" }
 > {
+  if (seedMode()) {
+    if (!seedWarned) console.warn("[events] DATA_SOURCE=seed: serving the season from the committed seed, not Supabase (temporary launch mode).");
+    seedWarned = true;
+    return loadFixtures();
+  }
+  // An explicit USE_FIXTURES=1 (local/QA only) wins even when Supabase env is set, so the
+  // members-area specs can run auth code against a fake Supabase URL on seed data.
+  if (fixturesAllowed()) return loadFixtures();
   const supabase = createPublicClient();
   if (!supabase) {
-    if (fixturesAllowed()) return loadFixtures();
-    console.warn("[events] Supabase env vars missing; set them or USE_FIXTURES=1 for local dev.");
+    console.error("[events] Supabase env vars missing; set them, or DATA_SOURCE=seed for the temporary seed launch (USE_FIXTURES=1 in local dev).");
     return { error: "not-configured" };
   }
 

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { LockKeyhole } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SOCIAL } from "@/config/site";
+import { authEnabled } from "@/lib/supabase/config";
 import { InstagramIcon } from "./instagram-icon";
 import { LanguageSwitch } from "./language-switch";
 
@@ -61,13 +62,16 @@ export async function SiteHeader() {
           >
             <InstagramIcon className="size-[18px]" />
           </a>
-          {/* Static link (same HTML for everyone, so public pages stay cacheable). /login knows who you are. */}
-          <Link
-            href="/login"
-            className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
-          >
-            {t("signIn")}
-          </Link>
+          {/* Static link (same HTML for everyone, so public pages stay cacheable). /login knows who you are.
+              Hidden while the members area is off (authEnabled(): no AUTH_ENABLED / Supabase, or seed mode). */}
+          {authEnabled() && (
+            <Link
+              href="/login"
+              className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+            >
+              {t("signIn")}
+            </Link>
+          )}
           <LanguageSwitch />
         </div>
       </nav>

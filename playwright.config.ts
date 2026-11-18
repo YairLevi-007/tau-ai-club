@@ -23,7 +23,8 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 300_000,
     reuseExistingServer: !process.env.CI,
-    env: { USE_FIXTURES: "1", DEBUG_NOW: BASE_NOW },
+    // DATA_SOURCE=seed + no Supabase/AUTH_ENABLED = the launch setup: members area off (auth-off.spec.ts).
+    env: { USE_FIXTURES: "1", DATA_SOURCE: "seed", DEBUG_NOW: BASE_NOW },
   },
   projects: [
     { name: "desktop", testIgnore: /clock\.spec/, use: { viewport: { width: 1440, height: 900 } } },

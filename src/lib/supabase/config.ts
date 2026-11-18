@@ -8,6 +8,28 @@ export function supabaseEnv(): { url: string; key: string } | null {
 }
 
 /**
+ * The members/admin area is switched on only when ALL of these hold:
+ *   - AUTH_ENABLED=true (set it once Google sign-in is configured in Supabase; the app
+ *     can't detect the Google provider by itself),
+ *   - the Supabase URL + publishable key are set,
+ *   - the site isn't in the temporary seed launch mode (DATA_SOURCE=seed).
+ * Otherwise every visitor is a guest: no session refresh, no cookie-aware Supabase
+ * client, sign-in links hidden, and members/admin routes show a "coming soon" page.
+ * This lets `main` carry the auth code before Supabase Auth and Google OAuth exist.
+ */
+export function authEnabled(): boolean {
+  return process.env.AUTH_ENABLED === "true" && supabaseEnv() !== null && process.env.DATA_SOURCE !== "seed";
+}
+
+/** Locale-free route prefixes that belong to the members/admin area. */
+export const AUTH_AREA_PREFIXES = ["/login", "/members-only", "/welcome", "/profile", "/members", "/admin", "/speaker"] as const;
+
+/** "/admin/events" → true, "/events/x" → false, "/membership" → false. Path is locale-free. */
+export function isAuthArea(path: string): boolean {
+  return AUTH_AREA_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+/**
  * Auth cookies are HttpOnly: the site has no browser-side Supabase client, so page
  * scripts never need the tokens (and an XSS can't read them). Secure outside dev.
  */

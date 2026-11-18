@@ -6,6 +6,7 @@ import { currentCohort, getMemberAttendance } from "@/lib/attendance/data";
 import { formatShortDate, loc } from "@/lib/event-format";
 import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
+import { AttendanceMark } from "@/components/admin/attendance/attendance-mark";
 
 /**
  * "My attendance" on /profile: the meetups this member was checked in at this season (from the
@@ -22,14 +23,23 @@ export async function MyAttendance({ supabase, memberId }: { supabase: SupabaseC
       <h2 id="attendance-heading" className={panelTitle}>
         {t("attendanceTitle")}
       </h2>
-      <p className="text-fg-muted">{t("attendanceCount", { n: attended.length })}</p>
+      <div className="flex items-center gap-4">
+        <p aria-hidden className="font-mono text-[2.75rem] leading-none font-medium text-brand-purple-softer tabular-nums">
+          <bdi>{attended.length}</bdi>
+        </p>
+        <p className="text-fg-muted">{t("attendanceCount", { n: attended.length })}</p>
+      </div>
       {attended.length > 0 && (
-        <ul className="grid gap-1.5">
+        <ul className="grid divide-y divide-border overflow-hidden rounded-md border border-border">
           {attended.map((r) => (
-            <li key={r.event.id} className="flex flex-wrap items-baseline gap-x-2">
-              <bdi className="text-sm text-fg-subtle">{formatShortDate(r.event.starts_at, locale)}</bdi>
-              <Link href={`/events/${r.event.slug}`} className="text-fg underline-offset-4 hover:underline">
-                {loc(r.event, "title", locale)}
+            <li key={r.event.id}>
+              <Link
+                href={`/events/${r.event.slug}`}
+                className="flex items-center gap-3 bg-bg-deep/40 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-hover"
+              >
+                <AttendanceMark status="checked_in" />
+                <bdi className="w-11 shrink-0 font-mono text-[0.8125rem] text-fg-subtle">{formatShortDate(r.event.starts_at, locale)}</bdi>
+                <span className="min-w-0 font-medium text-fg">{loc(r.event, "title", locale)}</span>
               </Link>
             </li>
           ))}

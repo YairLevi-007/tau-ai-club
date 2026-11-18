@@ -10,6 +10,7 @@ import { formatShortDate, loc } from "@/lib/event-format";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { panelClass } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
+import { AttendanceMark, AttendanceTag } from "@/components/admin/attendance/attendance-mark";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/attendance/[memberId]">): Promise<Metadata> {
   const { locale } = await params;
@@ -42,28 +43,55 @@ export default async function AdminMemberAttendancePage({ params }: PageProps<"/
   return (
     <div className="grid gap-6">
       <AdminHeader title={member.full_name} body={t("memberBody")} alert={history?.error ? t("errorLoad") : null} />
-      <p className="text-fg" data-testid="member-rate">
-        {imported.length ? t("memberRate", { came, total: imported.length, pct: Math.round((came / imported.length) * 100) }) : t("memberNoData")}
-      </p>
+      <div className={cn(panelClass, "flex flex-wrap items-center gap-x-5 gap-y-3 p-4 sm:p-5")}>
+        {imported.length > 0 && (
+          <p aria-hidden className="font-mono text-[2.5rem] leading-none font-medium text-brand-purple-softer tabular-nums">
+            <bdi dir="ltr">
+              {came}
+              <span className="text-fg-faint">/{imported.length}</span>
+            </bdi>
+          </p>
+        )}
+        <div className="grid min-w-0 gap-2">
+          <p className="text-fg" data-testid="member-rate">
+            {imported.length ? t("memberRate", { came, total: imported.length, pct: Math.round((came / imported.length) * 100) }) : t("memberNoData")}
+          </p>
+          {imported.length > 0 && (
+            <ol aria-hidden className="flex flex-wrap gap-1.5">
+              {imported.map((e) => (
+                <li key={e.id}>
+                  <AttendanceMark status={byEvent.get(e.id)?.status ?? "none"} className="size-3" />
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </div>
       {imported.length > 0 && (
-        <ul className={cn(panelClass, "divide-y divide-border")} data-testid="member-history">
+        <ul className={cn(panelClass, "divide-y divide-border overflow-hidden")} data-testid="member-history">
           {imported.map((e) => {
             const r = byEvent.get(e.id);
             const status = r?.status ?? null;
             return (
-              <li key={e.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
-                <Link href={`/admin/events/${e.id}`} className="text-fg underline-offset-4 hover:underline">
-                  <bdi>{formatShortDate(e.starts_at, locale)}</bdi> · {loc(e, "title", locale)}
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
+                <Link href={`/admin/events/${e.id}`} className="flex min-w-0 items-baseline gap-3 underline-offset-4 hover:underline">
+                  <bdi className="shrink-0 font-mono text-[0.8125rem] text-fg-subtle">{formatShortDate(e.starts_at, locale)}</bdi>
+                  <span className="font-medium text-fg">{loc(e, "title", locale)}</span>
                 </Link>
-                <span className={cn("text-sm", status === "checked_in" ? "text-brand-purple-soft" : "text-fg-subtle")}>
-                  {status ? t(`status_${status}`) : t("cellNotRegistered")}
-                </span>
+                {status ? (
+                  <AttendanceTag status={status} label={t(`status_${status}`)} />
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-2 py-0.5 text-xs text-fg-subtle">
+                    <AttendanceMark status="none" className="size-2" />
+                    {t("cellNotRegistered")}
+                  </span>
+                )}
               </li>
             );
           })}
         </ul>
       )}
-      <Link href="/admin/attendance" className="text-sm text-fg-muted underline-offset-4 hover:underline">
+      <Link href="/admin/attendance" className="inline-flex w-fit items-center gap-1.5 text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">
         {t("backToSeason")}
       </Link>
     </div>

@@ -17,7 +17,7 @@ import { fileInputClass, hintClass, inputClass, labelClass, smallBtn } from "@/c
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
 import { readFlyer, type FlyerReading } from "./read-flyer";
-import { CaptionChips, FacePreview, placeChip, type ChipUse } from "./person-card";
+import { CaptionChips, FacePreview, NoFace, placeChip, type ChipUse } from "./person-card";
 
 type Named = { id: string; name_he: string; name_en: string };
 type SpeakerOption = Named & { photo_url?: string | null };
@@ -81,6 +81,14 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
 
   useEffect(() => () => void (objectUrl.current && URL.revokeObjectURL(objectUrl.current)), []);
   const nameOf = (s: { name_he: string; name_en: string }) => (locale === "he" ? s.name_he : s.name_en) || s.name_en || s.name_he;
+  const pick = (r: Row, f: "name" | "role" | "company") =>
+    ((locale === "he" ? r[`${f}_he`] : r[`${f}_en`]) || r[`${f}_en`] || r[`${f}_he`]).trim();
+  /** The name a card will save: the linked speaker's, or the one typed for a new speaker. */
+  const who = (r: Row) => {
+    const known = speakers.find((s) => s.id === r.choice);
+    return known ? nameOf(known) : pick(r, "name");
+  };
+  const whatLine = (r: Row) => [pick(r, "role"), pick(r, "company")].filter(Boolean).join(" · ");
 
   function start(draft: ImportDraft, picture: Picture | null, reading: FlyerReading | null) {
     const people = picture ? (reading?.people ?? []) : [];
@@ -375,27 +383,48 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
             <legend className="mb-2 text-sm font-semibold text-fg">{t("sectionSpeakers")}</legend>
             {review.rows.length === 0 && <p className={hintClass}>{t("importNoSpeakers")}</p>}
             {review.rows.map((r, i) => (
-              <div key={i} className="grid gap-3 rounded-md border border-border p-3" data-testid="flyer-speaker">
-                <div className="flex flex-wrap items-start gap-3">
-                  {review.picture && r.face !== null && review.faces[r.face] && (
-                    <FacePreview src={review.picture.url} imgW={review.picture.img.naturalWidth} imgH={review.picture.img.naturalHeight} square={review.faces[r.face]} />
+              <div
+                key={i}
+                className={cn(
+                  "grid gap-4 rounded-lg border bg-bg-deep/35 p-4 sm:p-5",
+                  r.choice === "skip" ? "border-dashed border-border" : "border-border-accent/70",
+                )}
+                data-testid="flyer-speaker"
+              >
+                {/* Who this card will save: the face from the flyer and the details as they'll appear. */}
+                <div className={cn("flex items-center gap-4", r.choice === "skip" && "opacity-60")}>
+                  {review.picture && r.face !== null && review.faces[r.face] ? (
+                    <FacePreview
+                      src={review.picture.url}
+                      imgW={review.picture.img.naturalWidth}
+                      imgH={review.picture.img.naturalHeight}
+                      square={review.faces[r.face]}
+                      size={96}
+                    />
+                  ) : (
+                    <NoFace size={96} />
                   )}
-                  <div className="grid min-w-0 grow gap-3">
-                    <label className={labelClass}>
-                      {t("flyerSpeakerMatch")}
-                      <select value={r.choice} onChange={(e) => setRow(i, { choice: e.target.value })} className={inputClass} data-testid="flyer-speaker-choice">
-                        <option value="new">{t("flyerCreateSpeaker")}</option>
-                        <option value="skip">{t("flyerSkipSpeaker")}</option>
-                        {speakers.map((sp) => (
-                          <option key={sp.id} value={sp.id}>
-                            {nameOf(sp)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    {r.chips.length > 0 && r.choice !== "skip" && <CaptionChips chips={r.chips} onUse={(use, text) => applyChip(i, use, text)} />}
+                  <div className="grid min-w-0 gap-1">
+                    <p className="text-lg leading-tight font-bold text-balance break-words text-fg">{who(r) ? <bdi>{who(r)}</bdi> : <span className="font-normal text-fg-subtle">{t("flyerNoName")}</span>}</p>
+                    {r.choice === "new" && whatLine(r) && <p className="text-sm text-fg-muted">{whatLine(r)}</p>}
+                    <p className="text-xs text-brand-purple-soft">
+                      {r.choice === "skip" ? t("flyerSkipSpeaker") : r.choice === "new" ? t("flyerCreateSpeaker") : t("flyerLinked")}
+                    </p>
                   </div>
                 </div>
+                <label className={labelClass}>
+                  {t("flyerSpeakerMatch")}
+                  <select value={r.choice} onChange={(e) => setRow(i, { choice: e.target.value })} className={inputClass} data-testid="flyer-speaker-choice">
+                    <option value="new">{t("flyerCreateSpeaker")}</option>
+                    <option value="skip">{t("flyerSkipSpeaker")}</option>
+                    {speakers.map((sp) => (
+                      <option key={sp.id} value={sp.id}>
+                        {nameOf(sp)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {r.chips.length > 0 && r.choice !== "skip" && <CaptionChips chips={r.chips} onUse={(use, text) => applyChip(i, use, text)} />}
                 {r.choice === "new" && (
                   <div className="grid gap-3 sm:grid-cols-2">
                     {(["name", "role", "company"] as const).map((f) => (

@@ -324,7 +324,15 @@
     "speakerFlyerUsing": "Saving the photo…",
     "speakerFlyerFilled": "Filled in from the flyer. Check every field, then save.",
     "speakerFlyerNoFaces": "No faces found on this flyer.",
-    "attendanceTab": "Attendance"
+    "attendanceTab": "Attendance",
+    "flyerChipName": "Name",
+    "flyerChipRole": "Role",
+    "flyerChipCompany": "Company",
+    "flyerChipUse": "Where \"{text}\" goes",
+    "flyerNoName": "No name yet",
+    "flyerLinked": "Already on the site",
+    "csvImportTitle": "Import from CSV",
+    "csvImportBody": "Columns: email, full_name, role (member or admin). An email already on the list is updated, a new one is added. One bad row stops the whole import."
   },
   "speakerForm": {
     "eyebrow": "Contact details",
@@ -450,12 +458,13 @@
     "rate": "Attended",
     "cellNoData": "no import yet",
     "cellNotRegistered": "didn't register",
-    "gridLegend": "✓ checked in · ✗ didn't come or didn't register · – no Luma import yet. The rate counts only imported meetups.",
+    "gridLegend": "The rate counts only meetups imported from Luma.",
     "memberTitle": "Member attendance",
     "memberBody": "Meetups this season that have a Luma import.",
     "memberRate": "Came to {came} of {total} meetups ({pct}%).",
     "memberNoData": "No meetups imported yet this season.",
-    "backToSeason": "All members"
+    "backToSeason": "All members",
+    "legendTitle": "Legend"
   },
   "content": {
     "navLabel": "Sections",
@@ -540,5 +549,12 @@
     "filePublish": "Publish",
     "fileUnpublish": "Unpublish",
     "fileNone": "No files yet."
+  },
+  "comingSoon": {
+    "eyebrow": "Members area",
+    "title": "Coming soon",
+    "body": "The club's members and admin area isn't open yet. Meanwhile every meetup, date and registration link is open to everyone on the site.",
+    "home": "See all meetups",
+    "instagram": "Updates on Instagram"
   }
 }

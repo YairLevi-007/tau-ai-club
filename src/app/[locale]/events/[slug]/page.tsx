@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
 import { SpeakerContactLinks } from "@/components/events/speaker-contact-links";
+import { authEnabled } from "@/lib/supabase/config";
 
 export const revalidate = 300;
 
@@ -102,10 +103,12 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
       name,
       initials: initialsOf(name),
       photoUrl: speaker.photo_url,
-      role: [loc(speaker, "role", l), loc(speaker, "company", l)].filter(Boolean).join(" · ") || null,
+      role: loc(speaker, "role", l) ?? null,
+      company: loc(speaker, "company", l) ?? null,
     };
   });
   const hasBody = !!blurb || speakers.length > 0;
+  const authOn = authEnabled();
   const contactLabels = {
     title: t("contactTitle"),
     email: t("contactEmail"),
@@ -257,18 +260,40 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                 <h2 id="speakers-heading" className={l === "he" ? "eyebrow-he text-sm" : "eyebrow-pixel text-[0.6875rem]"}>
                   {t("speakers")}
                 </h2>
-                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {speakers.map((sp) => (
-                    <li key={sp.key} className="flex items-start gap-4 rounded-lg border border-border bg-surface p-4">
-                      <SpeakerFace speaker={sp} size={64} className={cn(past && "opacity-80")} />
-                      <div className="min-w-0">
-                        <p className="text-lg leading-tight font-semibold text-fg">{sp.name}</p>
-                        {sp.role && <p className="mt-1 text-sm text-fg-subtle">{sp.role}</p>}
-                        {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML. */}
-                        <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />
-                      </div>
-                    </li>
-                  ))}
+                <ul className={cn("mt-4 grid gap-3", speakers.length > 1 && "sm:grid-cols-2")}>
+                  {speakers.map((sp) => {
+                    const solo = speakers.length === 1;
+                    return (
+                      <li
+                        key={sp.key}
+                        data-testid="event-speaker"
+                        className={cn(
+                          "flex gap-4 rounded-lg border bg-surface p-4 shadow-[var(--highlight-top)]",
+                          solo
+                            ? "items-center border-border-accent [background-image:var(--card-featured-bg)] sm:gap-6 sm:p-6"
+                            : "items-start border-border",
+                        )}
+                      >
+                        <SpeakerFace
+                          speaker={sp}
+                          size={solo ? 112 : 80}
+                          className={cn("rounded-lg", sp.photoUrl && "shadow-[var(--shadow-featured)]", past && "opacity-80")}
+                        />
+                        <div className="min-w-0">
+                          <p className={cn("leading-tight font-bold text-balance text-fg", solo ? "text-xl sm:text-2xl" : "text-lg")}>{sp.name}</p>
+                          {sp.role && <p className={cn("mt-1.5 text-fg-muted", !solo && "text-sm")}>{sp.role}</p>}
+                          {sp.company && (
+                            <p className={cn("mt-0.5 font-medium text-brand-purple-soft", !solo && "text-sm")}>
+                              <bdi>{sp.company}</bdi>
+                            </p>
+                          )}
+                          {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML.
+                              Not even rendered while the members area is off. */}
+                          {authOn && <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             )}

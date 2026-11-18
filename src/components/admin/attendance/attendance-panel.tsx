@@ -8,6 +8,7 @@ import { formatShortDate } from "@/lib/event-format";
 import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 import { AttendanceImport } from "./attendance-import";
+import { AttendanceTag } from "./attendance-mark";
 
 type Client = SupabaseClient;
 
@@ -31,7 +32,7 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
 
       {info ? (
         <div className="grid gap-3">
-          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4" data-testid="attendance-counts">
+          <dl className="grid grid-cols-2 gap-2.5 sm:grid-cols-4" data-testid="attendance-counts">
             {(
               [
                 ["registered", members.length + info.guests_registered],
@@ -40,9 +41,18 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
                 ["guests", info.guests_registered],
               ] as const
             ).map(([k, v]) => (
-              <div key={k} className="rounded-md border border-border p-3">
-                <dt className="text-fg-subtle">{t(`stat_${k}`)}</dt>
-                <dd className="text-xl font-bold text-fg" data-testid={`stat-${k}`}>
+              <div
+                key={k}
+                className={cn(
+                  "grid gap-1 rounded-md border px-3.5 py-3",
+                  k === "checkedIn" ? "border-border-accent bg-brand-purple-deeper/30" : "border-border bg-bg-deep/40",
+                )}
+              >
+                <dt className="text-xs font-medium text-fg-subtle">{t(`stat_${k}`)}</dt>
+                <dd
+                  className={cn("font-mono text-[1.75rem] leading-none font-medium tabular-nums", k === "checkedIn" ? "text-brand-purple-softer" : "text-fg")}
+                  data-testid={`stat-${k}`}
+                >
                   <bdi>{v}</bdi>
                 </dd>
               </div>
@@ -53,21 +63,13 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
             {t("importedOn", { date: formatShortDate(info.imported_at, locale) })}
           </p>
           {members.length > 0 ? (
-            <ul className="grid gap-1 text-sm" data-testid="attendance-members">
+            <ul className="grid gap-1.5 sm:grid-cols-2" data-testid="attendance-members">
               {members.map((m) => (
-                <li key={m.member_id} className="flex flex-wrap items-baseline gap-x-2">
-                  <Link href={`/admin/attendance/${m.member_id}`} className="text-fg underline-offset-4 hover:underline">
+                <li key={m.member_id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-md border border-border bg-bg-deep/40 px-3.5 py-2.5 text-sm">
+                  <Link href={`/admin/attendance/${m.member_id}`} className="min-w-0 font-medium text-fg underline-offset-4 hover:underline">
                     {m.full_name}
                   </Link>
-                  <span className={cn("text-xs", m.status === "checked_in" ? "text-brand-purple-soft" : "text-fg-subtle")}>
-                    {t(`status_${m.status}`)}
-                    {m.checked_in_at && (
-                      <>
-                        {" "}
-                        <bdi dir="ltr">{time(m.checked_in_at)}</bdi>
-                      </>
-                    )}
-                  </span>
+                  <AttendanceTag status={m.status} label={t(`status_${m.status}`)} time={m.checked_in_at ? time(m.checked_in_at) : null} />
                 </li>
               ))}
             </ul>
@@ -76,7 +78,7 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
           )}
         </div>
       ) : (
-        <p className="text-sm text-fg-muted" data-testid="attendance-none">
+        <p className="rounded-md border border-dashed border-border px-4 py-3 text-sm text-fg-muted" data-testid="attendance-none">
           {t("none")}
         </p>
       )}

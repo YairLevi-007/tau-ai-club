@@ -2,7 +2,8 @@ import { defineConfig } from "@playwright/test";
 
 /**
  * Milestone 2 page/leak specs. No real Supabase exists yet, so this starts `next dev` on its own port with
- * fixtures and NO Supabase env, so pages render real season data (leak scans are meaningful) and every visitor is a guest.
+ * fixtures, the members area switched on and a fake Supabase URL, so pages render real season data (leak scans
+ * are meaningful) and every visitor is a guest.
  * Auth redirects/PKCE need a Supabase URL: run scripts/smoke-auth.mjs for those.
  * Signed-in outsider/member/admin page behaviour needs a real Supabase project (see qa/TEST-PLAN.md section 2).
  *   node node_modules/@playwright/test/cli.js test -c tests/playwright.m2.config.ts
@@ -26,10 +27,13 @@ export default defineConfig({
       USE_FIXTURES: "1",
       DEBUG_NOW: "2026-11-12T10:00:00+02:00",
       NEXT_TELEMETRY_DISABLED: "1",
-      // PW_M2_FAKE_SUPABASE=1 adds an unreachable Supabase URL so auth code paths (garbage cookies etc.) execute.
-      ...(process.env.PW_M2_FAKE_SUPABASE
-        ? { NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fake" }
-        : {}),
+      // These specs test the members area as it behaves once switched on, so they turn it on
+      // (AUTH_ENABLED=true) with an unreachable Supabase URL: every visitor is a guest, and the
+      // auth code paths (redirects, garbage cookies, PKCE) execute. USE_FIXTURES=1 still serves the
+      // season. The switched-off state ("coming soon") is covered by tests/e2e/auth-off.spec.ts.
+      AUTH_ENABLED: "true",
+      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fake",
     },
   },
   projects: [

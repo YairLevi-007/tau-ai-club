@@ -324,7 +324,15 @@
     "speakerFlyerUsing": "שומרים את התמונה…",
     "speakerFlyerFilled": "מולא מהפלייר. בודקים כל שדה ושומרים.",
     "speakerFlyerNoFaces": "לא נמצאו פנים בפלייר הזה.",
-    "attendanceTab": "נוכחות"
+    "attendanceTab": "נוכחות",
+    "flyerChipName": "שם",
+    "flyerChipRole": "תפקיד",
+    "flyerChipCompany": "חברה",
+    "flyerChipUse": "לאן להכניס את \"{text}\"",
+    "flyerNoName": "עוד אין שם",
+    "flyerLinked": "מרצה שכבר באתר",
+    "csvImportTitle": "ייבוא מ-CSV",
+    "csvImportBody": "עמודות: email, full_name, role (member או admin). מייל שכבר ברשימה מתעדכן, מייל חדש נוסף. שורה שגויה עוצרת את כל הייבוא."
   },
   "speakerForm": {
     "eyebrow": "פרטי קשר",
@@ -450,12 +458,13 @@
     "rate": "נוכחות",
     "cellNoData": "עוד לא יובא",
     "cellNotRegistered": "לא נרשמ/ה",
-    "gridLegend": "✓ עשו צ'ק-אין · ✗ לא הגיעו או לא נרשמו · – עוד אין ייבוא מ-Luma. האחוז נספר רק על מפגשים שיובאו.",
+    "gridLegend": "האחוז נספר רק על מפגשים שיובאו מ-Luma.",
     "memberTitle": "נוכחות של חבר/ה",
     "memberBody": "מפגשי העונה שיש להם ייבוא מ-Luma.",
     "memberRate": "הגיע/ה ל-{came} מתוך {total} מפגשים ({pct}%).",
     "memberNoData": "עוד לא יובאו מפגשים העונה.",
-    "backToSeason": "כל החברים"
+    "backToSeason": "כל החברים",
+    "legendTitle": "מקרא"
   },
   "content": {
     "navLabel": "מדורים",
@@ -540,5 +549,12 @@
     "filePublish": "פרסום",
     "fileUnpublish": "הסתרה",
     "fileNone": "עוד אין קבצים."
+  },
+  "comingSoon": {
+    "eyebrow": "אזור החברים",
+    "title": "בקרוב",
+    "body": "אזור החברים והניהול של המועדון עוד לא נפתח. בינתיים כל המפגשים, התאריכים וההרשמה פתוחים באתר לכולם.",
+    "home": "לכל המפגשים",
+    "instagram": "עדכונים באינסטגרם"
   }
 }
