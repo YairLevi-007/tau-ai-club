@@ -2,13 +2,14 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing, type Locale } from "@/i18n/routing";
-import { getSeason } from "@/lib/events";
+import { getSeason, getTeam } from "@/lib/events";
 import { loc } from "@/lib/event-format";
 import { cn } from "@/lib/utils";
 import { jsonLdHtml, organizationJsonLd } from "@/lib/structured-data";
 import { NextEventCard } from "@/components/events/next-event-card";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
+import { ClubFounders } from "@/components/events/club-founders";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
 // route segment config must be a literal).
@@ -27,8 +28,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   setRequestLocale(locale);
   const l = locale as Locale;
 
-  const [season, t, te, tm] = await Promise.all([
+  const [season, team, t, te, tm] = await Promise.all([
     getSeason(),
+    getTeam(),
     getTranslations("home"),
     getTranslations("errors"),
     getTranslations("meta"),
@@ -94,6 +96,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
       {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={cohort ? loc(cohort, "name", l) : null} />}
       {season.status === "ok" && <SeasonSpeakers events={season.events} locale={l} />}
+      <ClubFounders team={team} locale={l} />
     </div>
   );
 }

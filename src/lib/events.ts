@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { ClubEvent, Cohort, EventState, Season, SeasonEvent } from "@/lib/data/types";
+import type { ClubEvent, Cohort, EventState, Season, SeasonEvent, TeamMember } from "@/lib/data/types";
 
 const EVENT_COLUMNS = `
   id, slug, kind, series, series_no, title_he, title_en, blurb_he, blurb_en,
@@ -39,10 +39,11 @@ export function seedMode() {
 }
 let seedWarned = false;
 
-async function loadFixtures(): Promise<{ cohort: Cohort; events: ClubEvent[] }> {
+async function loadFixtures(): Promise<{ cohort: Cohort; events: ClubEvent[]; team: TeamMember[] }> {
   return (await import("@/lib/data/fixtures.json")).default as unknown as {
     cohort: Cohort;
     events: ClubEvent[];
+    team: TeamMember[];
   };
 }
 
@@ -79,11 +80,15 @@ async function fetchCurrentSeason(): Promise<
   if (seedMode()) {
     if (!seedWarned) console.warn("[events] DATA_SOURCE=seed: serving the season from the committed seed, not Supabase (temporary launch mode).");
     seedWarned = true;
-    return loadFixtures();
+    const { cohort, events } = await loadFixtures();
+    return { cohort, events };
   }
   // An explicit USE_FIXTURES=1 (local/QA only) wins even when Supabase env is set, so the
   // members-area specs can run auth code against a fake Supabase URL on seed data.
-  if (fixturesAllowed()) return loadFixtures();
+  if (fixturesAllowed()) {
+    const { cohort, events } = await loadFixtures();
+    return { cohort, events };
+  }
   const supabase = createPublicClient();
   if (!supabase) {
     console.error("[events] Supabase env vars missing; set them, or DATA_SOURCE=seed for the temporary seed launch (USE_FIXTURES=1 in local dev).");
@@ -143,3 +148,23 @@ export async function getEventSlugs(): Promise<string[]> {
   const season = await getSeason();
   return season.status === "ok" ? season.events.map((e) => e.slug) : [];
 }
+
+/**
+ * The club's founders (home page), published only, in order. Same sources as the season
+ * (seed mode, local fixtures, or Supabase). On any failure: an empty list, and the
+ * section is simply not shown.
+ */
+export const getTeam = cache(async (): Promise<TeamMember[]> => {
+  if (seedMode()) return (await loadFixtures()).team ?? [];
+  const supabase = createPublicClient();
+  if (!supabase) return fixturesAllowed() ? ((await loadFixtures()).team ?? []) : [];
+  const { data, error } = await supabase
+    .from("club_team")
+    .select("id, slug, name_he, name_en, role_en, company_en, photo_url, linkedin_url, sort")
+    .order("sort", { ascending: true });
+  if (error) {
+    console.error("[team] club_team query failed", error);
+    return [];
+  }
+  return (data ?? []) as TeamMember[];
+});

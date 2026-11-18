@@ -136,4 +136,19 @@ from (values
 join public.events e   on e.slug = l.event_slug
 join public.speakers s on s.slug = l.speaker_slug;
 
+-- ---------------------------------------------------------------------------
+-- The club's founders (home page). From the club's "Meet our managers" post
+-- (brand/instagram/meet-our-managers.jpg); photos cropped from it. Roles and companies
+-- in English on both locales. Hebrew names and LinkedIn URLs confirmed by the club (2026-11-18).
+-- ---------------------------------------------------------------------------
+insert into public.club_team (slug, name_he, name_en, role_en, company_en, photo_url, linkedin_url, sort, is_published) values
+  ('aviv-valyevich', 'אביב ולייביץ''', 'Aviv Valyevich', 'Finance Ops Specialist', 'Silverfort',    '/team/aviv-valyevich.webp',
+   'https://www.linkedin.com/in/aviv-valyevich/', 1, true),
+  ('tali-amram',     'טלי עמרם',       'Tali Amram',     'Student Developer',      'XPLG',          '/team/tali-amram.webp',
+   'https://www.linkedin.com/in/tali-amram-aa1067294/', 2, true),
+  ('ido-perry',      'עידו פרי',       'Ido Perry',      'Product Manager',        'Reyymark',      '/team/ido-perry.webp',
+   'https://www.linkedin.com/in/idoperryprofile/', 3, true),
+  ('eric-berezin',   'אריק ברזין',     'Eric Berezin',   'Finance Operations',     'Investing.com', '/team/eric-berezin.webp',
+   'https://www.linkedin.com/in/eric-berezin-648867338/', 4, true);
+
 commit;

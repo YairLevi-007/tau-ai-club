@@ -139,5 +139,5 @@ Workshop prep (shown on Zero to Hero events): Claude Code installed, Pro plan, b
 1. **GitHub repo visibility.** Vercel Hobby can't deploy a *private* repo owned by an org. Options: (a) a **public** repo in `tau-ai-club` (fine, since there are no secrets in code), or (b) private under your personal account for now, moved to the org at handover. **Recommendation: (a).**
 2. Hebrew spellings for venues (speaker names are approved): until confirmed, the seed has my best spelling, marked for review.
 
-### Backlog: managers section (2026-11-18)
-A "Meet our managers" section (Aviv Valyevich, Tali Amram, Ido Perry, Eric Berezin; source brand/instagram/meet-our-managers.jpg) goes in the signed-in area once guest and member sign-in exist. Not on the public site for now.
+### Club founders section (2026-11-18, built; replaces the "managers section" backlog note)
+"Meet the club's founders" (תכירו את מקימי המועדון) is public, on the home page under the season speakers: Aviv Valyevich, Tali Amram, Ido Perry, Eric Berezin, from brand/instagram/meet-our-managers.jpg (photos in public/team/). Data in `club_team` (anon reads published rows; writes via the service role until M2 adds an is_admin() policy). Roles and companies in English on both locales; Hebrew names and LinkedIn URLs confirmed by the club.

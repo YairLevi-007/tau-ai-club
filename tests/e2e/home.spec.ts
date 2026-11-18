@@ -1,5 +1,29 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
+
+/**
+ * Let every intro/reveal animation finish before a colour check. axe computes contrast from the colours it sees right now, so
+ * text that is still fading in (opacity < 1 over the dark background) intermittently reads as low contrast. We scroll the whole
+ * page once so reveal-on-scroll blocks play, wait for all animations to end, then return to the top.
+ */
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    const h = document.documentElement.scrollHeight;
+    for (let y = 0; y < h; y += Math.max(300, innerHeight / 2)) {
+      scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 60));
+    }
+    scrollTo(0, 0);
+    for (let i = 0; i < 40; i++) {
+      const running = document.getAnimations().filter((a) => a.playState === "running" && a.effect?.getComputedTiming().iterations !== Infinity);
+      if (!running.length) break;
+      await Promise.allSettled(running.map((a) => a.finished));
+      await new Promise((r) => setTimeout(r, 50));
+    }
+  });
+  await page.waitForTimeout(150);
+}
 
 // Server clock for this suite is fixed by playwright.config.ts (BASE_NOW = 2026-11-12 10:00 Asia/Jerusalem).
 const locales = [
@@ -102,7 +126,8 @@ for (const L of locales) {
     });
 
     test("1.8 axe: no serious/critical violations", async ({ page }) => {
-      await page.goto(L.path);
+      await page.goto(L.path, { waitUntil: "networkidle" });
+      await settle(page);
       const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
       const bad = r.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
       expect(bad.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);

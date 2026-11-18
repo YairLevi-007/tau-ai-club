@@ -88,7 +88,9 @@
     "heroLine2": "together.",
     "seasonSpeakers": "This season's speakers",
     "speakersLine1": "Meet our",
-    "speakersLine2": "speakers"
+    "speakersLine2": "speakers",
+    "foundersLine1": "Meet the club's",
+    "foundersLine2": "founders"
   },
   "calendarFeed": {
     "description": "Every meetup of the TAU AI Club season. Updates on its own."
