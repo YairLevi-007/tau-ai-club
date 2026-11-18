@@ -7,6 +7,7 @@ import { requireMember } from "@/lib/auth/viewer";
 import { getSeason } from "@/lib/events";
 import { formatTimeRange, isoAttr, loc, venueLabel } from "@/lib/event-format";
 import { ICS_PATH, calendarFeedLinks } from "@/lib/ics";
+import { calendarFeedKey } from "@/lib/calendar-access";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, getMyContact } from "@/lib/members/profile";
@@ -57,7 +58,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
 
   const upcoming = season.status === "ok" ? season.events.filter((e) => e.state !== "past") : [];
   const today = israelDay(season.status === "ok" ? season.now : new Date());
-  const feed = calendarFeedLinks(locale);
+  const feed = calendarFeedLinks(locale, calendarFeedKey());
   const icsHref = (slug: string) => `/api/calendar/${slug}${locale === "he" ? "" : `?locale=${locale}`}`;
   const day = new Intl.DateTimeFormat(locale, { timeZone: TIME_ZONE, day: "numeric" });
   const month = new Intl.DateTimeFormat(locale, { timeZone: TIME_ZONE, month: "short" });

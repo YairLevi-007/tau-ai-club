@@ -121,16 +121,10 @@ test.describe("members' area pages refuse guests", () => {
 });
 
 test.describe("per-event calendar download", () => {
-  test("one meetup as an .ics attachment, public fields only", async ({ request }) => {
-    const r = await request.get("/api/calendar/zero-to-hero-1?locale=en");
-    expect(r.status()).toBe(200);
-    expect(r.headers()["content-type"]).toMatch(/text\/calendar/);
-    expect(r.headers()["content-disposition"]).toMatch(/attachment; filename="tau-ai-club-zero-to-hero-1\.ics"/);
-    const ics = await r.text();
-    expect(ics.match(/BEGIN:VEVENT/g)?.length).toBe(1);
-    expect(ics).toContain("UID:zero-to-hero-1@tau-ai-club");
-    expect(ics).not.toMatch(/@gmail|mailto:|tel:/i);
-    expect((await request.get("/api/calendar/no-such-event")).status()).toBe(404);
+  // Members area on: guests are refused (schedule-private.spec.ts). The file's content is
+  // covered with the members area off in tests/e2e/calendar-feed.spec.ts.
+  test("guests get 401, bad slugs 404", async ({ request }) => {
+    expect((await request.get("/api/calendar/zero-to-hero-1?locale=en")).status()).toBe(401);
     expect((await request.get("/api/calendar/..%2F..%2Fetc")).status()).toBe(404);
   });
 });

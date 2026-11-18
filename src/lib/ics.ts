@@ -10,9 +10,12 @@ import { getSeason } from "@/lib/events";
 /** Feed path per locale. Static files (no query string) so they stay ISR-cached. */
 export const ICS_PATH: Record<Locale, string> = { he: "/calendar.ics", en: "/calendar-en.ics" };
 
-/** Absolute feed URL, plus the one-click subscribe links built from it. */
-export function calendarFeedLinks(locale: Locale) {
-  const https = `${SITE_URL}${ICS_PATH[locale]}`;
+/**
+ * Absolute feed URL, plus the one-click subscribe links built from it. `key` is the members'
+ * feed key (src/lib/calendar-access.ts): only pass it on members-only pages.
+ */
+export function calendarFeedLinks(locale: Locale, key?: string | null) {
+  const https = `${SITE_URL}${ICS_PATH[locale]}${key ? `?k=${key}` : ""}`;
   const webcal = https.replace(/^https?:/, "webcal:");
   return {
     https,
@@ -131,6 +134,8 @@ export async function seasonIcsResponse(locale: Locale) {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": `inline; filename="tau-ai-club${locale === "he" ? "" : `-${locale}`}.ics"`,
+      // Members only while the members area is on: never cache it on the CDN.
+      "Cache-Control": "private, max-age=300",
     },
   });
 }
@@ -156,7 +161,7 @@ export async function eventIcsResponse(slug: string, locale: Locale) {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": `attachment; filename="tau-ai-club-${slug}.ics"`,
-      "Cache-Control": "public, max-age=300",
+      "Cache-Control": "private, max-age=300",
     },
   });
 }
