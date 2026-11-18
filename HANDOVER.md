@@ -222,23 +222,31 @@ Two gates, both must stay: the site checks the list with `SUPABASE_SECRET_KEY` b
 
 Subject:
 ```
-קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code
+קוד הכניסה למועדון ה-AI · Your TAU AI Club code
 ```
-Body (HTML):
+Body (HTML). Built for phones and mail apps: one column, table layout, inline styles, a light card (mail apps invert dark emails unpredictably), the code once, large and selectable, plural Hebrew like the site:
 ```html
-<div dir="rtl" lang="he" style="font-family:Arial,sans-serif">
-  <h2>קוד הכניסה שלך</h2>
-  <p>היי, זה הקוד לכניסה לאתר מועדון ה-AI של אוניברסיטת תל אביב:</p>
-  <p dir="ltr" style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
-  <p>הקוד תקף ל-10 דקות. לא ביקשת להיכנס? אפשר פשוט להתעלם מהמייל הזה.</p>
-</div>
-<hr>
-<div dir="ltr" lang="en" style="font-family:Arial,sans-serif">
-  <h2>Your log-in code</h2>
-  <p>Here's your code for the TAU AI Club website:</p>
-  <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
-  <p>It works for 10 minutes. Didn't ask to log in? You can ignore this email.</p>
-</div>
+<div style="display:none;max-height:0;overflow:hidden">הקוד שלכם: {{ .Token }} · Your code: {{ .Token }}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f3fb;padding:24px 12px">
+  <tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:440px;background:#ffffff;border-radius:12px;border-top:4px solid #8a2bff;font-family:Rubik,Arial,Helvetica,sans-serif;color:#17152e">
+      <tr><td dir="rtl" lang="he" style="padding:28px 24px 8px;text-align:right">
+        <p style="margin:0 0 6px;font-size:14px;color:#5c1cab;font-weight:bold">TAU AI Club · מועדון ה-AI</p>
+        <h1 style="margin:0 0 10px;font-size:22px;line-height:1.3">קוד הכניסה לאתר</h1>
+        <p style="margin:0;font-size:16px;line-height:1.6;color:#45425e">מעתיקים את הקוד לחלון הכניסה באתר:</p>
+      </td></tr>
+      <tr><td align="center" style="padding:18px 24px">
+        <div dir="ltr" style="display:inline-block;padding:14px 22px;border-radius:10px;background:#f1eaff;border:1px solid #d9c4ff;font-family:'IBM Plex Mono',Menlo,Consolas,monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#17152e;-webkit-user-select:all;user-select:all">{{ .Token }}</div>
+      </td></tr>
+      <tr><td dir="rtl" lang="he" style="padding:0 24px 20px;text-align:right;font-size:15px;line-height:1.6;color:#45425e">
+        הקוד תקף ל-10 דקות. לא ניסיתם להיכנס? אפשר להתעלם מהמייל הזה, בלי הקוד אף אחד לא נכנס.
+      </td></tr>
+      <tr><td dir="ltr" lang="en" style="padding:16px 24px 26px;border-top:1px solid #ebe8f5;text-align:left;font-size:15px;line-height:1.6;color:#45425e">
+        <strong style="color:#17152e">Your log-in code</strong> for the TAU AI Club website is above. It works for 10 minutes. Didn't try to log in? Ignore this email: nobody gets in without the code.
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
 ```
 
 **G5. Auth hook**: **Authentication → Hooks** → **Before User Created** → type **Postgres** → schema `public`, function `hook_before_user_created` → **Create**. The migration grants it (and USAGE on schema `public`) to `supabase_auth_admin` only. Then do **one real first login on `tau-ai-club-dev`** before prod: a listed email must get in, an unlisted one must not get a user.

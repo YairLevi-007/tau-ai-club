@@ -13,6 +13,7 @@ import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
 import { FlyerChip } from "@/components/events/flyer-bits";
 import { MemberAvatar } from "@/components/members/member-avatar";
+import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
@@ -50,9 +51,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   const photos = supabase && profile ? await signPhotos(supabase, [profile.photo_url]) : new Map<string, string>();
   const photoSrc = profile?.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const name = profile?.full_name ?? viewer.member.fullName;
-  const subline = [profile?.year ? tp("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program]
-    .filter(Boolean)
-    .join(" · ");
+  const subline = [profile?.year ? tp("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program];
   const bio = profile ? (locale === "he" ? profile.bio_he || profile.bio_en : profile.bio_en || profile.bio_he) : null;
 
   const upcoming = season.status === "ok" ? season.events.filter((e) => e.state !== "past") : [];
@@ -77,8 +76,8 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
           className="rounded-full ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-surface"
         />
         <div className="min-w-0">
-          <p className="text-lg leading-tight font-bold text-fg">{name}</p>
-          {subline && <p className="mt-1 text-sm text-fg-subtle">{subline}</p>}
+          <p className="text-lg leading-tight font-bold break-words text-fg">{name}</p>
+          <ProfileSubline parts={subline} className="mt-1 text-sm text-fg-subtle" />
         </div>
       </div>
       {bio && <p className="line-clamp-4 text-[0.9375rem] leading-relaxed text-fg-muted">{bio}</p>}
@@ -176,7 +175,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
                       </time>
                       <div className="grid min-w-0 flex-1 basis-48 gap-0.5">
                         <p className="flex flex-wrap items-center gap-2">
-                          <Link href={`/events/${e.slug}`} className="font-semibold text-fg underline-offset-4 hover:underline">
+                          <Link href={`/events/${e.slug}`} className="-my-2.5 inline-block py-2.5 font-semibold text-fg underline-offset-4 hover:underline">
                             {title}
                           </Link>
                           {isToday && (
@@ -276,7 +275,7 @@ function ContactRow({ icon, label, value, visibility }: { icon: React.ReactNode;
     <li className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
       <span className="text-fg-subtle [&_svg]:size-4">{icon}</span>
       <span className="sr-only">{label}:</span>
-      <bdi dir="ltr" className="min-w-0 truncate font-mono text-fg">
+      <bdi dir="ltr" className="min-w-0 font-mono break-all text-fg">
         {value}
       </bdi>
       <span className="ms-auto text-[0.75rem] text-fg-subtle">{visibility}</span>

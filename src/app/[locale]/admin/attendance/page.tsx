@@ -68,7 +68,7 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
                       >
                         <bdi>{formatShortDate(e.starts_at, locale)}</bdi>
                       </Link>
-                      <span className={cn("mt-0.5 block text-[0.6875rem] font-normal", imp ? "text-fg-subtle" : "text-fg-faint")}>
+                      <span className={cn("mt-0.5 block text-xs font-normal", imp ? "text-fg-muted" : "text-fg-subtle")}>
                         {imp ? t("guestsShort", { n: imp.guests_checked_in }) : t("notImported")}
                       </span>
                     </th>

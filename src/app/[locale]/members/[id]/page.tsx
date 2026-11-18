@@ -11,6 +11,7 @@ import { signPhotos } from "@/lib/members/photos";
 import { getMemberContact, getMemberProfile, LINK_KEYS } from "@/lib/members/profile";
 import { panelClass, smallBtn } from "@/components/admin/styles";
 import { MemberAvatar } from "@/components/members/member-avatar";
+import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +38,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
   const photoSrc = profile.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const bio = loc(profile, "bio", locale);
   const links = LINK_KEYS.filter((k) => profile.links?.[k]);
-  const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty, profile.program].filter(Boolean).join(" · ");
+  const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty, profile.program];
 
   return (
     <article className="mx-auto max-w-4xl px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="member-profile">
@@ -46,7 +47,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
         <MemberAvatar name={profile.full_name} src={photoSrc} size={128} />
         <div className="grid min-w-0 gap-2">
           <h1 className="text-[clamp(1.875rem,6vw,2.5rem)] leading-[1.1] font-extrabold text-balance text-fg">{profile.full_name}</h1>
-          {subline && <p className="text-fg-muted">{subline}</p>}
+          <ProfileSubline parts={subline} className="text-fg-muted" />
           {profile.is_self && (
             <Link href="/profile" className={cn(smallBtn, "mt-2 w-fit")}>
               <Pencil aria-hidden />
@@ -78,7 +79,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
                     <li className="flex items-center gap-2.5">
                       <Phone aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
                       <span className="sr-only">{t("phone")}: </span>
-                      <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} dir="ltr" className="font-mono text-fg underline-offset-4 hover:underline">
+                      <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} dir="ltr" className="inline-flex min-h-11 items-center font-mono text-fg underline-offset-4 hover:underline">
                         {contact.phone}
                       </a>
                     </li>
@@ -87,7 +88,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
                     <li className="flex items-center gap-2.5">
                       <Mail aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
                       <span className="sr-only">{t("contactEmail")}: </span>
-                      <a href={`mailto:${contact.contact_email}`} dir="ltr" className="font-mono break-all text-fg underline-offset-4 hover:underline">
+                      <a href={`mailto:${contact.contact_email}`} dir="ltr" className="inline-flex min-h-11 items-center font-mono break-all text-fg underline-offset-4 hover:underline">
                         {contact.contact_email}
                       </a>
                     </li>

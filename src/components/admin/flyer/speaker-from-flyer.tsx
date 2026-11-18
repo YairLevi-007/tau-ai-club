@@ -6,7 +6,8 @@ import { ChevronDown, FileImage, LoaderCircle, ScanText, UserRoundCheck } from "
 import { slugify } from "@/lib/flyer/match";
 import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people";
 import { uploadSpeakerPhoto } from "@/app/[locale]/admin/speaker-profiles/actions";
-import { fileInputClass, hintClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { cn } from "@/lib/utils";
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
@@ -116,7 +117,7 @@ export function SpeakerFromFlyer() {
         <div className="flex flex-wrap items-end gap-3">
           <label className={labelClass}>
             {t("flyerPick")}
-            <input type="file" accept={TYPES.join(",")} className={fileInputClass} onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="speaker-flyer-file" />
+            <FilePicker accept={TYPES.join(",")} onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="speaker-flyer-file" />
           </label>
           <button type="button" className={cn(smallBtn, "w-fit")} disabled={!file || !!busy} onClick={onRead} data-testid="speaker-flyer-read">
             {busy === "reading" ? <LoaderCircle aria-hidden className="animate-spin motion-reduce:animate-none" /> : <FileImage aria-hidden />}

@@ -84,7 +84,7 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
     <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="lecture-page" data-state={event.state}>
       <Link
         href="/lectures"
-        className="inline-flex w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
+        className="inline-flex min-h-11 w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
       >
         <Back aria-hidden className="size-4" />
         {t("backToLectures")}
@@ -102,7 +102,7 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
           <bdi dir="ltr" className="font-mono text-sm">
             {formatTimeRange(event.starts_at, event.ends_at)}
           </bdi>
-          <Link href={`/events/${slug}`} className="text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
+          <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
             {te("details")}
           </Link>
         </p>

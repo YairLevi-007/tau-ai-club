@@ -6,7 +6,8 @@ import { FileSpreadsheet, LoaderCircle } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { readLumaCsv, type AttendanceRow, type LumaCsv } from "@/lib/attendance/luma-csv";
 import { importAttendance, type AttendanceResult } from "@/app/[locale]/admin/events/attendance-actions";
-import { fileInputClass, hintClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { AttendanceTag } from "./attendance-mark";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -74,7 +75,7 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
     <div className="grid gap-3" data-testid="attendance-import">
       <label className={labelClass}>
         {t("pick")}
-        <input type="file" accept=".csv,text/csv" className={fileInputClass} onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="attendance-file" />
+        <FilePicker accept=".csv,text/csv" onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="attendance-file" />
       </label>
       <p className={hintClass}>{t("pickHint")}</p>
       <p role="status" aria-live="polite" className="text-sm text-fg-muted">

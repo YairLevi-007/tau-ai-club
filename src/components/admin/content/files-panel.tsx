@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { FileText } from "lucide-react";
 import { ActionForm } from "@/components/admin/action-form";
-import { dangerBtn, fileInputClass, hintClass, inputClass, labelClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
+import { dangerBtn, hintClass, inputClass, labelClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { deleteEventFile, setFileStatus, uploadEventFile } from "@/app/[locale]/admin/content/actions";
 import type { EventFile } from "@/lib/content/sections";
 import { cn } from "@/lib/utils";
@@ -70,7 +71,7 @@ export function FilesPanel({ eventId, files }: { eventId: string; files: Require
         </label>
         <label className={cn(labelClass, "sm:col-span-2")}>
           {t("fileChoose")}
-          <input type="file" name="file" accept="application/pdf,.pdf" required className={fileInputClass} />
+          <FilePicker name="file" accept="application/pdf,.pdf" required />
         </label>
         <button type="submit" className="btn btn-primary h-10 w-fit px-4 text-sm">
           {t("fileUpload")}

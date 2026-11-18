@@ -649,5 +649,10 @@
     "visibleToMembers": "גלוי לחברים",
     "onlyYou": "רק לכם",
     "icsHint": "מוריד קובץ ‎.ics שנפתח ב-Google Calendar, ביומן של אפל או ב-Outlook. השעות לפי שעון ישראל."
+  },
+  "filePicker": {
+    "choose": "בחירת קובץ",
+    "change": "החלפת קובץ",
+    "none": "עוד לא נבחר קובץ"
   }
 }

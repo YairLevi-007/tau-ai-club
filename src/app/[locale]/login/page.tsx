@@ -127,7 +127,7 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
             {t("codeSubmit")}
           </button>
         </form>
-        <Link href={{ pathname: "/login", query: { next } }} className="w-fit text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
+        <Link href={{ pathname: "/login", query: { next } }} className="inline-flex min-h-11 w-fit items-center text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
           {t("useAnotherEmail")}
         </Link>
       </AuthPanel>

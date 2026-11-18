@@ -9,7 +9,6 @@ import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { ActionForm } from "@/components/admin/action-form";
 import {
-  fileInputClass,
   hintClass,
   inputClass,
   labelClass,
@@ -17,7 +16,9 @@ import {
   panelTitle,
   smallBtn,
 } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { MemberAvatar } from "@/components/members/member-avatar";
+import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
@@ -47,13 +48,13 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
   const photoSrc = profile?.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const links = profile?.links ?? {};
   const name = profile?.full_name ?? viewer.member.fullName;
-  const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program].filter(Boolean).join(" · ");
+  const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program];
 
   return (
     <div className="mx-auto max-w-site px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="profile">
       <Link
         href="/me"
-        className="mb-5 inline-flex h-9 items-center gap-1.5 rounded-md text-sm font-medium text-fg-muted transition-colors duration-150 hover:text-fg"
+        className="mb-5 inline-flex min-h-11 items-center gap-1.5 rounded-md text-sm font-medium text-fg-muted transition-colors duration-150 hover:text-fg"
       >
         {locale === "he" ? <ArrowRight aria-hidden className="size-4" /> : <ArrowLeft aria-hidden className="size-4" />}
         {t("backToMe")}
@@ -80,14 +81,14 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
             <div className="flex items-center gap-4 lg:flex-col lg:items-start">
               <MemberAvatar name={name} src={photoSrc} size={112} className="rounded-full ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-surface" />
               <div className="min-w-0">
-                <p className="text-lg leading-tight font-bold text-fg">{name}</p>
-                {subline && <p className="mt-1 text-sm text-fg-subtle">{subline}</p>}
+                <p className="text-lg leading-tight font-bold break-words text-fg">{name}</p>
+                <ProfileSubline parts={subline} className="mt-1 text-sm text-fg-subtle" />
               </div>
             </div>
             <ActionForm action={uploadPhoto} resetOnSuccess className="grid gap-3">
               <label className={labelClass}>
                 {t("photoPick")}
-                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required className={fileInputClass} />
+                <FilePicker name="photo" accept="image/jpeg,image/png,image/webp" required />
               </label>
               <p className={hintClass}>{t("photoHint")}</p>
               <div className="flex flex-wrap gap-2">
@@ -241,7 +242,7 @@ export default async function ProfilePage({ params }: PageProps<"/[locale]/profi
  */
 function ShareSwitch({ name, defaultChecked, label, on, off }: { name: string; defaultChecked: boolean; label: string; on: string; off: string }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 text-sm text-fg-muted">
+    <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-fg-muted">
       <input type="checkbox" name={name} defaultChecked={defaultChecked} className="peer sr-only" />
       <span
         aria-hidden

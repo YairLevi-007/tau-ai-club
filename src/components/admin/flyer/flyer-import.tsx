@@ -13,7 +13,8 @@ import { parseFlyerText } from "@/lib/flyer/flyer-text";
 import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people";
 import type { LumaResponse } from "@/app/api/admin/luma/route";
 import { applyFlyer, type SpeakerChoice } from "@/app/[locale]/admin/events/flyer-actions";
-import { fileInputClass, hintClass, inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { hintClass, inputClass, labelClass, smallBtn } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
 import { readFlyer, type FlyerReading } from "./read-flyer";
@@ -293,7 +294,7 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
         <div className="grid content-start gap-2 border-t border-border pt-5 sm:border-t-0 sm:border-s sm:pt-0 sm:ps-6">
           <label className={labelClass}>
             {t("flyerPick")}
-            <input type="file" accept={TYPES.join(",")} className={fileInputClass} data-testid="flyer-file" onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+            <FilePicker accept={TYPES.join(",")} data-testid="flyer-file" onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
           </label>
           <button type="button" className={cn(smallBtn, "w-fit")} disabled={!file || !!busy} onClick={onRead} data-testid="flyer-read">
             {busy === "reading" ? <LoaderCircle aria-hidden className="animate-spin motion-reduce:animate-none" /> : <FileImage aria-hidden />}

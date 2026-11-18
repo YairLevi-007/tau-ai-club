@@ -8,13 +8,13 @@ import { ActionForm } from "@/components/admin/action-form";
 import { AdminHeader } from "@/components/admin/admin-header";
 import {
   dangerBtn,
-  fileInputClass,
   inputClass,
   labelClass,
   panelClass,
   panelTitle,
   smallBtn,
 } from "@/components/admin/styles";
+import { FilePicker } from "@/components/admin/file-picker";
 import { cn } from "@/lib/utils";
 import { addEmail, addMember, importCsv, removeEmail, removeMember, setRole } from "./actions";
 
@@ -92,10 +92,10 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
           {members.map((m) => {
             const emails = [...m.member_emails].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
             return (
-              <li key={m.id} data-testid="member-row" className="grid gap-4 p-4 sm:p-5">
+              <li key={m.id} data-testid="member-row" className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <p className="text-base font-bold text-fg">{m.full_name}</p>
+                  <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+                    <p className="min-w-0 text-base font-bold break-words text-fg">{m.full_name}</p>
                     {m.role === "admin" && <span className="tag tag-next">{t("roleAdmin")}</span>}
                   </div>
                   <p className="text-sm text-fg-subtle">
@@ -115,7 +115,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                       key={e.email}
                       className="flex min-w-0 max-w-full items-center gap-2 rounded-md border border-border bg-bg-deep/45 py-1 ps-2.5 pe-1.5 text-sm"
                     >
-                      <bdi dir="ltr" className="truncate font-mono text-[0.8125rem] text-fg">
+                      <bdi dir="ltr" className="block min-w-0 truncate font-mono text-[0.8125rem] text-fg">
                         {e.email}
                       </bdi>
                       {e.is_primary ? (
@@ -149,7 +149,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
 
                   <ActionForm action={addEmail} resetOnSuccess className="flex min-w-0 grow flex-wrap items-end gap-2 sm:grow-0">
                     <input type="hidden" name="member_id" value={m.id} />
-                    <label className={cn(labelClass, "min-w-0 grow")}>
+                    <label className={cn(labelClass, "min-w-0 grow break-words")}>
                       {t("addEmailLabel", { name: m.full_name })}
                       <input name="email" type="email" required autoComplete="off" dir="ltr" className={cn(inputClass, "text-start sm:w-64")} />
                     </label>
@@ -185,7 +185,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
         <ActionForm action={importCsv} resetOnSuccess className="grid gap-4 lg:grid-cols-2">
           <label className={labelClass}>
             {t("importFile")}
-            <input name="file" type="file" accept=".csv,text/csv" className={fileInputClass} />
+            <FilePicker name="file" accept=".csv,text/csv" />
           </label>
           <label className={cn(labelClass, "lg:row-span-2")}>
             {t("importText")}

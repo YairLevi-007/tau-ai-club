@@ -649,5 +649,10 @@
     "visibleToMembers": "Members see it",
     "onlyYou": "Only you",
     "icsHint": "Downloads an .ics file that opens in Google Calendar, Apple Calendar or Outlook. Times are Israel time."
+  },
+  "filePicker": {
+    "choose": "Choose a file",
+    "change": "Change file",
+    "none": "No file chosen yet"
   }
 }
