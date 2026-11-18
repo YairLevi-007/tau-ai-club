@@ -53,6 +53,7 @@ await db.exec(`
   insert into public.event_speakers (event_id, speaker_id)
     select e.id, s.id from public.events e, public.speakers s
     where e.slug = 'draft-event' and s.slug = 'secret-speaker';
+  insert into public.club_team (slug, name_he, name_en) values ('hidden-member', 'נסתר', 'Hidden');
 `);
 
 // --- Checks as anon -----------------------------------------------------------
@@ -119,6 +120,29 @@ for (const good of ["https://www.linkedin.com/in/some-one_1/", "https://www.link
 }
 await db.exec("update public.speakers set linkedin_url = null where slug = 'or-maccabi'");
 
+// club_team: anon reads published members only, in order.
+const team = await asAnon("select slug from public.club_team order by sort");
+check(
+  JSON.stringify(team.rows.map((r) => r.slug)) === JSON.stringify(["aviv-valyevich", "tali-amram", "ido-perry", "eric-berezin"]),
+  `anon sees the 4 published founders in order, not the unpublished one (got ${JSON.stringify(team.rows)})`,
+);
+for (const [col, value, ok] of [
+  ["photo_url", "/team/ido-perry.webp", true],
+  ["photo_url", "/speakers/x.webp", false],
+  ["photo_url", "javascript:alert(1)", false],
+  ["linkedin_url", "https://www.linkedin.com/in/ido-perry/", true],
+  ["linkedin_url", "https://www.linkedin.com/in/x?trk=1", false],
+]) {
+  let accepted = true;
+  try {
+    await db.query(`update public.club_team set ${col} = $1 where slug = 'ido-perry'`, [value]);
+  } catch {
+    accepted = false;
+  }
+  check(accepted === ok, `club_team.${col} ${ok ? "accepts" : "rejects"} ${value}`);
+}
+await db.exec("update public.club_team set photo_url = '/team/ido-perry.webp', linkedin_url = null where slug = 'ido-perry'");
+
 // speakers.photo_url: https:// or one of our own /speakers/<slug>.webp files, nothing else.
 for (const [url, ok] of [
   ["/speakers/or-maccabi.webp", true],
@@ -144,6 +168,10 @@ for (const [label, sql] of [
   ["delete venue", "delete from public.venues"],
   ["insert speaker", "insert into public.speakers (slug, name_he, name_en) values ('x', 'x', 'x')"],
   ["set a speaker's LinkedIn", "update public.speakers set linkedin_url = 'https://www.linkedin.com/in/attacker'"],
+  ["insert a team member", "insert into public.club_team (slug, name_he, name_en, is_published) values ('x', 'x', 'x', true)"],
+  ["publish a team member", "update public.club_team set is_published = true"],
+  ["edit a team member", "update public.club_team set name_en = 'hacked'"],
+  ["delete the team", "delete from public.club_team"],
 ]) {
   let blocked = false;
   try {
@@ -190,8 +218,11 @@ if (writeFixtures) {
       where e.slug <> 'draft-event'
     ) t`);
   const cohort = await asAnon("select id, slug, name_he, name_en, tagline_he, tagline_en, starts_on::text, ends_on::text from public.cohorts where slug = '02'");
+  const team = await asAnon(
+    "select id, slug, name_he, name_en, role_en, company_en, photo_url, linkedin_url, sort from public.club_team order by sort",
+  );
   const out = join(root, "src", "lib", "data", "fixtures.json");
-  writeFileSync(out, JSON.stringify({ cohort: cohort.rows[0], events: res.rows[0].data }, null, 2) + "\n");
+  writeFileSync(out, JSON.stringify({ cohort: cohort.rows[0], events: res.rows[0].data, team: team.rows }, null, 2) + "\n");
   console.log(`wrote    ${out}`);
 }
 

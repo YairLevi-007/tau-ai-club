@@ -60,6 +60,19 @@ export type ClubEvent = {
   event_speakers: { sort: number; speaker: Speaker }[];
 };
 
+/** A club founder (home page). Public profile only; role and company are English on both locales. */
+export type TeamMember = {
+  id: string;
+  slug: string;
+  name_he: string;
+  name_en: string;
+  role_en: string | null;
+  company_en: string | null;
+  photo_url: string | null;
+  linkedin_url: string | null;
+  sort: number;
+};
+
 export type EventState = "past" | "live" | "next" | "upcoming";
 
 export type SeasonEvent = ClubEvent & { state: EventState };

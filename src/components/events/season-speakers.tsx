@@ -3,8 +3,8 @@ import type { Locale } from "@/i18n/routing";
 import type { ClubEvent, Speaker } from "@/lib/data/types";
 import { loc } from "@/lib/event-format";
 import { cn } from "@/lib/utils";
-import { CornerBrackets, FlyerChip, SpeakerAvatar, roleCapsClass } from "./flyer-bits";
-import { SpeakerLinkedIn } from "./speaker-linkedin";
+import { CornerBrackets, FlyerChip } from "./flyer-bits";
+import { PersonCard } from "./person-card";
 
 /**
  * "Meet our speakers", after the club's Instagram post: each speaker once, in the order they
@@ -44,29 +44,18 @@ export async function SeasonSpeakers({ events, locale }: { events: ClubEvent[]; 
         </div>
 
         <ul className="mt-8 flex flex-wrap justify-center gap-3 lg:gap-4">
-          {[...seen.values()].map((sp) => {
-            const name = loc(sp, "name", locale) ?? "";
-            const role = loc(sp, "role", locale);
-            const company = loc(sp, "company", locale);
-            return (
-              <li
-                key={sp.id}
-                data-testid="season-speaker"
-                className="relative flex w-[calc(50%-0.375rem)] flex-col items-center rounded-lg border border-border-accent bg-bg-deep px-3 pt-6 pb-4 text-center shadow-[var(--highlight-top)] lg:w-[calc(25%-0.75rem)]"
-              >
-                <span aria-hidden className="absolute -top-px inset-x-[14%] h-[3px] rounded-b-[3px] bg-brand-purple" />
-                <SpeakerAvatar name={name} photoUrl={sp.photo_url} company={company} size={88} />
-                <p className="mt-4 leading-tight font-bold text-fg lg:text-lg">{name}</p>
-                {company && (
-                  <p className="mt-1 text-sm text-fg-muted">
-                    <bdi>{company}</bdi>
-                  </p>
-                )}
-                {role && <p className={cn("mt-1.5 text-balance", roleCapsClass(locale))}>{role}</p>}
-                <SpeakerLinkedIn url={sp.linkedin_url} name={name} className="mt-2" />
-              </li>
-            );
-          })}
+          {[...seen.values()].map((sp) => (
+            <PersonCard
+              key={sp.id}
+              testId="season-speaker"
+              locale={locale}
+              name={loc(sp, "name", locale) ?? ""}
+              photoUrl={sp.photo_url}
+              company={loc(sp, "company", locale)}
+              role={loc(sp, "role", locale)}
+              linkedinUrl={sp.linkedin_url}
+            />
+          ))}
         </ul>
       </div>
     </section>
