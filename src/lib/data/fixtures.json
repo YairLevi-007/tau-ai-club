@@ -1,6 +1,6 @@
 {
   "cohort": {
-    "id": "3ebf48c8-50b4-4579-ab04-285590e62700",
+    "id": "87e6efe3-1597-406c-a955-9be7b7348628",
     "slug": "02",
     "name_he": "מחזור 02",
     "name_en": "Cohort 02",
@@ -11,7 +11,7 @@
   },
   "events": [
     {
-      "id": "a29c4ca4-7496-4eb4-b1d1-173bf3c79cad",
+      "id": "b00dc8cf-256f-4418-a721-936e3e73d71e",
       "slug": "cohort-02-opening",
       "kind": "opening",
       "series": null,
@@ -26,9 +26,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "b9799739-82e5-46eb-aaeb-ab4bc6c4b90e",
+        "id": "c2bee1c5-9c65-4971-892c-d6562979399a",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -39,7 +39,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "d0374f9d-6e0b-4b4b-803d-b3f28717475f",
+            "id": "278c60bf-e459-4879-8f46-558e081078ae",
             "slug": "shay-yahal",
             "name_he": "שי יהל",
             "name_en": "Shay Yahal",
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "id": "4dc0be8a-2475-41db-98aa-e73f7606eb2e",
+      "id": "bb6bbf4c-8a96-4fc9-b3c8-fd78e9d67064",
       "slug": "zero-to-hero-1",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -69,9 +69,9 @@
       "venue_note_en": "Room 251",
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "6241528d-e050-43f0-9e67-a6fd8962e496",
+        "id": "993229c8-89b9-4d38-b15b-928f1806c0d3",
         "name_he": "בניין רקנאטי",
         "name_en": "Recanati Bldg.",
         "address_he": "אוניברסיטת תל אביב",
@@ -82,7 +82,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "dcbc80b9-d902-4f9c-9a65-d5a7a3453a9c",
+            "id": "287e6dcc-518a-4608-bc62-fe47ca89b185",
             "slug": "oz-altagar",
             "name_he": "עוז אלטגר",
             "name_en": "Oz Altagar",
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "id": "68eda22a-b408-45f8-898d-60b4ada483a2",
+      "id": "4fca15a0-4076-45f7-b5a1-51413d624322",
       "slug": "zero-to-hero-2",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -112,9 +112,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "5964a839-6192-4291-95a8-ea658ebcdd93",
+        "id": "c5780a76-40a2-410d-bab5-e5cbf75465ca",
         "name_he": "המרכז ליזמות",
         "name_en": "Entrepreneurship Center",
         "address_he": "אוניברסיטת תל אביב",
@@ -125,7 +125,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "dcbc80b9-d902-4f9c-9a65-d5a7a3453a9c",
+            "id": "287e6dcc-518a-4608-bc62-fe47ca89b185",
             "slug": "oz-altagar",
             "name_he": "עוז אלטגר",
             "name_en": "Oz Altagar",
@@ -140,7 +140,7 @@
       ]
     },
     {
-      "id": "c3a86c0c-d4b0-4f15-becf-b2658777dded",
+      "id": "bde70e8e-6025-485d-b857-5d1556b88590",
       "slug": "entrepreneurship-tech-or-maccabi",
       "kind": "lecture",
       "series": null,
@@ -155,9 +155,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "c54b40a9-3356-4291-999a-8e75d72a11ea",
+        "id": "6f03f7fc-6dd3-42e0-bee0-fc5d7c953c06",
         "name_he": "משרדי MongoDB",
         "name_en": "MongoDB offices",
         "address_he": "תל אביב",
@@ -168,7 +168,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "1fd89998-cecb-4d76-8780-d5434c533ecd",
+            "id": "7a031123-dfcd-4251-a83c-197021b37a59",
             "slug": "or-maccabi",
             "name_he": "אור מכבי",
             "name_en": "Or Maccabi",
@@ -183,7 +183,7 @@
       ]
     },
     {
-      "id": "1502c034-9f74-4fc8-908c-7c528abf8820",
+      "id": "9fe3daed-5280-4c39-8248-81bc53284ea4",
       "slug": "zero-to-hero-3",
       "kind": "workshop",
       "series": "zero-to-hero",
@@ -198,13 +198,13 @@
       "venue_note_en": "Off campus",
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "dcbc80b9-d902-4f9c-9a65-d5a7a3453a9c",
+            "id": "287e6dcc-518a-4608-bc62-fe47ca89b185",
             "slug": "oz-altagar",
             "name_he": "עוז אלטגר",
             "name_en": "Oz Altagar",
@@ -219,7 +219,7 @@
       ]
     },
     {
-      "id": "f1828a64-203f-4c0c-b143-b1df038934d5",
+      "id": "1cf0f703-3c96-43cd-8a8b-9fa242732213",
       "slug": "entrepreneurship-tech-roee-margalit",
       "kind": "lecture",
       "series": null,
@@ -234,13 +234,13 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "416f4c4a-3c93-4e42-89a4-d9b8e2bb49c5",
+            "id": "bca79592-7b6f-453f-8696-eacb5fef1811",
             "slug": "roee-margalit",
             "name_he": "רועי מרגלית",
             "name_en": "Ro'ee Margalit",
@@ -255,7 +255,7 @@
       ]
     },
     {
-      "id": "50bb64c9-70a3-4e86-8085-7a773f6c70f1",
+      "id": "09455dea-3e93-4851-9696-413d98637cbf",
       "slug": "growth-capital-tomer-diari",
       "kind": "lecture",
       "series": null,
@@ -270,9 +270,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "dabe68a9-6e85-4521-be89-490c1e4b6899",
+        "id": "a41b159a-e234-4924-8ffa-5d12b0d975b9",
         "name_he": "משרדי Aleph",
         "name_en": "Aleph offices",
         "address_he": "תל אביב",
@@ -283,7 +283,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "92b4afcb-326c-4885-a166-def3f267412d",
+            "id": "4cf9886a-b9d5-44a1-9bbd-e2b92e14321c",
             "slug": "tomer-diari",
             "name_he": "תומר דיארי",
             "name_en": "Tomer Diari",
@@ -298,7 +298,7 @@
       ]
     },
     {
-      "id": "4d94476e-43af-4ebe-9013-4919a27d64cc",
+      "id": "778f6a86-f585-4fec-9690-fed667d26877",
       "slug": "joint-event-ori-goshen",
       "kind": "joint",
       "series": null,
@@ -313,9 +313,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": true,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": {
-        "id": "b9799739-82e5-46eb-aaeb-ab4bc6c4b90e",
+        "id": "c2bee1c5-9c65-4971-892c-d6562979399a",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -326,7 +326,7 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "8bb321b5-d721-4c64-826b-ff124b57cce9",
+            "id": "3c0b5fb6-2439-4a5c-96b4-49e084822e4e",
             "slug": "ori-goshen",
             "name_he": "אורי גושן",
             "name_en": "Ori Goshen",
@@ -341,7 +341,7 @@
       ]
     },
     {
-      "id": "28a81f15-07c3-41d6-a810-8601b13da9d8",
+      "id": "7f6259e7-0d1d-4194-a5a4-6276161f5801",
       "slug": "cohort-02-closing",
       "kind": "closing",
       "series": null,
@@ -356,13 +356,13 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-18T07:53:37.878+00:00",
+      "updated_at": "2026-11-18T07:54:09.568+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "eb932c26-e1cc-4496-a797-1ff519eed500",
+            "id": "3c318dae-467e-4998-a621-67ab4d7ad829",
             "slug": "gavriel-goidel",
             "name_he": "גבריאל גוידל",
             "name_en": "Gavriel Goidel",
@@ -379,47 +379,47 @@
   ],
   "team": [
     {
-      "id": "be3e509c-7732-4ca3-96fb-42dfecf3dff0",
+      "id": "a30714bf-845a-43f6-86ca-b756c3d90a8a",
       "slug": "aviv-valyevich",
       "name_he": "אביב ולייביץ'",
       "name_en": "Aviv Valyevich",
       "role_en": "Finance Ops Specialist",
       "company_en": "Silverfort",
       "photo_url": "/team/aviv-valyevich.webp",
-      "linkedin_url": null,
+      "linkedin_url": "https://www.linkedin.com/in/aviv-valyevich/",
       "sort": 1
     },
     {
-      "id": "5bb34499-f1fd-4d04-aa08-d70b6e88082d",
+      "id": "2fc1c752-80c8-4b67-ab0a-b68e11956168",
       "slug": "tali-amram",
       "name_he": "טלי עמרם",
       "name_en": "Tali Amram",
       "role_en": "Student Developer",
       "company_en": "XPLG",
       "photo_url": "/team/tali-amram.webp",
-      "linkedin_url": null,
+      "linkedin_url": "https://www.linkedin.com/in/tali-amram-aa1067294/",
       "sort": 2
     },
     {
-      "id": "e1fbe0fe-11fa-4e5e-b9a4-83f814dc8093",
+      "id": "c72f9c19-f585-4c07-b164-44846dee4bd9",
       "slug": "ido-perry",
       "name_he": "עידו פרי",
       "name_en": "Ido Perry",
       "role_en": "Product Manager",
       "company_en": "Reyymark",
       "photo_url": "/team/ido-perry.webp",
-      "linkedin_url": null,
+      "linkedin_url": "https://www.linkedin.com/in/idoperryprofile/",
       "sort": 3
     },
     {
-      "id": "b1c6f909-c14d-4136-97b1-56ccf7738340",
+      "id": "81e8a597-f654-402f-818b-983528a3f3f2",
       "slug": "eric-berezin",
       "name_he": "אריק ברזין",
       "name_en": "Eric Berezin",
       "role_en": "Finance Operations",
       "company_en": "Investing.com",
       "photo_url": "/team/eric-berezin.webp",
-      "linkedin_url": null,
+      "linkedin_url": "https://www.linkedin.com/in/eric-berezin-648867338/",
       "sort": 4
     }
   ]

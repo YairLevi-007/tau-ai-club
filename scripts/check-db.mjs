@@ -49,6 +49,9 @@ console.log("applied  seed.sql");
 const seededSpeakers = JSON.stringify(
   (await db.query("select slug, linkedin_url, photo_url from public.speakers where slug <> 'secret-speaker' order by slug")).rows,
 );
+const seededTeam = JSON.stringify(
+  (await db.query("select slug, linkedin_url, photo_url from public.club_team order by slug")).rows,
+);
 
 // A draft event + a speaker only on that draft, to prove neither leaks.
 await db.exec(`
@@ -126,11 +129,17 @@ for (const good of ["https://www.linkedin.com/in/some-one_1/", "https://www.link
 }
 await db.exec("update public.speakers set linkedin_url = null where slug = 'secret-speaker'");
 
-// club_team: anon reads published members only, in order.
-const team = await asAnon("select slug from public.club_team order by sort");
+// club_team: anon reads published members only, in order, with their public LinkedIn.
+const team = await asAnon("select slug, linkedin_url from public.club_team order by sort");
 check(
-  JSON.stringify(team.rows.map((r) => r.slug)) === JSON.stringify(["aviv-valyevich", "tali-amram", "ido-perry", "eric-berezin"]),
-  `anon sees the 4 published founders in order, not the unpublished one (got ${JSON.stringify(team.rows)})`,
+  JSON.stringify(team.rows.map((r) => [r.slug, r.linkedin_url])) ===
+    JSON.stringify([
+      ["aviv-valyevich", "https://www.linkedin.com/in/aviv-valyevich/"],
+      ["tali-amram", "https://www.linkedin.com/in/tali-amram-aa1067294/"],
+      ["ido-perry", "https://www.linkedin.com/in/idoperryprofile/"],
+      ["eric-berezin", "https://www.linkedin.com/in/eric-berezin-648867338/"],
+    ]),
+  `anon sees the 4 published founders in order with LinkedIn, not the unpublished one (got ${JSON.stringify(team.rows)})`,
 );
 for (const [col, value, ok] of [
   ["photo_url", "/team/ido-perry.webp", true],
@@ -141,13 +150,13 @@ for (const [col, value, ok] of [
 ]) {
   let accepted = true;
   try {
-    await db.query(`update public.club_team set ${col} = $1 where slug = 'ido-perry'`, [value]);
+    await db.query(`update public.club_team set ${col} = $1 where slug = 'hidden-member'`, [value]);
   } catch {
     accepted = false;
   }
   check(accepted === ok, `club_team.${col} ${ok ? "accepts" : "rejects"} ${value}`);
 }
-await db.exec("update public.club_team set photo_url = '/team/ido-perry.webp', linkedin_url = null where slug = 'ido-perry'");
+await db.exec("update public.club_team set photo_url = null, linkedin_url = null where slug = 'hidden-member'");
 
 // speakers.photo_url: https:// or one of our own /speakers/<slug>.webp files, nothing else.
 for (const [url, ok] of [
@@ -207,6 +216,10 @@ const afterTests = JSON.stringify(
   (await db.query("select slug, linkedin_url, photo_url from public.speakers where slug <> 'secret-speaker' order by slug")).rows,
 );
 check(afterTests === seededSpeakers, "every speaker's linkedin_url and photo_url still equal the seed");
+const teamAfterTests = JSON.stringify(
+  (await db.query("select slug, linkedin_url, photo_url from public.club_team where slug <> 'hidden-member' order by slug")).rows,
+);
+check(teamAfterTests === seededTeam, "every founder's linkedin_url and photo_url still equal the seed");
 
 // --- Fixtures (exactly what the app's anon query returns) ----------------------
 if (writeFixtures && failures) {
