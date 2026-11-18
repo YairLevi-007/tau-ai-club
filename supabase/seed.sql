@@ -31,16 +31,16 @@ insert into public.speakers (slug, name_he, name_en, company_he, company_en, rol
   -- Hebrew name spellings approved by the club. Facts from the club's Instagram posts (brand/instagram/: "Meet our speakers" and the
   -- 11.11 / 18.11 flyers). English names as printed. Company names stay in Latin in Hebrew.
   -- Hebrew roles are our translation: REVIEW. Photos are cropped from those posts.
-  -- LinkedIn: only confirmed profiles; the committee fills in the rest.
+  -- LinkedIn: all seven confirmed by the club (2026-11-18).
   ('shay-yahal',     'שי יהל',      'Shay Yahal',     'Stealth startup',      'Stealth startup',
    'שותפה מייסדת', 'Co-Founder', -- REVIEW Hebrew role. Ex-AI & Data Eng. Manager, Grip Security; former researcher, Tel Aviv University
-   '/speakers/shay-yahal.webp', null),
+   '/speakers/shay-yahal.webp', 'https://www.linkedin.com/in/shay-yahal/'),
   ('oz-altagar',     'עוז אלטגר',   'Oz Altagar',     'AWS',                  'AWS',
    'ארכיטקט, Prototyping ו-AI Engineering', 'Architect, Prototyping & AI Engineering', -- REVIEW Hebrew role. The 18.11 flyer says "AI & Multi-Agent Systems, AWS · Speaker, AWS Summit Tel Aviv"
-   '/speakers/oz-altagar.webp', null),
+   '/speakers/oz-altagar.webp', 'https://www.linkedin.com/in/oz-altagar-0a50861b3/'),
   ('or-maccabi',     'אור מכבי',    'Or Maccabi',     'MongoDB',              'MongoDB',
    'AI Agents Israel', 'AI Agents Israel',
-   '/speakers/or-maccabi.webp', null),
+   '/speakers/or-maccabi.webp', 'https://www.linkedin.com/in/ormaccabi/'),
   ('roee-margalit',  'רועי מרגלית', 'Ro''ee Margalit', 'Rotate · Check Point', 'Rotate · Check Point',
    'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role. LinkedIn confirmed by the club
    '/speakers/roee-margalit.webp', 'https://www.linkedin.com/in/roee-margalit/'),
@@ -49,10 +49,10 @@ insert into public.speakers (slug, name_he, name_en, company_he, company_en, rol
    '/speakers/tomer-diari.webp', 'https://www.linkedin.com/in/diari'), -- LinkedIn confirmed by the club (matches Aleph's site)
   ('ori-goshen',     'אורי גושן',   'Ori Goshen',     'AI21 Labs',            'AI21 Labs',
    'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role
-   '/speakers/ori-goshen.webp', null),
+   '/speakers/ori-goshen.webp', 'https://www.linkedin.com/in/ori-goshen/'),
   ('gavriel-goidel', 'גבריאל גוידל', 'Gavriel Goidel', 'Google',               'Google',
    'ראש אסטרטגיה ותפעול', 'Head of Strategy + Operations', -- REVIEW Hebrew role
-   '/speakers/gavriel-goidel.webp', null);
+   '/speakers/gavriel-goidel.webp', 'https://www.linkedin.com/in/goidelg/');
 
 -- ---------------------------------------------------------------------------
 -- Events
