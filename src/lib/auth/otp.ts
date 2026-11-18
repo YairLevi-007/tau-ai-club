@@ -63,9 +63,11 @@ type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
 
 export const LIMITS = {
-  requestPerIp: { max: 8, windowMs: 10 * 60_000 },
+  // Per-IP limits are generous: a whole cohort can log in together on the campus Wi-Fi,
+  // which shares one public IP. The per-email limits do the real throttling.
+  requestPerIp: { max: 60, windowMs: 10 * 60_000 },
   requestPerEmail: { max: 3, windowMs: 10 * 60_000 },
-  verifyPerIp: { max: 15, windowMs: 10 * 60_000 },
+  verifyPerIp: { max: 150, windowMs: 10 * 60_000 },
   verifyPerEmail: { max: 6, windowMs: 10 * 60_000 },
 } as const;
 
