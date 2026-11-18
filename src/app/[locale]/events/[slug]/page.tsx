@@ -26,6 +26,7 @@ import { ChipSep, FlyerChip, InfoTile, PixelCluster, SpeakerAvatar, splitTitle }
 import { SpeakerLinkedIn } from "@/components/events/speaker-linkedin";
 import { SpeakerContactLinks } from "@/components/events/speaker-contact-links";
 import { authEnabled } from "@/lib/supabase/config";
+import { requireMember } from "@/lib/auth/viewer";
 
 export const revalidate = 300;
 
@@ -43,6 +44,9 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/events/[
     const tErr = await getTranslations({ locale, namespace: "errors" });
     return { title: tErr("notFoundTitle"), robots: { index: false, follow: false } };
   }
+  // Members area on: meetup pages are members only (the schedule isn't public), so no
+  // date/venue in the preview and not indexed.
+  if (authEnabled()) return { title: loc(event, "title", locale) ?? "", robots: { index: false, follow: false } };
   // Public fields only (title, date, venue, speaker names, blurb). Never speaker contact data.
   const [t, te] = await Promise.all([
     getTranslations({ locale, namespace: "meta" }),
@@ -85,6 +89,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const l = locale as Locale;
+  if (authEnabled()) await requireMember(`/events/${slug}`);
 
   const [event, season] = await Promise.all([getEventBySlug(slug), getSeason()]);
   if (!event || season.status !== "ok") notFound();

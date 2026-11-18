@@ -11,7 +11,7 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
 import { ClubAbout } from "@/components/home/club-about";
-import { CohortBand } from "@/components/home/cohort-band";
+import { authEnabled } from "@/lib/supabase/config";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
 // route segment config must be a literal).
@@ -41,6 +41,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const cohort = season.status === "ok" ? season.cohort : null;
   const tagline = cohort ? loc(cohort, "tagline", l) : null;
   const next = season.status === "ok" ? season.next : null;
+  // Members area on: the schedule (dates, times, places) is for members only, in /me.
+  // Open question for the club (docs/OPEN-QUESTIONS.md #1). Guests see the vision, speakers and founders.
+  const showSchedule = !authEnabled();
   const seriesTotal =
     season.status === "ok" && next?.series ? season.events.filter((e) => e.series === next.series).length : undefined;
 
@@ -58,7 +61,10 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         <i className="absolute hidden lg:block end-[calc(4%+1.75rem)] top-[24rem] size-3.5 bg-logo-block" />
       </div>
 
-      <div className="mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end lg:gap-14 lg:pt-16">
+      <div className={cn(
+          "mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",
+          showSchedule && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]",
+        )}>
         <section aria-labelledby="hero-heading">
           <h1
             id="hero-heading"
@@ -87,7 +93,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           )}
         </section>
 
-        {season.status === "ok" ? (
+        {!showSchedule ? null : season.status === "ok" ? (
           <NextEventCard event={next} now={season.now} seriesTotal={seriesTotal} />
         ) : (
           <p role="status" data-testid="data-unavailable" className="rounded-lg border border-border bg-surface p-5">
@@ -97,10 +103,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       </div>
 
       <ClubAbout locale={l} />
-      {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={cohort ? loc(cohort, "name", l) : null} />}
+      {showSchedule && season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={cohort ? loc(cohort, "name", l) : null} />}
       {season.status === "ok" && <SeasonSpeakers events={season.events} locale={l} />}
       <ClubFounders team={team} locale={l} />
-      <CohortBand locale={l} />
     </div>
   );
 }

@@ -1,9 +1,10 @@
-// Subscribable iCalendar feed of the current season (he). See src/lib/ics.ts.
+// iCalendar feed of the current season (he). See src/lib/ics.ts. Members only while the
+// members area is on (src/lib/calendar-access.ts).
+import type { NextRequest } from "next/server";
 import { seasonIcsResponse } from "@/lib/ics";
+import { calendarAllowed, calendarDenied } from "@/lib/calendar-access";
 
-export const dynamic = "force-static";
-export const revalidate = 300;
-
-export function GET() {
+export async function GET(request: NextRequest) {
+  if (!(await calendarAllowed(request))) return calendarDenied();
   return seasonIcsResponse("he");
 }

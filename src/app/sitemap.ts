@@ -16,7 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const latest = events.reduce<string | undefined>((m, e) => (!m || e.updated_at > m ? e.updated_at : m), undefined);
   const pages = [
     { path: "/", lastModified: latest },
-    ...events.map((e) => ({ path: `/events/${e.slug}`, lastModified: e.updated_at })),
+    // Members area on: meetup pages are members only (the schedule isn't public).
+    ...(authEnabled() ? [] : events.map((e) => ({ path: `/events/${e.slug}`, lastModified: e.updated_at }))),
     // Members area off: lectures have a public preview (blurb, speaker, date), so they're listed.
     // Members area on: lectures are members only, like workshops (never listed).
     ...(authEnabled()
