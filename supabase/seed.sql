@@ -142,7 +142,7 @@ join public.speakers s on s.slug = l.speaker_slug;
 -- in English on both locales. Hebrew names and LinkedIn URLs confirmed by the club (2026-11-18).
 -- ---------------------------------------------------------------------------
 insert into public.club_team (slug, name_he, name_en, role_en, company_en, photo_url, linkedin_url, sort, is_published) values
-  ('aviv-valyevich', 'אביב ולייביץ''', 'Aviv Valyevich', 'Finance Ops Specialist', 'Silverfort',    '/team/aviv-valyevich.webp',
+  ('aviv-valyevich', 'אביב ולואיביץ', 'Aviv Valyevich', 'Finance Ops Specialist', 'Silverfort',    '/team/aviv-valyevich.webp',
    'https://www.linkedin.com/in/aviv-valyevich/', 1, true),
   ('tali-amram',     'טלי עמרם',       'Tali Amram',     'Student Developer',      'XPLG',          '/team/tali-amram.webp',
    'https://www.linkedin.com/in/tali-amram-aa1067294/', 2, true),
