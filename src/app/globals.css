@@ -53,6 +53,7 @@
   --color-accent-foreground: var(--fg);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--border);
   --color-ring: var(--brand-purple);
 

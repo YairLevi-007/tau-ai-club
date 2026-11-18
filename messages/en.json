@@ -11,7 +11,8 @@
     "switchLanguage": "עברית",
     "switchLanguageLabel": "החלפה לעברית",
     "skipToContent": "Skip to content",
-    "instagramLabel": "TAU AI Club on Instagram"
+    "instagramLabel": "TAU AI Club on Instagram",
+    "linkedinLabel": "TAU AI Club on LinkedIn"
   },
   "event": {
     "nextEvent": "Next up",
@@ -69,7 +70,8 @@
   "footer": {
     "instagram": "Instagram",
     "tagline": "LET'S BUILD",
-    "follow": "Not in the cohort? Follow us on Instagram for open events and the next cohort."
+    "follow": "Not in the cohort? Follow us on Instagram and LinkedIn for open events and the next cohort.",
+    "linkedin": "LinkedIn"
   },
   "errors": {
     "dataUnavailable": "We couldn't load the events right now. Try again in a moment.",
@@ -84,7 +86,10 @@
     "speakersLine1": "Meet our",
     "speakersLine2": "speakers",
     "foundersLine1": "Meet the club's",
-    "foundersLine2": "founders"
+    "foundersLine2": "founders",
+    "icebreakersSoon": "Coming soon",
+    "icebreakersTitle": "Icebreaker games for club members",
+    "icebreakersBody": "Before each meetup we'll pair you up for a quick <pair>1:1</pair> chat with someone from the cohort. By the end of the year, everyone knows everyone."
   },
   "calendarFeed": {
     "description": "Every meetup of the TAU AI Club season. Updates on its own."

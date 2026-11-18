@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { SOCIAL } from "@/config/site";
 import { InstagramIcon } from "./instagram-icon";
+import { LinkedInIcon } from "./linkedin-icon";
 import { LanguageSwitch } from "./language-switch";
 
 export async function SiteHeader() {
@@ -41,6 +42,15 @@ export async function SiteHeader() {
             className="inline-flex size-9 items-center justify-center rounded-md text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
           >
             <InstagramIcon className="size-[18px]" />
+          </a>
+          <a
+            href={SOCIAL.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("linkedinLabel")}
+            className="inline-flex size-9 items-center justify-center rounded-md text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+          >
+            <LinkedInIcon className="size-[18px]" />
           </a>
           <LanguageSwitch />
         </div>
