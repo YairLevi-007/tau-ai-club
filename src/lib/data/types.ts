@@ -34,6 +34,8 @@ export type Speaker = {
   role_he: string | null;
   role_en: string | null;
   photo_url: string | null;
+  /** Public, admin-entered profile link (https://www.linkedin.com/in/...). Not contact data. */
+  linkedin_url: string | null;
 };
 
 export type ClubEvent = {

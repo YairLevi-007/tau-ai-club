@@ -23,6 +23,7 @@ import { eventJsonLd, jsonLdHtml } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
+import { SpeakerLinkedIn } from "@/components/events/speaker-linkedin";
 
 export const revalidate = 300;
 
@@ -113,6 +114,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
       name,
       initials: initialsOf(name),
       photoUrl: speaker.photo_url,
+      linkedinUrl: speaker.linkedin_url,
       role: [loc(speaker, "role", l), loc(speaker, "company", l)].filter(Boolean).join(" · ") || null,
     };
   });
@@ -267,10 +269,11 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                   {speakers.map((sp) => (
                     <li key={sp.key} className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4">
                       <SpeakerFace speaker={sp} size={64} className={cn(past && "opacity-80")} />
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-lg leading-tight font-semibold text-fg">{sp.name}</p>
                         {sp.role && <p className="mt-1 text-sm text-fg-subtle">{sp.role}</p>}
                       </div>
+                      <SpeakerLinkedIn url={sp.linkedinUrl} name={sp.name} />
                     </li>
                   ))}
                 </ul>

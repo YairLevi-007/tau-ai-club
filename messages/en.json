@@ -75,7 +75,8 @@
   },
   "home": {
     "heroLine1": "Building with AI,",
-    "heroLine2": "together."
+    "heroLine2": "together.",
+    "seasonSpeakers": "This season's speakers"
   },
   "calendarFeed": {
     "description": "Every meetup of the TAU AI Club season. Updates on its own."

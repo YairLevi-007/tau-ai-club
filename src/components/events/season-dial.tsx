@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { dur, ease } from "@/lib/motion";
 import { SpeakerFace as Face, type FaceSpeaker } from "./speaker-face";
+import { SpeakerLinkedIn } from "./speaker-linkedin";
 
 export type DialEvent = {
   slug: string;
@@ -27,7 +28,7 @@ export type DialEvent = {
   speakers: DialSpeaker[];
 };
 
-export type DialSpeaker = FaceSpeaker & { role: string | null };
+export type DialSpeaker = FaceSpeaker & { role: string | null; linkedinUrl: string | null };
 
 type Props = {
   events: DialEvent[];
@@ -392,10 +393,11 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                     {selected.speakers.map((sp) => (
                       <li key={sp.name} className="flex items-center gap-3">
                         <Face speaker={sp} size={selected.speakers.length > 1 ? 48 : 64} />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="leading-tight font-semibold text-fg">{sp.name}</p>
                           {sp.role && <p className="mt-0.5 text-sm text-fg-subtle">{sp.role}</p>}
                         </div>
+                        <SpeakerLinkedIn url={sp.linkedinUrl} name={sp.name} />
                       </li>
                     ))}
                   </ul>

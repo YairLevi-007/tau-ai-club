@@ -29,7 +29,8 @@ export function SpeakerFace({ speaker, size, className }: { speaker: FaceSpeaker
       style={{ width: size, height: size, fontSize: size * 0.36 }}
     >
       {speaker.photoUrl ? (
-        <Image src={speaker.photoUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
+        // alt is the name (the wrapper is aria-hidden because the name is also written next to it).
+        <Image src={speaker.photoUrl} alt={speaker.name} fill sizes={`${size}px`} className="object-cover" />
       ) : (
         speaker.initials
       )}

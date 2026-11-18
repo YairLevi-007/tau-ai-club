@@ -1,6 +1,6 @@
 {
   "cohort": {
-    "id": "33ce6cf3-9bf4-4502-9c27-c116d034f14b",
+    "id": "87d084aa-015a-4b52-9678-a8408edd6b35",
     "slug": "02",
     "name_he": "מחזור 02",
     "name_en": "Cohort 02",
@@ -11,24 +11,24 @@
   },
   "events": [
     {
-      "id": "c3ba532c-8562-4728-a9d7-f73e3ae9ee40",
+      "id": "3a5b358f-83f5-47d0-82f8-c6d85bf76941",
       "slug": "cohort-02-opening",
       "kind": "opening",
       "series": null,
       "series_no": null,
-      "title_he": "פתיחת מחזור 02: AI, עבר ועתיד",
-      "title_en": "Cohort 02 opening: AI, past & future",
-      "blurb_he": null,
-      "blurb_en": null,
+      "title_he": "AI, עבר ועתיד: איך הגענו לכאן, ולאן אנחנו הולכים?",
+      "title_en": "AI, past and future: how did we get here, and where are we heading?",
+      "blurb_he": "פתיחת מחזור 02. הרצאה ושאלות, שבירת קרח ונטוורקינג. יש אוכל.",
+      "blurb_en": "Cohort 02 opening. Talk + Q&A, icebreaker, networking. Food included.",
       "starts_at": "2026-11-11T16:00:00+00:00",
       "ends_at": "2026-11-11T18:00:00+00:00",
       "venue_note_he": null,
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": {
-        "id": "870b9d06-9da8-408c-a4d7-4fc5b543543a",
+        "id": "ba8ac04b-ed90-4a10-88b8-58088765fcdb",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -39,62 +39,71 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "fb1f972c-2d2b-4e49-8b85-cf4e7eab3fbf",
-            "slug": "shai-yahel",
+            "id": "17506039-a273-4ad9-a650-080521dc4336",
+            "slug": "shay-yahal",
             "name_he": "שי יהל",
-            "name_en": "Shai Yahel",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "name_en": "Shay Yahal",
+            "company_he": "Stealth startup",
+            "company_en": "Stealth startup",
+            "role_he": "שותפה מייסדת",
+            "role_en": "Co-Founder",
+            "photo_url": "/speakers/shay-yahal.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "96be4f26-8e9d-4bc3-8de4-adb848be969b",
+      "id": "b31f0cc1-a122-45fc-8f2b-5b4eba34c80e",
       "slug": "zero-to-hero-1",
       "kind": "workshop",
       "series": "zero-to-hero",
       "series_no": 1,
-      "title_he": "Zero to Hero 1: Claude",
-      "title_en": "Zero to Hero 1: Claude",
-      "blurb_he": "להביא לפטופ, עם Claude Code מותקן ומנוי Pro.",
-      "blurb_en": "Bring a laptop with Claude Code installed and a Pro plan.",
+      "title_he": "Zero to Hero 1: Claude Code, חלק 1 מתוך 3",
+      "title_en": "Zero to Hero 1: Claude Code, part 1 of 3",
+      "blurb_he": "בונים סוכני AI שעובדים בעולם האמיתי. סדנה מעשית: להביא לפטופ, עם Claude Code מותקן ומנוי Pro.",
+      "blurb_en": "Building AI agents that work in the real world. A hands-on workshop: bring a laptop with Claude Code installed and a Pro plan.",
       "starts_at": "2026-11-18T16:00:00+00:00",
       "ends_at": "2026-11-18T18:00:00+00:00",
-      "venue_note_he": "בקמפוס",
-      "venue_note_en": "On campus",
+      "venue_note_he": "חדר 251",
+      "venue_note_en": "Room 251",
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
-      "venue": null,
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
+      "venue": {
+        "id": "a65cd262-f94d-4c41-a817-3be0e237c4c4",
+        "name_he": "בניין רקנאטי",
+        "name_en": "Recanati Bldg.",
+        "address_he": "אוניברסיטת תל אביב",
+        "address_en": "Tel Aviv University",
+        "maps_url": null
+      },
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
-            "slug": "oz",
-            "name_he": "עוז",
-            "name_en": "Oz",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "id": "8f05fba0-bf1d-4249-a8b7-70bb6c130e7c",
+            "slug": "oz-altagar",
+            "name_he": "עוז אלטגר",
+            "name_en": "Oz Altagar",
+            "company_he": "AWS",
+            "company_en": "AWS",
+            "role_he": "ארכיטקט, Prototyping ו-AI Engineering",
+            "role_en": "Architect, Prototyping & AI Engineering",
+            "photo_url": "/speakers/oz-altagar.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "c3b521d9-67f0-4ae2-8d04-9c3689b1f52b",
+      "id": "d8e125fa-24f6-4372-a8ec-66d01c64e4b3",
       "slug": "zero-to-hero-2",
       "kind": "workshop",
       "series": "zero-to-hero",
       "series_no": 2,
-      "title_he": "Zero to Hero 2: Claude",
-      "title_en": "Zero to Hero 2: Claude",
+      "title_he": "Zero to Hero 2: Claude Code, חלק 2 מתוך 3",
+      "title_en": "Zero to Hero 2: Claude Code, part 2 of 3",
       "blurb_he": "להביא לפטופ, עם Claude Code מותקן ומנוי Pro.",
       "blurb_en": "Bring a laptop with Claude Code installed and a Pro plan.",
       "starts_at": "2026-11-25T16:00:00+00:00",
@@ -103,9 +112,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": {
-        "id": "bbd08c0b-569c-4172-bab2-90a64ee83fc9",
+        "id": "8b2d25ab-2333-4a5d-8945-b76767f71128",
         "name_he": "המרכז ליזמות",
         "name_en": "Entrepreneurship Center",
         "address_he": "אוניברסיטת תל אביב",
@@ -116,21 +125,22 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
-            "slug": "oz",
-            "name_he": "עוז",
-            "name_en": "Oz",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "id": "8f05fba0-bf1d-4249-a8b7-70bb6c130e7c",
+            "slug": "oz-altagar",
+            "name_he": "עוז אלטגר",
+            "name_en": "Oz Altagar",
+            "company_he": "AWS",
+            "company_en": "AWS",
+            "role_he": "ארכיטקט, Prototyping ו-AI Engineering",
+            "role_en": "Architect, Prototyping & AI Engineering",
+            "photo_url": "/speakers/oz-altagar.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "82a93cc0-c6cb-4207-8c3b-926ddb4c1448",
+      "id": "65c90b8b-0f21-4da3-867b-2f3903559440",
       "slug": "entrepreneurship-tech-or-maccabi",
       "kind": "lecture",
       "series": null,
@@ -145,9 +155,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": {
-        "id": "869b95f5-1192-4fae-a72f-8ffd257224a0",
+        "id": "dcf2a156-4919-4bd4-b13a-c453044047ce",
         "name_he": "משרדי MongoDB",
         "name_en": "MongoDB offices",
         "address_he": null,
@@ -158,27 +168,28 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "20fe9a8c-677a-4070-abb4-64c61dd8105c",
+            "id": "50da03b1-2ab1-4083-8e90-1c775aa0dc24",
             "slug": "or-maccabi",
             "name_he": "אור מכבי",
             "name_en": "Or Maccabi",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "company_he": "MongoDB",
+            "company_en": "MongoDB",
+            "role_he": "AI Agents Israel",
+            "role_en": "AI Agents Israel",
+            "photo_url": "/speakers/or-maccabi.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "9e43e9ff-2e38-4e14-85c3-341fd55acea2",
+      "id": "e80007cc-3522-4410-96e3-6d99ad216341",
       "slug": "zero-to-hero-3",
       "kind": "workshop",
       "series": "zero-to-hero",
       "series_no": 3,
-      "title_he": "Zero to Hero 3: Claude",
-      "title_en": "Zero to Hero 3: Claude",
+      "title_he": "Zero to Hero 3: Claude Code, חלק 3 מתוך 3",
+      "title_en": "Zero to Hero 3: Claude Code, part 3 of 3",
       "blurb_he": "להביא לפטופ, עם Claude Code מותקן ומנוי Pro.",
       "blurb_en": "Bring a laptop with Claude Code installed and a Pro plan.",
       "starts_at": "2026-12-16T16:00:00+00:00",
@@ -187,27 +198,28 @@
       "venue_note_en": "Off campus",
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "05cce3a6-a338-4c27-b86f-977607ae3844",
-            "slug": "oz",
-            "name_he": "עוז",
-            "name_en": "Oz",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "id": "8f05fba0-bf1d-4249-a8b7-70bb6c130e7c",
+            "slug": "oz-altagar",
+            "name_he": "עוז אלטגר",
+            "name_en": "Oz Altagar",
+            "company_he": "AWS",
+            "company_en": "AWS",
+            "role_he": "ארכיטקט, Prototyping ו-AI Engineering",
+            "role_en": "Architect, Prototyping & AI Engineering",
+            "photo_url": "/speakers/oz-altagar.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "9724b854-9221-48f7-a6c3-ece7564b6faa",
+      "id": "00c8f436-6914-446b-b495-81ca5f420196",
       "slug": "entrepreneurship-tech-roee-margalit",
       "kind": "lecture",
       "series": null,
@@ -222,27 +234,28 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": null,
       "event_speakers": [
         {
           "sort": 0,
           "speaker": {
-            "id": "c7592cd5-feb1-4b26-8d1d-901833bfb31c",
+            "id": "0091c7b7-8598-4baa-a577-1848711950ae",
             "slug": "roee-margalit",
             "name_he": "רועי מרגלית",
-            "name_en": "Roee Margalit",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "name_en": "Ro'ee Margalit",
+            "company_he": "Rotate · Check Point",
+            "company_en": "Rotate · Check Point",
+            "role_he": "שותף מייסד ומנכ\"ל",
+            "role_en": "Co-Founder & CEO",
+            "photo_url": "/speakers/roee-margalit.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "f85ee2ed-8327-4c29-aec6-939749c51a82",
+      "id": "da047883-a5e4-43c1-9ef2-92c66d073010",
       "slug": "growth-capital-tomer-diari",
       "kind": "lecture",
       "series": null,
@@ -257,9 +270,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": {
-        "id": "697b5a0c-2061-4721-8ef5-d0bfbb3930eb",
+        "id": "c08d12db-2149-4983-8830-c30a0f970972",
         "name_he": "משרדי Aleph",
         "name_en": "Aleph offices",
         "address_he": null,
@@ -270,21 +283,22 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "78f8e8e0-cf99-49f5-9bba-f5d371707972",
+            "id": "51357150-9978-48c5-8db1-f2fcd0a95e96",
             "slug": "tomer-diari",
             "name_he": "תומר דיארי",
             "name_en": "Tomer Diari",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "company_he": "Aleph",
+            "company_en": "Aleph",
+            "role_he": "שותף כללי",
+            "role_en": "General Partner",
+            "photo_url": "/speakers/tomer-diari.webp",
+            "linkedin_url": "https://www.linkedin.com/in/diari"
           }
         }
       ]
     },
     {
-      "id": "ee97e96b-2fc6-4e69-96ee-36a490c932cc",
+      "id": "120169e7-db8a-4f0b-93d5-c8959ec07763",
       "slug": "joint-event-ori-goshen",
       "kind": "joint",
       "series": null,
@@ -299,9 +313,9 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": true,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": {
-        "id": "870b9d06-9da8-408c-a4d7-4fc5b543543a",
+        "id": "ba8ac04b-ed90-4a10-88b8-58088765fcdb",
         "name_he": "אולם ברודקום",
         "name_en": "Broadcom Hall",
         "address_he": "אוניברסיטת תל אביב",
@@ -312,21 +326,22 @@
         {
           "sort": 0,
           "speaker": {
-            "id": "fc8b62f7-b4ef-4b10-a628-7cd831db9ffa",
+            "id": "0722ea94-9c2d-44cc-9cd7-7ff9716d2890",
             "slug": "ori-goshen",
             "name_he": "אורי גושן",
             "name_en": "Ori Goshen",
-            "company_he": null,
-            "company_en": null,
-            "role_he": null,
-            "role_en": null,
-            "photo_url": null
+            "company_he": "AI21 Labs",
+            "company_en": "AI21 Labs",
+            "role_he": "שותף מייסד ומנכ\"ל",
+            "role_en": "Co-Founder & CEO",
+            "photo_url": "/speakers/ori-goshen.webp",
+            "linkedin_url": null
           }
         }
       ]
     },
     {
-      "id": "f0057d62-ddb1-4a0b-90d8-2fbdcc35b06c",
+      "id": "9f4953ee-2a5a-4f29-bd9d-ad51fdb02e0c",
       "slug": "cohort-02-closing",
       "kind": "closing",
       "series": null,
@@ -341,9 +356,25 @@
       "venue_note_en": null,
       "luma_url": null,
       "is_tentative": false,
-      "updated_at": "2026-11-17T11:22:18.645+00:00",
+      "updated_at": "2026-11-18T07:23:07.724+00:00",
       "venue": null,
-      "event_speakers": []
+      "event_speakers": [
+        {
+          "sort": 0,
+          "speaker": {
+            "id": "a025115f-88e8-4c7f-9ebf-6b4a179ba54b",
+            "slug": "gavriel-goidel",
+            "name_he": "גבריאל גוידל",
+            "name_en": "Gavriel Goidel",
+            "company_he": "Google",
+            "company_en": "Google",
+            "role_he": "ראש אסטרטגיה ותפעול",
+            "role_en": "Head of Strategy + Operations",
+            "photo_url": "/speakers/gavriel-goidel.webp",
+            "linkedin_url": null
+          }
+        }
+      ]
     }
   ]
 }
