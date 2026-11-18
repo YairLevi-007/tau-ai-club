@@ -12,7 +12,7 @@ insert into public.cohorts (slug, name_he, name_en, tagline_he, tagline_en, star
   ('02', 'מחזור 02', 'Cohort 02',
    'מועדון ה-AI של אוניברסיטת תל אביב. הרצאות של אנשים מהתעשייה, סדנאות Zero to Hero, ואנשים שפשוט אוהבים לבנות דברים.', -- REVIEW copy (designer, design/copy.md)
    'Tel Aviv University''s AI club. Talks from people in the industry, Zero to Hero workshops, and a room full of people who like building things.',
-   '2026-11-01', '2027-07-31'); -- REVIEW cohort end date
+   '2026-11-01', '2027-07-31'); -- end date confirmed by the club 2026-11-18
 
 -- ---------------------------------------------------------------------------
 -- Venues
@@ -21,8 +21,8 @@ insert into public.venues (name_he, name_en, address_he, address_en) values
   ('אולם ברודקום',  'Broadcom Hall',           'אוניברסיטת תל אביב', 'Tel Aviv University'), -- from the 11.11 flyer
   ('בניין רקנאטי',  'Recanati Bldg.',          'אוניברסיטת תל אביב', 'Tel Aviv University'), -- from the 18.11 flyer; REVIEW Hebrew spelling
   ('המרכז ליזמות',  'Entrepreneurship Center', 'אוניברסיטת תל אביב', 'Tel Aviv University'), -- REVIEW
-  ('משרדי MongoDB', 'MongoDB offices',         null, null),                                  -- REVIEW address
-  ('משרדי Aleph',   'Aleph offices',           null, null);                                  -- REVIEW address
+  ('משרדי MongoDB', 'MongoDB offices',         'תל אביב', 'Tel Aviv'),                       -- exact address comes with the Luma page
+  ('משרדי Aleph',   'Aleph offices',           'תל אביב', 'Tel Aviv');                       -- exact address comes with the Luma page
 
 -- ---------------------------------------------------------------------------
 -- Speakers (public profile only, no contact data)
@@ -30,28 +30,28 @@ insert into public.venues (name_he, name_en, address_he, address_en) values
 insert into public.speakers (slug, name_he, name_en, company_he, company_en, role_he, role_en, photo_url, linkedin_url) values
   -- Hebrew name spellings approved by the club. Facts from the club's Instagram posts (brand/instagram/: "Meet our speakers" and the
   -- 11.11 / 18.11 flyers). English names as printed. Company names stay in Latin in Hebrew.
-  -- Hebrew roles are our translation: REVIEW. Photos are cropped from those posts.
+  -- Roles stay in English on both locales (club decision 2026-11-18). Photos are cropped from those posts.
   -- LinkedIn: all seven confirmed by the club (2026-11-18).
   ('shay-yahal',     'שי יהל',      'Shay Yahal',     'Stealth startup',      'Stealth startup',
-   'שותפה מייסדת', 'Co-Founder', -- REVIEW Hebrew role. Ex-AI & Data Eng. Manager, Grip Security; former researcher, Tel Aviv University
+   'Co-Founder', 'Co-Founder', -- Ex-AI & Data Eng. Manager, Grip Security; former researcher, Tel Aviv University
    '/speakers/shay-yahal.webp', 'https://www.linkedin.com/in/shay-yahal/'),
   ('oz-altagar',     'עוז אלטגר',   'Oz Altagar',     'AWS',                  'AWS',
-   'ארכיטקט, Prototyping ו-AI Engineering', 'Architect, Prototyping & AI Engineering', -- REVIEW Hebrew role. The 18.11 flyer says "AI & Multi-Agent Systems, AWS · Speaker, AWS Summit Tel Aviv"
+   'Architect, Prototyping & AI Engineering', 'Architect, Prototyping & AI Engineering', -- The 18.11 flyer says "AI & Multi-Agent Systems, AWS · Speaker, AWS Summit Tel Aviv"
    '/speakers/oz-altagar.webp', 'https://www.linkedin.com/in/oz-altagar-0a50861b3/'),
   ('or-maccabi',     'אור מכבי',    'Or Maccabi',     'MongoDB',              'MongoDB',
    'AI Agents Israel', 'AI Agents Israel',
    '/speakers/or-maccabi.webp', 'https://www.linkedin.com/in/ormaccabi/'),
   ('roee-margalit',  'רועי מרגלית', 'Ro''ee Margalit', 'Rotate · Check Point', 'Rotate · Check Point',
-   'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role. LinkedIn confirmed by the club
+   'Co-Founder & CEO', 'Co-Founder & CEO',
    '/speakers/roee-margalit.webp', 'https://www.linkedin.com/in/roee-margalit/'),
   ('tomer-diari',    'תומר דיארי',  'Tomer Diari',    'Aleph',                'Aleph',
-   'שותף כללי', 'General Partner', -- REVIEW Hebrew role
+   'General Partner', 'General Partner',
    '/speakers/tomer-diari.webp', 'https://www.linkedin.com/in/diari'), -- LinkedIn confirmed by the club (matches Aleph's site)
   ('ori-goshen',     'אורי גושן',   'Ori Goshen',     'AI21 Labs',            'AI21 Labs',
-   'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role
+   'Co-Founder & CEO', 'Co-Founder & CEO',
    '/speakers/ori-goshen.webp', 'https://www.linkedin.com/in/ori-goshen/'),
   ('gavriel-goidel', 'גבריאל גוידל', 'Gavriel Goidel', 'Google',               'Google',
-   'ראש אסטרטגיה ותפעול', 'Head of Strategy + Operations', -- REVIEW Hebrew role
+   'Head of Strategy + Operations', 'Head of Strategy + Operations',
    '/speakers/gavriel-goidel.webp', 'https://www.linkedin.com/in/goidelg/');
 
 -- ---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ from (values
    '2026-11-25', 'Entrepreneurship Center', null, null, false),
 
   ('entrepreneurship-tech-or-maccabi', 'lecture', null, null,
-   'יזמות וטכנולוגיה', 'Entrepreneurship & Tech', -- REVIEW title
+   'יזמות וטכנולוגיה', 'Entrepreneurship & Tech', -- title approved by the club 2026-11-18
    null, null,
    '2026-12-02', 'MongoDB offices', null, null, false),
 
@@ -93,23 +93,23 @@ from (values
    '2026-12-16', null, 'מחוץ לקמפוס', 'Off campus', false), -- REVIEW venue TBD
 
   ('entrepreneurship-tech-roee-margalit', 'lecture', null, null,
-   'יזמות וטכנולוגיה', 'Entrepreneurship & Tech', -- REVIEW title
+   'יזמות וטכנולוגיה', 'Entrepreneurship & Tech', -- title approved by the club 2026-11-18
    null, null,
    '2026-12-23', null, null, null, false), -- REVIEW venue TBD
 
   ('growth-capital-tomer-diari', 'lecture', null, null,
-   'צמיחה והון', 'Growth & Capital', -- REVIEW title
+   'צמיחה והון', 'Growth & Capital', -- title approved by the club 2026-11-18
    null, null,
    '2026-12-30', 'Aleph offices', null, null, false),
 
   -- A Sunday on purpose (every other event is a Wednesday); confirmed. Still tentative.
   ('joint-event-ori-goshen', 'joint', null, null,
-   'אירוע משותף', 'Joint event', -- REVIEW title
+   'אירוע משותף', 'Joint event', -- title approved by the club 2026-11-18
    null, null,
    '2027-01-03', 'Broadcom Hall', null, null, true),
 
   ('cohort-02-closing', 'closing', null, null,
-   'אירוע סיום: Corporate, עם Google', 'Closing: Corporate, with Google', -- REVIEW title
+   'אירוע סיום: Corporate, עם Google', 'Closing: Corporate, with Google', -- title approved by the club 2026-11-18
    null, null,
    '2027-01-06', null, null, null, false) -- REVIEW venue TBD
 ) as e(slug, kind, series, series_no, title_he, title_en, blurb_he, blurb_en,
