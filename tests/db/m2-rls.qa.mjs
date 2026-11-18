@@ -21,7 +21,7 @@ const ok = (cond, label, extra = "") => {
 
 // ---- Supabase stubs (same surface Supabase gives our SQL) ----------------------------------------------
 await db.exec(`
-  create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
+  create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create role supabase_auth_admin nologin;
   create schema auth; create schema extensions;
   create table auth.users (id uuid primary key default gen_random_uuid(), email text, email_confirmed_at timestamptz);
   create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
@@ -433,11 +433,11 @@ section("7. Privilege audit (catalog)");
   for (const t of sens) {
     ok(!(await su(`select has_table_privilege('anon','public.${t}','SELECT') s`))[0].s, `anon has no SELECT on ${t}`);
   }
-  for (const t of ["speaker_contacts", "speaker_form_tokens"])
+  for (const t of ["speaker_contacts", "speaker_form_tokens", "member_contacts"])
     ok(!(await su(`select has_table_privilege('authenticated','public.${t}','SELECT') s`))[0].s, `authenticated has no SELECT on ${t}`);
   // Which public functions can anon / authenticated execute? Anything outside the expected list is a finding.
   const ANON_OK = new Set(["current_member_id", "is_member", "is_admin", "public_speaker_links", "speaker_form_info", "submit_speaker_contact"]);
-  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status", "avatar_owner_folder", "update_my_name", "member_directory", "member_profile", "admin_save_event", "admin_import_attendance"]);
+  const AUTH_OK = new Set([...ANON_OK, "current_member", "claim_membership", "member_speaker_contact", "admin_add_member", "admin_import_members", "admin_create_speaker_token", "admin_revoke_speaker_tokens", "admin_delete_speaker_contact", "admin_speaker_contact_status", "avatar_owner_folder", "update_my_name", "member_directory", "member_profile", "admin_save_event", "admin_import_attendance", "my_contact", "update_my_contact", "member_contact"]);
   const fns = await su(`select p.proname, has_function_privilege('anon', p.oid, 'EXECUTE') a, has_function_privilege('authenticated', p.oid, 'EXECUTE') u
                         from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prorettype <> 'trigger'::regtype order by 1`); // trigger functions can't be called directly (info: set_updated_at has default EXECUTE grants)
   const anonExtra = fns.filter((f) => f.a && !ANON_OK.has(f.proname)).map((f) => f.proname);

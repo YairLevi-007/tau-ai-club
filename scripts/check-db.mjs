@@ -16,6 +16,7 @@ import { runM2Checks } from "./rls-m2.mjs";
 import { runProfileChecks } from "./rls-m2-profiles.mjs";
 import { runAttendanceChecks } from "./rls-m2-attendance.mjs";
 import { runContentChecks } from "./rls-m3-content.mjs";
+import { runLaunchChecks } from "./rls-launch.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
@@ -33,6 +34,7 @@ await db.exec(`
   create role anon nologin;
   create role authenticated nologin;
   create role service_role nologin bypassrls;
+  create role supabase_auth_admin nologin;
   create schema auth;
   create schema extensions;
   create table auth.users (
@@ -47,7 +49,7 @@ await db.exec(`
   create function auth.uid() returns uuid language sql stable as $$
     select nullif(auth.jwt() ->> 'sub', '')::uuid
   $$;
-  grant usage on schema public to anon, authenticated, service_role;
+  grant usage on schema public to anon, authenticated, service_role, supabase_auth_admin;
   grant usage on schema auth to anon, authenticated;
   grant usage on schema extensions to anon, authenticated, service_role;
   grant execute on all functions in schema auth to anon, authenticated;
@@ -315,6 +317,7 @@ await runM2Checks(db, check);
 await runProfileChecks(db, check);
 await runAttendanceChecks(db, check);
 await runContentChecks(db, check);
+await runLaunchChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 process.exit(failures ? 1 : 0);

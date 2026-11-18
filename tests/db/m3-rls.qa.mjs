@@ -21,7 +21,7 @@ const ok = (cond, label, extra = "") => {
 
 // ---- Supabase stubs (same surface Supabase gives our SQL) ----------------------------------------------
 await db.exec(`
-  create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
+  create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; create role supabase_auth_admin nologin;
   create schema auth; create schema extensions;
   create table auth.users (id uuid primary key default gen_random_uuid(), email text, email_confirmed_at timestamptz);
   create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
