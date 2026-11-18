@@ -1,4 +1,4 @@
-# HANDOVER (v1.3, 2026-11-16)
+# HANDOVER (v1.4, 2026-11-18)
 
 How the TAU AI Club site runs, what it depends on, and how to hand it to the next club team.
 Keep this file current: whoever adds a service or env var updates it in the same PR.
@@ -25,10 +25,10 @@ Every service should be owned by a **club account** (e.g. a shared `tau.ai.club@
 | `NEXT_PUBLIC_SITE_URL` | Vercel **Production only**; `.env.local` | Production: **`https://tauaiclub.com`** (no trailing slash). Local: `http://localhost:3000`. Leave unset on Preview. It drives metadataBase, canonical/hreflang, OG URLs, `sitemap.xml`, `robots.txt` and calendar links | No |
 | `ENABLE_EXPERIMENTAL_COREPACK` | Vercel, all environments | `1` (use the exact pnpm from `packageManager`) | No |
 | `DATA_SOURCE` | **TEMPORARY until Supabase; remove after migration.** Vercel Production (and Preview) only during the seed launch | `seed` = serve the season from the committed seed (`src/lib/data/fixtures.json`, generated from `supabase/seed.sql`), production included. Unset = Supabase. Without Supabase vars and without this flag the site keeps showing "couldn't load the events" (it never falls back silently) | No |
-| `AUTH_ENABLED` | Vercel (Production and Preview), `.env.local` | `true` switches the members/admin area on. Set it **only after runbook F** (Google provider configured in Supabase), then redeploy. Unset, any other value, missing Supabase vars or `DATA_SOURCE=seed` = off: sign-in links are hidden, `/login`, `/welcome`, `/profile`, `/members/…`, `/members-only`, `/admin/…` and `/speaker/…` show a calm "בקרוב / Coming soon" page (200, noindex, same URL), and no cookie-aware Supabase client is created | No |
+| `AUTH_ENABLED` | Vercel (Production and Preview), `.env.local` | `true` switches the members/admin area on. Set it **only after runbook G** (email codes, SMTP and the auth hook configured in Supabase), then redeploy. Unset, any other value, missing Supabase vars or `DATA_SOURCE=seed` = off: sign-in links are hidden, `/login`, `/welcome`, `/me`, `/profile`, `/members/…`, `/members-only`, `/admin/…` and `/speaker/…` show a calm "בקרוב / Coming soon" page (200, noindex, same URL), and no cookie-aware Supabase client is created. While on, `/lectures` and `/workshops` are members only and hidden from the guest header | No |
 | `USE_FIXTURES` | local / QA only | `1` = use seed fixtures without Supabase. Ignored in production | No |
 | `DEBUG_NOW` | local / QA only | ISO date to pin "now". Ignored in production | No |
-| `SUPABASE_SECRET_KEY` | **Not used.** M2 runs every query as the signed-in user under RLS, so the site needs no secret key. If a later feature needs one: server only, never `NEXT_PUBLIC_` | `sb_secret_…` | **Yes** |
+| `SUPABASE_SECRET_KEY` | Vercel (Production → prod project, Preview → dev project), `.env.local` | `sb_secret_…`. **Server only** (never `NEXT_PUBLIC_`). Used for one thing: the log-in route checks that an email is on the club list before asking Supabase for a code (runbook G). Every page query still runs as the visitor under RLS | **Yes** |
 
 The template is in `.env.example`. Real values live only in Vercel and in each developer's `.env.local`.
 
@@ -160,7 +160,7 @@ Goal: `https://tauaiclub.com` serves production, `www.tauaiclub.com` redirects t
 - Tell QA the production URL (`https://tauaiclub.com`), so they can run `qa/TEST-PLAN.md` against it.
 
 ### F. Milestone 2: Google sign-in + allowlist (~30 min)
-Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) decides who is a member. The only new Vercel variable is the switch `AUTH_ENABLED=true` (step F5); no secret key.
+Needs C and D done. **Superseded by G** (email codes); kept for reference and for the dormant Google path. The allowlist (`member_emails`) decides who is a member.
 
 **F1. Google Cloud OAuth client** (one client serves both Supabase projects), signed in as the club Google account:
 1. console.cloud.google.com → project picker → **New project** → Name `tau-ai-club` → **Create**, then select it.
@@ -201,6 +201,64 @@ Needs C and D done. Sign-in is Google only; the allowlist (`member_emails`) deci
 - Hand QA the list under §4 "M2: what to test".
 
 **F5. Switch the members area on**: until now `main` runs with it off (members/admin routes show "בקרוב", no sign-in link). Do F4 on a Preview first (Vercel → Settings → Environment Variables → `AUTH_ENABLED` = `true` for **Preview**, redeploy the branch). Then add it for **Production** and **Redeploy**: the header is cached (ISR), so the sign-in link appears only after a redeploy. To switch it off again, delete the variable and redeploy. `DATA_SOURCE=seed` always keeps it off, so delete that first (step D).
+
+### G. Members launch: email-code log-in, members' area, member import (~40 min)
+Replaces Google as the way in (the Google path in F stays in the code, dormant). One "כניסה לחברים · Member log in" page at `/login`: the person types their email; **only an email on the club list gets a code**; they type the 6-digit code and they're in. There is **no public sign-up**: on a listed member's first login Supabase creates their user, and nobody else can get one. Every email gets the same answer ("If this email is on the club list, a code is on its way. Didn't get one? Contact the club."), so the form can't be used to find out who is a member.
+
+Two gates, both must stay: the site checks the list with `SUPABASE_SECRET_KEY` before it asks Supabase for a code, and the database hook `public.hook_before_user_created` refuses to create a user whose email isn't on the list (if the key is missing, the hook alone still blocks new outsiders).
+
+**G1. Migration** (dev first, then prod): `20261119000000_members_launch.sql`. Adds `profiles.program`, the private `member_contacts` table (phone, contact email, two "show to other members" toggles, both **off** by default, readable only through RPCs) and the auth hook function.
+
+**G2. Gmail SMTP** (club account `tauaiclub＠gmail.com`; Supabase's built-in mailer only sends to the team and is capped at a few emails an hour):
+1. On the Google account: turn on **2-Step Verification**, then **Security → App passwords** → create one named "Supabase". Keep it in the club password manager.
+2. Supabase → **Authentication → Emails → SMTP Settings** → **Enable custom SMTP**: host `smtp.gmail.com`, port `465`, username = the Gmail address, password = the app password, sender email = the Gmail address, sender name `TAU AI Club`.
+3. **Authentication → Rate Limits**: "emails sent per hour" can go up to about `100` now (Gmail allows ~500 a day). Leave the OTP limits at their defaults.
+
+**G3. Email provider and codes** (dev and prod): **Authentication → Sign In / Providers → Email**: **Enable**, keep **Confirm email** on, **Email OTP length** `6`, **Email OTP expiration** `600` seconds. Keep **Allow new users to sign up** on: it's how a listed member's first login creates their user, and the hook refuses every email that isn't on the list. Phone and Anonymous stay off.
+
+**G4. Email templates** (**Authentication → Emails → Templates**): put the same text in **Magic Link** (sent to returning members) **and** **Confirm signup** (Supabase's name for the email sent on a member's first login). Codes only, no link: don't use `{{ .ConfirmationURL }}`.
+
+Subject:
+```
+קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code
+```
+Body (HTML):
+```html
+<div dir="rtl" lang="he" style="font-family:Arial,sans-serif">
+  <h2>קוד הכניסה שלך</h2>
+  <p>היי, זה הקוד לכניסה לאתר מועדון ה-AI של אוניברסיטת תל אביב:</p>
+  <p dir="ltr" style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+  <p>הקוד תקף ל-10 דקות. לא ביקשת להיכנס? אפשר פשוט להתעלם מהמייל הזה.</p>
+</div>
+<hr>
+<div dir="ltr" lang="en" style="font-family:Arial,sans-serif">
+  <h2>Your log-in code</h2>
+  <p>Here's your code for the TAU AI Club website:</p>
+  <p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+  <p>It works for 10 minutes. Didn't ask to log in? You can ignore this email.</p>
+</div>
+```
+
+**G5. Auth hook**: **Authentication → Hooks** → **Before User Created** → type **Postgres** → schema `public`, function `hook_before_user_created` → **Create**. The migration already granted it to `supabase_auth_admin` only.
+
+**G6. URL Configuration**: Site URL `https://tauaiclub.com` (prod) / `http://localhost:3000` (dev). Codes need no redirect URL; the `/api/auth/callback**` entries from F2.3 can stay for the dormant Google path.
+
+**G7. Vercel env** (then **Redeploy**: the header is cached):
+- `SUPABASE_SECRET_KEY` = Supabase → Project Settings → API Keys → **Secret key** (`sb_secret_…`). Production → prod project, Preview → dev project. **Server only**: never with a `NEXT_PUBLIC_` prefix.
+- `AUTH_ENABLED` = `true` (F5), and delete `DATA_SOURCE` (it keeps the members area off).
+
+**G8. Import the cohort** (once, and again whenever the list changes; it's idempotent):
+```
+python scripts/members-xlsx-to-sql.py ../tau-ai-club-private/members-cohort-02.xlsx ../tau-ai-club-private/members-cohort-02-import.sql
+```
+It reads the club sheet (header row with `מייל`; `מנהל/ת` → admin, everyone else member; gender ignored) and writes SQL **outside the repo** (it refuses to write inside it). Paste the file into the prod **SQL Editor** and run it. It adds members + emails, prefills faculty / program / year / LinkedIn, and stores phone + contact email (= the list email) with both toggles **off**. Re-running never overwrites what members changed themselves. The script prints problem rows by sheet row number only (e.g. a typo domain such as `gmal.com`: fix the sheet and re-run, or add `--fix-typos`). Never commit the .sql or the sheet.
+
+**G9. Verify** (Preview first):
+- An email that isn't on the list gets the same "If this email is on the club list…" screen and **no** email arrives.
+- A listed email gets the bilingual code email; the code logs in; first time → welcome → `/me`.
+- `/lectures` and `/workshops` send guests to log in (and back after); they're gone from the guest header; event pages and the season stay public.
+- `/profile`: phone and contact email are hidden from another member until each toggle is on.
+- `/me` shows the member's name, upcoming meetups with "Add to calendar", and the meeting-games card marked "בקרוב / Coming soon" (the games are built outside the team and plug in there later).
 
 ## 4. Day-to-day
 - **Edit events (M1):** Supabase dashboard → Table Editor → `events` (or SQL). Set `status = 'published'` to show an event. The site updates within 5 minutes. Admin UI comes in M2.
