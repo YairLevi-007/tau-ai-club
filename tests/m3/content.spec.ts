@@ -65,11 +65,12 @@ test.describe("lectures (members only once the members area is on)", () => {
     expect(res.headers()["location"]).toBeUndefined();
   });
 
-  test("the sitemap lists neither lectures nor workshops; event pages stay", async ({ request }) => {
+  test("the sitemap lists neither lectures, workshops nor meetup pages", async ({ request }) => {
     const xml = await (await request.get("/sitemap.xml")).text();
     expect(xml).not.toContain("/lectures");
     expect(xml).not.toContain("/workshops");
-    expect(xml).toContain(`/events/${LECTURE}</loc>`);
+    // Meetup pages are members only for now (docs/DECISIONS.md).
+    expect(xml).not.toContain("/events/");
   });
 
   test("the public nav doesn't show Lectures or Workshops to guests", async ({ page }) => {

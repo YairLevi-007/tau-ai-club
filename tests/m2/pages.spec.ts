@@ -24,9 +24,8 @@ const PUBLIC_PATHS = [
   "/en/login",
   "/members-only",
   "/en/members-only",
-  ...SLUGS.flatMap((s) => [`/events/${s}`, `/en/events/${s}`]),
-  "/calendar.ics",
-  "/calendar-en.ics",
+  // Meetup pages and calendar files are members only for now (docs/DECISIONS.md,
+  // schedule-private.spec.ts); a guest gets a redirect or 401 there, never the data.
   "/sitemap.xml",
   "/robots.txt",
 ];
@@ -78,7 +77,7 @@ test("guest-reachable routes contain no contact data (HTML, source, meta, feeds)
 });
 
 test("OG / meta / JSON-LD tags carry no contact data", async ({ page }) => {
-  for (const p of ["/", "/en", `/events/${SLUGS[1]}`, `/en/events/${SLUGS[7]}`, "/members-only", "/login"]) {
+  for (const p of ["/", "/en", "/members-only", "/login"]) {
     await page.goto(p);
     const meta = await page.evaluate(() =>
       [...document.querySelectorAll("head meta, head link, head script[type='application/ld+json']")].map((e) => e.outerHTML).join("\n"),

@@ -20,6 +20,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 | 18.11 | Meeting games: built by another team. The site has only a "בקרוב" slot, and only in the personal area (/me), not on the public home page. | /me | `src/app/[locale]/me/page.tsx` |
 | 18.11 | Personal area fields: name, photo, description, faculty, degree, year, LinkedIn, phone, Gmail. Phone and Gmail have "show to members" toggles, **default off**. | /me, /profile, DB | `member_contacts` + RPCs |
 | 18.11 | Luma stays manual: a Luma link per event, plus a CSV upload after each meetup. | Admin | `/admin/events`, `/admin/attendance` |
+| 18.11 | **Company logos on speaker and founder photos**, not a black letter. Each logo in its own colours on a small white square. Stealth startup: the purple padlock from its logo, on dark. Rotate · Check Point shows Check Point. A company with no logo file (Reyymark for now) keeps its initial. | Design, home | `src/lib/company-logos.ts`, `public/companies/` |
 | 18.11 | Phones: 44px tap targets site-wide (header included), fields at 16px. The admin attendance grid stays dense. | Design | `src/app/globals.css` |
 | 18.11 | Speaker and founder roles stay in English on both languages. Speaker photos only from the club's flyers. | Content | `supabase/seed.sql` |
 | 17.11 | Lecture summaries are written by people and published as given (no AI summaries, no proofreading). | Content | `docs/PLAN.md` |

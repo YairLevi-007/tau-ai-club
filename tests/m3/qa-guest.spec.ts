@@ -53,7 +53,8 @@ test("lectures: canary scan of HTML, RSC payload, metadata, sitemap, feeds and b
   for (const p of paths) {
     for (const headers of [undefined, { RSC: "1" }, { RSC: "1", "Next-Router-Prefetch": "1" }] as (Record<string, string> | undefined)[]) {
       const r = await get(request, p, headers);
-      expect(r.status(), `${p} ${JSON.stringify(headers)}`).toBeLessThan(400);
+      // Calendar files are members only for now (docs/DECISIONS.md): a guest gets 401, still scanned.
+      expect(r.status(), `${p} ${JSON.stringify(headers)}`).toBeLessThan(/calendar/.test(p) ? 402 : 400);
       const body = await r.text();
       const hit = CANARIES.find((c) => body.includes(c));
       expect(hit, `${p} ${JSON.stringify(headers)} leaked members-only text`).toBeUndefined();
@@ -95,8 +96,8 @@ test("lectures, workshops and admin content are all members only: guests go to l
 
 test("sitemap lists public pages only (no lectures, nothing members-only or private)", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
-  expect(xml).toMatch(/\/events\/cohort-02-opening<\/loc>/);
-  expect(xml).not.toMatch(/\/lectures|\/workshops|\/admin|\/api\/|\/login|\/members-only|\/welcome|\/profile|\/speaker\/|\/me</);
+  // Meetup pages are members only for now (docs/DECISIONS.md), so not listed either.
+  expect(xml).not.toMatch(/\/events\/|\/lectures|\/workshops|\/admin|\/api\/|\/login|\/members-only|\/welcome|\/profile|\/speaker\/|\/me</);
   // Every URL has both language alternates.
   const urls = xml.split("<url>").slice(1);
   for (const u of urls) {

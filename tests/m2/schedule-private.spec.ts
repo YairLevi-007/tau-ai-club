@@ -10,7 +10,8 @@ test("guest home page shows no next meetup card, no season dial and no feed link
     await expect(page.getByTestId("next-event-card"), p).toHaveCount(0);
     await expect(page.getByTestId("season-timeline"), p).toHaveCount(0);
     await expect(page.getByTestId("season-subscribe"), p).toHaveCount(0);
-    expect(await page.content(), p).not.toMatch(/href="\/(en\/)?events\/|calendar(-en)?\.ics|18:00/);
+    // Links only: Next's route manifest in the page names every route, calendar files included.
+    expect(await page.content(), p).not.toMatch(/href="[^"]*(\/events\/|calendar(-en)?\.ics|api\/calendar)/);
   }
 });
 

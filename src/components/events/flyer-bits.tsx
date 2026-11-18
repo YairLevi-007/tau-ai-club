@@ -2,6 +2,8 @@ import Image from "next/image";
 import type { Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { initialsOf } from "./speaker-face";
+import { LockKeyhole } from "lucide-react";
+import { companyLogo } from "@/lib/company-logos";
 
 /*
  * Pieces taken from the club's Instagram posts (design/instagram-pass.md): the eyebrow chip,
@@ -85,7 +87,7 @@ export function InfoTile({
 
 /**
  * A speaker's round photo with the purple ring and a dark gap, as on the posts. The badge is the
- * company's initial (we have no logo files). Photos are at most 96px source, so `size` stays ≤ 96.
+ * company's logo (src/lib/company-logos.ts), or its initial when we have none. Photos are at most 96px source, so `size` stays ≤ 96.
  * Decorative: the name and company are always written next to it.
  */
 export function SpeakerAvatar({
@@ -120,14 +122,7 @@ export function SpeakerAvatar({
           )}
         </span>
       </span>
-      {company && size >= 56 && (
-        <span
-          className="absolute -end-[3%] bottom-[2%] grid place-items-center rounded-[7px] border-2 border-fg bg-bg-deep font-mono font-semibold text-fg"
-          style={{ width: badge, height: badge, fontSize: Math.round(badge * 0.46) }}
-        >
-          {company.trim().charAt(0).toUpperCase()}
-        </span>
-      )}
+      {company && size >= 56 && <CompanyBadge company={company} size={badge} />}
     </span>
   );
 }
@@ -182,6 +177,36 @@ export function CornerBrackets({ className }: { className?: string }) {
       <span className={cn(base, "end-0 top-0 border-e-2 border-t-2")} />
       <span className={cn(base, "start-0 bottom-0 border-s-2 border-b-2")} />
       <span className={cn(base, "end-0 bottom-0 border-e-2 border-b-2")} />
+    </span>
+  );
+}
+
+/** The square badge on a photo's corner: the company's logo on white, else its initial. */
+function CompanyBadge({ company, size }: { company: string; size: number }) {
+  const logo = companyLogo(company);
+  const box = "absolute -end-[3%] bottom-[2%] grid place-items-center overflow-hidden rounded-[7px] border-2";
+  if (logo && "stealth" in logo) {
+    return (
+      <span className={cn(box, "border-brand-purple bg-bg-deep text-brand-purple")} style={{ width: size, height: size }}>
+        <LockKeyhole style={{ width: Math.round(size * 0.58), height: Math.round(size * 0.58) }} strokeWidth={2.5} />
+      </span>
+    );
+  }
+  if (logo) {
+    return (
+      <span className={cn(box, "border-fg bg-white")} style={{ width: size, height: size, padding: logo.bleed ? 0 : Math.round(size * 0.14) }}>
+        <span className="relative block size-full">
+          <Image src={logo.src} alt="" fill sizes={`${size}px`} className="object-contain" unoptimized={logo.src.endsWith(".svg")} data-company-logo="" />
+        </span>
+      </span>
+    );
+  }
+  return (
+    <span
+      className={cn(box, "border-fg bg-bg-deep font-mono font-semibold text-fg")}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.46) }}
+    >
+      {company.trim().charAt(0).toUpperCase()}
     </span>
   );
 }

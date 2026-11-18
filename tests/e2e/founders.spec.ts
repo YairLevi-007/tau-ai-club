@@ -39,10 +39,13 @@ for (const [lang, path] of [["he", "/"], ["en", "/en"]] as const) {
       await section.scrollIntoViewIfNeeded();
       // Photos are lazy: scroll each into view and wait until the browser has decoded it.
       for (const img of await section.locator("img").all()) await img.scrollIntoViewIfNeeded();
+      // Company logos on the photo badges (docs/DECISIONS.md): Silverfort, XPLG, Investing.com.
+      // Reyymark has no logo file yet and keeps its initial.
+      await expect(section.locator("img[data-company-logo]")).toHaveCount(3);
       await expect
         .poll(() => section.locator("img").evaluateAll((els) => els.every((i) => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0)), { timeout: 10_000 })
         .toBe(true);
-      const imgs = await section.locator("img").evaluateAll((els) =>
+      const imgs = await section.locator("img:not([data-company-logo])").evaluateAll((els) =>
         els.map((i) => ({ alt: i.getAttribute("alt"), loading: (i as HTMLImageElement).loading, w: i.getBoundingClientRect().width, h: i.getBoundingClientRect().height, ok: (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0 })),
       );
       expect(imgs.length).toBe(4);
