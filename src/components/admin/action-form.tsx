@@ -31,6 +31,8 @@ export function ActionForm({
   const ref = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (state?.ok && resetOnSuccess) ref.current?.reset();
+    // Lets a wrapper react to a successful save (e.g. the personal area folds the form away).
+    if (state?.ok) ref.current?.dispatchEvent(new CustomEvent("tau:action-ok", { bubbles: true, detail: state.message }));
   }, [state, resetOnSuccess]);
 
   return (

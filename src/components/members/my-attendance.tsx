@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { currentCohort, getMemberAttendance } from "@/lib/attendance/data";
 import { formatShortDate, loc } from "@/lib/event-format";
-import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
+import { hintClass, raisedPanelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 import { AttendanceMark } from "@/components/admin/attendance/attendance-mark";
 
@@ -19,7 +19,7 @@ export async function MyAttendance({ supabase, memberId }: { supabase: SupabaseC
   const attended = rows.filter((r) => r.status === "checked_in");
 
   return (
-    <section aria-labelledby="attendance-heading" className={cn(panelClass, "mt-5 grid gap-3 p-5 sm:p-6 lg:mt-8")} data-testid="my-attendance">
+    <section aria-labelledby="attendance-heading" className={cn(raisedPanelClass, "grid gap-3 p-5 sm:p-6")} data-testid="my-attendance">
       <h2 id="attendance-heading" className={panelTitle}>
         {t("attendanceTitle")}
       </h2>

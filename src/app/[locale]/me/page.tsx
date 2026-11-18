@@ -16,6 +16,7 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 import { PageBackdrop } from "@/components/site/page-backdrop";
 import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
 import { ProfileEditor } from "@/components/members/profile-editor";
+import { MyAttendance } from "@/components/members/my-attendance";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { cn } from "@/lib/utils";
 
@@ -180,6 +181,9 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
             <p className={hintClass}>{t("icsHint")}</p>
           </div>
         </section>
+
+        {/* My attendance (Luma check-ins), moved here from the old /profile page (user, 18.11). */}
+        {supabase && <MyAttendance supabase={supabase} memberId={viewer.member.id} />}
 
         <section aria-labelledby="sections-heading" className="grid gap-3">
           <h2 id="sections-heading" className={panelTitle}>

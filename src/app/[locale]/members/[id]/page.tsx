@@ -49,7 +49,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
           <h1 className="text-[clamp(1.875rem,6vw,2.5rem)] leading-[1.1] font-extrabold text-balance text-fg">{profile.full_name}</h1>
           <ProfileSubline parts={subline} className="text-fg-muted" />
           {profile.is_self && (
-            <Link href="/profile" className={cn(smallBtn, "mt-2 w-fit")}>
+            <Link href="/me" className={cn(smallBtn, "mt-2 w-fit")}>
               <Pencil aria-hidden />
               {t("edit")}
             </Link>

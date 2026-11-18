@@ -412,6 +412,8 @@
     "signoff": "The TAU AI Club team, Tel Aviv University"
   },
   "profile": {
+    "editOpen": "Edit my details",
+    "editClose": "Close",
     "title": "My profile",
     "body": "Your profile is visible to members of the cohort only. Guests never see it.",
     "memberTitle": "Member profile",

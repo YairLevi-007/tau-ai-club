@@ -9,6 +9,7 @@ import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
+import { ProfileEditorShell } from "@/components/members/profile-editor-shell";
 import { removePhoto, saveProfile, uploadPhoto } from "@/app/[locale]/profile/actions";
 
 const textareaClass = inputClass.replace("h-10", "min-h-28 py-2 leading-relaxed");
@@ -35,21 +36,38 @@ export async function ProfileEditor({
   const subline = [profile?.year ? t("yearN", { n: profile.year }) : null, profile?.faculty, profile?.program];
   const viewer = { member: { id: memberId } };
 
-  return (
+  // A new member with nothing filled in yet sees the form open; everyone else sees the short card.
+  const startOpen = !profile?.faculty && !profile?.program && !profile?.bio_he && !profile?.bio_en;
+
+  const summary = (
+    <div className="flex items-center gap-4">
+      <MemberAvatar name={name} src={photoSrc} size={72} className="rounded-full ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-surface" />
+      <div className="min-w-0">
+        <p className="text-lg leading-tight font-bold break-words text-fg">{name}</p>
+        <ProfileSubline parts={subline} className="mt-1 text-sm text-fg-subtle" />
+      </div>
+    </div>
+  );
+
+  const actions = (
+    <>
+      <Link href={`/members/${viewer.member.id}`} className={smallBtn}>
+        <Eye aria-hidden />
+        {t("viewPublic")}
+      </Link>
+      <SignOutButton className="h-10 px-3 text-sm" />
+    </>
+  );
+
+  const editor = (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-8">
-      {/* ---------- Card: photo, how others see you, sign out ---------- */}
+      {/* ---------- Photo ---------- */}
       <aside className={cn(raisedPanelClass, "grid gap-5 p-5 shadow-[var(--highlight-top)] sm:p-6 lg:sticky lg:top-8")}>
         <section aria-labelledby="photo-heading" className="grid gap-4">
-          <h2 id="photo-heading" className="sr-only">
+          <h2 id="photo-heading" className={panelTitle}>
             {t("photo")}
           </h2>
-          <div className="flex items-center gap-4 lg:flex-col lg:items-start">
-            <MemberAvatar name={name} src={photoSrc} size={112} className="rounded-full ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-surface" />
-            <div className="min-w-0">
-              <p className="text-lg leading-tight font-bold break-words text-fg">{name}</p>
-              <ProfileSubline parts={subline} className="mt-1 text-sm text-fg-subtle" />
-            </div>
-          </div>
+          <MemberAvatar name={name} src={photoSrc} size={112} className="rounded-full ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-surface" />
           <ActionForm action={uploadPhoto} resetOnSuccess className="grid gap-3">
             <label className={labelClass}>
               {t("photoPick")}
@@ -70,13 +88,6 @@ export async function ProfileEditor({
             </ActionForm>
           )}
         </section>
-        <div className="grid gap-2 border-t border-border pt-5">
-          <Link href={`/members/${viewer.member.id}`} className={cn(smallBtn, "w-full")}>
-            <Eye aria-hidden />
-            {t("viewPublic")}
-          </Link>
-          <SignOutButton className="h-10 w-full text-sm" />
-        </div>
       </aside>
 
       {/* ---------- Details form ---------- */}
@@ -195,6 +206,17 @@ export async function ProfileEditor({
         </ActionForm>
       </section>
     </div>
+  );
+
+  return (
+    <ProfileEditorShell
+      summary={summary}
+      actions={actions}
+      editor={editor}
+      startOpen={startOpen}
+      openLabel={t("editOpen")}
+      closeLabel={t("editClose")}
+    />
   );
 }
 

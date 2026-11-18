@@ -27,8 +27,8 @@ export default async function WelcomePage({ params, searchParams }: PageProps<"/
           {t("continue")}
           <Forward aria-hidden />
         </Link>
-        {next !== "/profile" && (
-          <Link href="/profile" className="btn btn-ghost w-full sm:w-fit">
+        {next !== "/profile" && next !== "/me" && (
+          <Link href="/me" className="btn btn-ghost w-full sm:w-fit">
             {t("welcomeProfile")}
           </Link>
         )}
