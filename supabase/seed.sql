@@ -28,7 +28,7 @@ insert into public.venues (name_he, name_en, address_he, address_en) values
 -- Speakers (public profile only, no contact data)
 -- ---------------------------------------------------------------------------
 insert into public.speakers (slug, name_he, name_en, company_he, company_en, role_he, role_en, photo_url, linkedin_url) values
-  -- Facts from the club's Instagram posts (brand/instagram/: "Meet our speakers" and the
+  -- Hebrew name spellings approved by the club. Facts from the club's Instagram posts (brand/instagram/: "Meet our speakers" and the
   -- 11.11 / 18.11 flyers). English names as printed. Company names stay in Latin in Hebrew.
   -- Hebrew roles are our translation: REVIEW. Photos are cropped from those posts.
   -- LinkedIn: only confirmed profiles; the committee fills in the rest.
@@ -36,7 +36,7 @@ insert into public.speakers (slug, name_he, name_en, company_he, company_en, rol
    'שותפה מייסדת', 'Co-Founder', -- REVIEW Hebrew role. Ex-AI & Data Eng. Manager, Grip Security; former researcher, Tel Aviv University
    '/speakers/shay-yahal.webp', null),
   ('oz-altagar',     'עוז אלטגר',   'Oz Altagar',     'AWS',                  'AWS',
-   'ארכיטקט, Prototyping ו-AI Engineering', 'Architect, Prototyping & AI Engineering', -- REVIEW Hebrew name + role. The 18.11 flyer says "AI & Multi-Agent Systems, AWS · Speaker, AWS Summit Tel Aviv"
+   'ארכיטקט, Prototyping ו-AI Engineering', 'Architect, Prototyping & AI Engineering', -- REVIEW Hebrew role. The 18.11 flyer says "AI & Multi-Agent Systems, AWS · Speaker, AWS Summit Tel Aviv"
    '/speakers/oz-altagar.webp', null),
   ('or-maccabi',     'אור מכבי',    'Or Maccabi',     'MongoDB',              'MongoDB',
    'AI Agents Israel', 'AI Agents Israel',
@@ -51,7 +51,7 @@ insert into public.speakers (slug, name_he, name_en, company_he, company_en, rol
    'שותף מייסד ומנכ"ל', 'Co-Founder & CEO', -- REVIEW Hebrew role
    '/speakers/ori-goshen.webp', null),
   ('gavriel-goidel', 'גבריאל גוידל', 'Gavriel Goidel', 'Google',               'Google',
-   'ראש אסטרטגיה ותפעול', 'Head of Strategy + Operations', -- REVIEW Hebrew name + role
+   'ראש אסטרטגיה ותפעול', 'Head of Strategy + Operations', -- REVIEW Hebrew role
    '/speakers/gavriel-goidel.webp', null);
 
 -- ---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ from (values
    null, null,
    '2026-12-30', 'Aleph offices', null, null, false),
 
-  -- A Sunday on purpose (every other event is a Wednesday). REVIEW date.
+  -- A Sunday on purpose (every other event is a Wednesday); confirmed. Still tentative.
   ('joint-event-ori-goshen', 'joint', null, null,
    'אירוע משותף', 'Joint event', -- REVIEW title
    null, null,
