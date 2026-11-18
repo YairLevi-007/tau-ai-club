@@ -1,10 +1,11 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { LogIn, LogOut } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-/** Starts Google sign-in. A plain link: /api/auth/* isn't a localized route. */
+/** Link to the "Member log in" page (email + code), coming back to `next` afterwards. */
 export async function SignInButton({
-  next = "/",
+  next = "/me",
   label,
   variant = "primary",
   className,
@@ -14,13 +15,15 @@ export async function SignInButton({
   variant?: "primary" | "ghost";
   className?: string;
 }) {
-  const [t, locale] = await Promise.all([getTranslations("auth"), getLocale()]);
-  const href = `/api/auth/signin?${new URLSearchParams({ locale, next })}`;
+  const t = await getTranslations("auth");
   return (
-    <a href={href} className={cn("btn w-fit", variant === "primary" ? "btn-primary" : "btn-ghost", className)}>
+    <Link
+      href={{ pathname: "/login", query: { next } }}
+      className={cn("btn w-fit", variant === "primary" ? "btn-primary" : "btn-ghost", className)}
+    >
       <LogIn aria-hidden className="rtl:-scale-x-100" />
-      {label ?? t("signInGoogle")}
-    </a>
+      {label ?? t("signIn")}
+    </Link>
   );
 }
 

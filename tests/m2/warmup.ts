@@ -14,7 +14,7 @@ const ROUTES = [
   "/admin/speaker-profiles", "/en/admin/speaker-profiles", "/admin/speakers", "/en/admin/speakers",
   "/events/zero-to-hero-1", "/en/events/zero-to-hero-1", "/events/joint-event-ori-goshen", "/en/events/joint-event-ori-goshen",
   `/speaker/${"a".repeat(64)}`, `/en/speaker/${"a".repeat(64)}`, "/speaker/abc", "/en/speaker/abc", "/speaker/..%2F..%2Fetc%2Fpasswd",
-  "/api/events/zero-to-hero-1/speaker-contacts", "/api/auth/signin", "/api/auth/callback", "/calendar.ics", "/calendar-en.ics",
+  "/api/events/zero-to-hero-1/speaker-contacts", "/api/auth/signin", "/api/auth/callback", "/api/auth/otp", "/api/auth/verify", "/me", "/en/me", "/api/calendar/zero-to-hero-1", "/calendar.ics", "/calendar-en.ics",
   "/sitemap.xml", "/robots.txt",
 ];
 

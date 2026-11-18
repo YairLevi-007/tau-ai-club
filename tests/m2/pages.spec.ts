@@ -112,11 +112,11 @@ test("/members-only shows the closed-club text in both languages, no join flow",
   await page.goto("/members-only");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByTestId("members-only")).toContainText("המועדון סגור לחברים בלבד");
-  await expect(page.getByTestId("members-only")).toContainText("חברי המועדון נכנסים עם Google");
+  await expect(page.getByTestId("members-only")).toContainText("חברי המועדון נכנסים עם המייל שמופיע ברשימת המועדון");
   await page.goto("/en/members-only");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
   await expect(page.getByTestId("members-only")).toContainText("Members only");
-  await expect(page.getByTestId("members-only")).toContainText("Club members sign in with Google");
+  await expect(page.getByTestId("members-only")).toContainText("Club members log in with the email on the club list");
   for (const p of ["/members-only", "/en/members-only"]) {
     const html = await (await request.get(p)).text();
     expect(html).toMatch(/noindex/);
@@ -166,10 +166,13 @@ test("auth API endpoints block open redirects", async ({ request }) => {
   expect(cb.headers()["location"] ?? "").not.toMatch(/evil\.example/);
 });
 
-test("sign-in page offers Google sign-in in both languages", async ({ page }) => {
+test("log-in page asks for an email (no Google button) in both languages", async ({ page }) => {
   await page.goto("/login");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-  await expect(page.getByText(/Google/).first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("כניסה לחברים");
+  await expect(page.getByLabel("אימייל")).toBeVisible();
   await page.goto("/en/login");
-  await expect(page.getByText("Sign in with Google").first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Member log in");
+  await expect(page.getByLabel("Email")).toHaveAttribute("type", "email");
+  await expect(page.getByText(/Google/)).toHaveCount(0);
 });

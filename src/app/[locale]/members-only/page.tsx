@@ -24,7 +24,7 @@ export default async function MembersOnlyPage({ params }: PageProps<"/[locale]/m
   const { locale } = await params;
   setRequestLocale(locale as Locale);
   const [t, te, viewer] = await Promise.all([getTranslations("auth"), getTranslations("event"), getViewer()]);
-  if (viewer.kind === "member") redirect({ href: "/", locale });
+  if (viewer.kind === "member") redirect({ href: "/me", locale });
 
   return (
     <AuthPanel
@@ -56,7 +56,7 @@ export default async function MembersOnlyPage({ params }: PageProps<"/[locale]/m
         <>
           {viewer.email && <SignedInAs label={t("signedInAs")} email={viewer.email} />}
           <div className="flex flex-wrap gap-3">
-            <SignInButton label={t("useAnotherAccount")} className="w-full sm:w-fit" />
+            {/* Signing out is how you switch to the email that's on the list. */}
             <SignOutButton />
           </div>
         </>

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { localeParam, localized, routeClient } from "@/lib/auth/route-client";
+import { MEMBER_HINT_COOKIE } from "@/lib/auth/otp";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,9 @@ export async function POST(request: NextRequest) {
   const home = new URL(localized(locale, "/"), request.nextUrl.origin);
 
   const client = routeClient(request);
-  if (!client) return NextResponse.redirect(home, 303);
+  const res = NextResponse.redirect(home, 303);
+  res.cookies.delete(MEMBER_HINT_COOKIE);
+  if (!client) return res;
   await client.supabase.auth.signOut({ scope: "local" });
-  return client.apply(NextResponse.redirect(home, 303));
+  return client.apply(res);
 }
