@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { LogIn, LogOut } from "lucide-react";
+import { CircleAlert, LogIn, LogOut } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -136,8 +136,9 @@ export function SignedInAs({ label, email }: { label: string; email: string }) {
 /** Error line for auth pages: written out in a tinted box, never colour alone. */
 export function AuthAlert({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 px-3.5 py-3 text-[0.9375rem] text-fg">
-      {children}
+    <p role="alert" className="flex items-start gap-3 rounded-md border border-destructive/50 bg-destructive/10 px-3.5 py-3 text-[0.9375rem] text-fg">
+      <CircleAlert aria-hidden className="mt-0.5 size-[18px] shrink-0 text-destructive" />
+      <span>{children}</span>
     </p>
   );
 }

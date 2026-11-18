@@ -11,6 +11,8 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
 import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
+import { ClubAbout } from "@/components/home/club-about";
+import { CohortBand } from "@/components/home/cohort-band";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
 // route segment config must be a literal).
@@ -95,10 +97,12 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         )}
       </div>
 
+      <ClubAbout locale={l} />
       {season.status === "ok" && <SeasonTimeline events={season.events} now={season.now} cohortName={cohort ? loc(cohort, "name", l) : null} />}
       {season.status === "ok" && <SeasonSpeakers events={season.events} locale={l} />}
       <ClubFounders team={team} locale={l} />
       <IcebreakersTeaser locale={l} />
+      <CohortBand locale={l} />
     </div>
   );
 }

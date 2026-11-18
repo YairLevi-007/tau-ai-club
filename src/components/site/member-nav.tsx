@@ -50,14 +50,33 @@ export function MemberSectionLinks({
   );
 }
 
-export function MemberAction({ login, myArea, className }: { login: string; myArea: string; className: string }) {
+/**
+ * "Member log in" for guests, "My area" after a member logs in. Used in the header and, with its
+ * own test ids, in the home hero and the bottom band (so the header's ids stay unique on the page).
+ */
+export function MemberAction({
+  login,
+  myArea,
+  className,
+  memberClassName,
+  loginTestId = "nav-login",
+  myAreaTestId = "nav-my-area",
+}: {
+  login: string;
+  myArea: string;
+  /** Guest link classes (and the member link's, unless memberClassName is set). */
+  className: string;
+  memberClassName?: string;
+  loginTestId?: string;
+  myAreaTestId?: string;
+}) {
   const member = useMemberHint();
   return member ? (
-    <Link href="/me" className={className} data-testid="nav-my-area">
+    <Link href="/me" className={memberClassName ?? className} data-testid={myAreaTestId}>
       {myArea}
     </Link>
   ) : (
-    <Link href="/login" className={className} data-testid="nav-login">
+    <Link href="/login" className={className} data-testid={loginTestId}>
       {login}
     </Link>
   );

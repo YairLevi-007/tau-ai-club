@@ -93,7 +93,9 @@ export async function SiteHeader() {
             <MemberAction
               login={t("signIn")}
               myArea={t("myArea")}
-              className="inline-flex h-9 items-center rounded-md px-3 text-[0.8125rem] font-medium whitespace-nowrap text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
+              // Guests: the one purple action in the header. Members: a quiet pill back to their area.
+              className="btn btn-primary h-9 px-3.5 text-[0.8125rem]"
+              memberClassName="inline-flex h-9 items-center rounded-full border border-border-accent bg-brand-purple/10 px-3.5 text-[0.8125rem] font-semibold whitespace-nowrap text-fg transition-colors duration-150 hover:bg-brand-purple/20"
             />
           )}
           <LanguageSwitch />

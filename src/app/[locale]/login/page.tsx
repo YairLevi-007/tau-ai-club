@@ -1,12 +1,26 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { KeyRound, MailCheck, UserRoundCheck } from "lucide-react";
+import { KeyRound, Mail, MailCheck, UserRoundCheck } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { getViewer } from "@/lib/auth/viewer";
 import { safeNext } from "@/lib/auth/next-path";
 import { AuthAlert, AuthPanel, SignedInAs, SignOutButton } from "@/components/auth/auth-buttons";
 import { hintClass, inputClass, labelClass } from "@/components/admin/styles";
+import { FlyerChip } from "@/components/events/flyer-bits";
+import { SOCIAL } from "@/config/site";
+import { cn } from "@/lib/utils";
+
+/** Progress through the log-in: email → code → in. Decorative; the title says where you are. */
+function Steps({ on }: { on: 1 | 2 | 3 }) {
+  return (
+    <span aria-hidden className="flex gap-1.5">
+      {[1, 2, 3].map((n) => (
+        <i key={n} className={cn("h-1 flex-1 rounded-full", n <= on ? "bg-brand-purple" : "bg-border-strong")} />
+      ))}
+    </span>
+  );
+}
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/login">): Promise<Metadata> {
   const { locale } = await params;
@@ -38,12 +52,28 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
   const errorKey = typeof sp.error === "string" && sp.error in ERRORS ? ERRORS[sp.error as keyof typeof ERRORS] : null;
 
   const [t, nav, viewer] = await Promise.all([getTranslations("auth"), getTranslations("nav"), getViewer()]);
+  const l = locale as Locale;
+  // Step 2 and "signed in": the chip keeps "Member log in" in view under the new title.
+  const eyebrow = (on: 1 | 2 | 3) => (
+    <div className="grid gap-5">
+      <Steps on={on} />
+      {on > 1 && <FlyerChip locale={l}>{nav("signIn")}</FlyerChip>}
+    </div>
+  );
+  // No sign-up: people outside the cohort are pointed to the club's Instagram.
+  const notInCohort = (
+    <p className="px-1 text-center text-[0.875rem] text-fg-subtle">
+      <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" className="underline decoration-border-strong underline-offset-4 transition-colors duration-150 hover:text-fg">
+        {t("notInCohort")}
+      </a>
+    </p>
+  );
   // Signed in but not on the list: the members-only page explains what to do.
   if (viewer.kind === "outsider") redirect({ href: "/members-only", locale });
 
   if (viewer.kind === "member") {
     return (
-      <AuthPanel testId="login" title={t("loginTitle")} icon={<UserRoundCheck aria-hidden />}>
+      <AuthPanel testId="login" eyebrow={eyebrow(3)} title={t("loginTitle")} icon={<UserRoundCheck aria-hidden />}>
         {viewer.email && <SignedInAs label={t("signedInAs")} email={viewer.email} />}
         <div className="flex flex-wrap gap-3">
           <Link href={next} className="btn btn-primary w-full sm:w-fit">
@@ -69,8 +99,12 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
 
   if (sent) {
     return (
-      <AuthPanel testId="login" title={t("codeTitle")} icon={<MailCheck aria-hidden />}>
-        <p data-testid="code-sent">{t("codeSent")}</p>
+      <AuthPanel testId="login" eyebrow={eyebrow(2)} title={t("codeTitle")} icon={<MailCheck aria-hidden />} after={notInCohort}>
+        {/* Neutral on purpose: it never says whether the email is on the list. */}
+        <p className="flex items-start gap-3 rounded-md border border-border-accent bg-brand-purple/[0.07] px-3.5 py-3 text-[0.9375rem] text-fg">
+          <Mail aria-hidden className="mt-0.5 size-[18px] shrink-0 text-brand-purple-soft" />
+          <span data-testid="code-sent">{t("codeSent")}</span>
+        </p>
         {errorKey && <AuthAlert>{t(errorKey)}</AuthAlert>}
         <form action="/api/auth/verify" method="post" className="grid gap-4" data-testid="code-form">
           {hidden}
@@ -84,11 +118,12 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
               pattern="[0-9 \-]{6,12}"
               maxLength={12}
               dir="ltr"
-              className={`${inputClass} text-start font-mono tracking-[0.3em]`}
+              placeholder="000000"
+              className={`${inputClass} h-16 text-center font-mono text-[1.75rem] tracking-[0.5em] placeholder:text-fg-subtle/50 sm:text-[2rem]`}
             />
           </label>
           <p className={hintClass}>{t("codeHint")}</p>
-          <button type="submit" className="btn btn-primary w-full sm:w-fit">
+          <button type="submit" className="btn btn-primary h-12 w-full">
             {t("codeSubmit")}
           </button>
         </form>
@@ -100,7 +135,7 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
   }
 
   return (
-    <AuthPanel testId="login" title={t("loginTitle")} icon={<KeyRound aria-hidden />}>
+    <AuthPanel testId="login" eyebrow={eyebrow(1)} title={t("loginTitle")} icon={<KeyRound aria-hidden />} after={notInCohort}>
       <p>{t("loginBody")}</p>
       {errorKey && <AuthAlert>{t(errorKey)}</AuthAlert>}
       <form action="/api/auth/otp" method="post" className="grid gap-4" data-testid="email-form">
@@ -115,10 +150,10 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[l
             autoComplete="email"
             inputMode="email"
             dir="ltr"
-            className={`${inputClass} text-start`}
+            className={`${inputClass} h-12 text-start placeholder:text-fg-subtle`}
           />
         </label>
-        <button type="submit" className="btn btn-primary w-full sm:w-fit">
+        <button type="submit" className="btn btn-primary h-12 w-full">
           {t("emailSubmit")}
         </button>
       </form>

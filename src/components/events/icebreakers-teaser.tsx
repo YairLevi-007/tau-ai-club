@@ -25,15 +25,8 @@ export async function IcebreakersTeaser({ locale }: { locale: Locale }) {
             >
               {t("icebreakersTitle")}
             </h2>
-            <p className="mt-2 max-w-[52ch] text-fg-muted">
-              {t.rich("icebreakersBody", {
-                pair: (chunks) => (
-                  <bdi dir="ltr" className="font-mono font-medium">
-                    {chunks}
-                  </bdi>
-                ),
-              })}
-            </p>
+            {/* Generic on purpose: another team builds the game, so we don't describe how it works. */}
+            <p className="mt-2 max-w-[52ch] text-fg-muted">{t("icebreakersBody")}</p>
           </div>
           <PairMotif />
         </div>

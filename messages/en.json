@@ -96,7 +96,26 @@
     "foundersLine2": "founders",
     "icebreakersSoon": "Coming soon",
     "icebreakersTitle": "Icebreaker games for club members",
-    "icebreakersBody": "Before each meetup we'll pair you up for a quick <pair>1:1</pair> chat with someone from the cohort. By the end of the year, everyone knows everyone."
+    "icebreakersBody": "Something new is on its way for the cohort. Details soon.",
+    "aboutChip": "About the club",
+    "aboutLine1": "Don't wait",
+    "aboutLine2": "for graduation.",
+    "aboutLead": "Weekly meetups with founders, investors and AI leaders from the industry. Hands-on workshops. A community that builds.",
+    "about1Title": "Weekly meetups",
+    "about1Body": "Founders, investors and AI leaders from the industry, every Wednesday.",
+    "about2Title": "Hands-on workshops",
+    "about2Body": "Zero to Hero: laptops open, and you leave with something that runs.",
+    "about3Title": "A community that builds",
+    "about3Body": "A small cohort, about 40 places, and initiatives members take on for the club.",
+    "metWith": "Last year we met with",
+    "partners": "With",
+    "partnerTau": "TAU Entrepreneurship Center",
+    "bandInTitle": "In the cohort?",
+    "bandInBody": "Your profile, your meetups and the workshop materials are in your personal area.",
+    "bandOutTitle": "Not in the cohort?",
+    "bandOutBody": "Follow us for open events and to hear first when the next cohort opens.",
+    "bandLabel": "Log in and updates",
+    "bandLogin": "Log in with your email"
   },
   "calendarFeed": {
     "description": "Every meetup of the TAU AI Club season. Updates on its own."
@@ -135,7 +154,8 @@
     "errorEmail": "Enter a valid email address.",
     "errorCode": "That code didn't work. Check it, or ask for a new one.",
     "errorExpired": "That took too long. Enter your email again for a new code.",
-    "errorThrottled": "Too many tries. Wait a few minutes and try again."
+    "errorThrottled": "Too many tries. Wait a few minutes and try again.",
+    "notInCohort": "Not in the cohort yet? Follow us on Instagram to hear when the next one opens."
   },
   "admin": {
     "eyebrow": "Admin",
@@ -444,7 +464,11 @@
     "hidden": "Hidden",
     "errorPhone": "That phone number doesn't look right.",
     "errorContactEmail": "That email address doesn't look right.",
-    "contact": "Contact"
+    "contact": "Contact",
+    "backToMe": "Back to my area",
+    "switchOff": "Off: hidden from members",
+    "switchOn": "On: members see it",
+    "privacyNote": "The club admins can always see your phone and email. Speakers and visitors never can."
   },
   "attendance": {
     "title": "Attendance from Luma",
@@ -602,7 +626,7 @@
   },
   "me": {
     "title": "My area",
-    "hello": "Hi {name}",
+    "hello": "Hi, <hl>{name}</hl>",
     "body": "Everything open to members of the cohort, in one place.",
     "editProfile": "Edit my profile",
     "viewProfile": "My profile as members see it",
@@ -615,7 +639,15 @@
     "seasonFeedDownload": "Download the season file",
     "seasonFeedGoogle": "Add to Google Calendar",
     "gameTitle": "Meeting games",
-    "gameBody": "Games to meet each other before every meetup. Coming here soon.",
-    "gameSoon": "Coming soon"
+    "gameBody": "Coming here soon.",
+    "gameSoon": "Coming soon",
+    "profileTitle": "My profile",
+    "photoNudge": "Add a photo so people from the cohort recognise you at meetups.",
+    "today": "Today",
+    "lecturesHint": "Slides and recordings from the talks",
+    "workshopsHint": "Zero to Hero steps, code and setup",
+    "visibleToMembers": "Members see it",
+    "onlyYou": "Only you",
+    "icsHint": "Downloads an .ics file that opens in Google Calendar, Apple Calendar or Outlook. Times are Israel time."
   }
 }
