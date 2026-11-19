@@ -1,0 +1,70 @@
+# Runs on every pull request (including ones from forks) and on pushes to main.
+#
+# No secrets are used or needed: the site runs on its built-in fake season data (USE_FIXTURES),
+# the database checks run on an in-memory Postgres, and the token is read-only. Pull requests from
+# forks get no secrets from GitHub anyway. Do NOT switch this to `pull_request_target` and do not add
+# secrets to it: that would run a stranger's code with the repository's keys.
+#
+# The two job names below are what GitHub shows as check names, and what to mark as "required"
+# in Settings -> Branches -> Branch protection rules:
+#   "Lint, types and database"
+#   "Browser tests"
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Lint, types and database
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # pnpm version comes from "packageManager" in package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # ESLint, `next typegen` + tsc, and the SQL migrations + row-level-security checks.
+      - run: node tests/run-all.mjs --only=db,tsc,eslint
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: static-logs
+          path: node_modules/.cache/run-all/
+          if-no-files-found: ignore
+
+  browser:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      # The three Playwright suites (m1, m2, m3) on production builds and the fake season data.
+      - run: node tests/run-all.mjs --only=m1,m2,m3
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-logs
+          path: |
+            node_modules/.cache/run-all/
+            test-results/
+          if-no-files-found: ignore
