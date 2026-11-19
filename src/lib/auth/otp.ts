@@ -85,6 +85,13 @@ export function allow(key: string, limit: { max: number; windowMs: number }, now
   return b.count <= limit.max;
 }
 
+function adminClient() {
+  const env = supabaseEnv();
+  const secret = process.env.SUPABASE_SECRET_KEY;
+  if (!env || !secret) return null;
+  return createClient(env.url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
 /**
  * Is this email on the club list (an active member)? Checked with the server-only
  * secret key, because the allowlist is admins-only under RLS.
@@ -93,12 +100,28 @@ export function allow(key: string, limit: { max: number; windowMs: number }, now
  * before_user_created hook alone, which still refuses to create unlisted users.
  */
 export async function isAllowlisted(email: string): Promise<boolean | null> {
-  const env = supabaseEnv();
-  const secret = process.env.SUPABASE_SECRET_KEY;
-  if (!env || !secret) return null;
-  const admin = createClient(env.url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+  const admin = adminClient();
+  if (!admin) return null;
   // An RPC (POST body), so the email never lands in a URL or the API request logs.
   const { data, error } = await admin.rpc("email_on_club_list", { p_email: email });
   if (error) throw new Error(`allowlist lookup failed: ${error.code ?? "unknown"}`);
   return data === true;
+}
+
+/**
+ * Asks Supabase Auth to email a sign-in code, as the server (secret key).
+ *
+ * Supabase's CAPTCHA protection is on (HANDOVER runbook G, privacy H1), so its public
+ * /auth/v1/otp, /signup, /recover, /resend and /magiclink endpoints refuse every
+ * request that has no CAPTCHA token, the same way for every email. Supabase Auth skips
+ * the CAPTCHA only for a request made with admin credentials, so a code can be requested
+ * only through this route, and only for an email that is on the list.
+ *
+ * Returns null when SUPABASE_SECRET_KEY isn't set (local dev / tests).
+ */
+export async function requestCodeAsServer(email: string) {
+  const admin = adminClient();
+  if (!admin) return null;
+  const { error } = await admin.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  return { error };
 }
