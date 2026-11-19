@@ -16,6 +16,7 @@ import { authEnabled } from "@/lib/supabase/config";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { Download } from "lucide-react";
+import { BidiText } from "@/components/events/bidi-text";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/workshops/[slug]">): Promise<Metadata> {
   const { locale } = await params;
@@ -58,7 +59,7 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
           {event.series_no && total > 0 && <span className="text-sm text-fg-muted">{t("workshopNo", { n: event.series_no, total })}</span>}
           {event.state === "past" && <Tag>{te("past")}</Tag>}
         </div>
-        <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg">{loc(event, "title", l) ?? slug}</h1>
+        <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg"><BidiText text={loc(event, "title", l) ?? slug} /></h1>
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
           <CalendarDays aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
           <time dateTime={isoAttr(event.starts_at)}>{formatEventDate(event.starts_at, l)}</time>

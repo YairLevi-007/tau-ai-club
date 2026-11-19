@@ -13,6 +13,7 @@ import { ContentIntro, MembersOnlyMark, MembersSoon, SpeakerList } from "@/compo
 import { authEnabled } from "@/lib/supabase/config";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { cn } from "@/lib/utils";
+import { BidiText } from "@/components/events/bidi-text";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/workshops">): Promise<Metadata> {
   const { locale } = await params;
@@ -72,7 +73,7 @@ export default async function WorkshopsPage({ params }: PageProps<"/[locale]/wor
                 </div>
                 <h2 className="text-xl font-bold text-balance text-fg">
                   <Link href={`/workshops/${w.slug}`} className="rounded-sm after:absolute after:inset-0 after:rounded-lg">
-                    {loc(w, "title", l) ?? w.slug}
+                    <BidiText text={loc(w, "title", l) ?? w.slug} />
                   </Link>
                 </h2>
                 <time dateTime={isoAttr(w.starts_at)} className="text-fg-muted">

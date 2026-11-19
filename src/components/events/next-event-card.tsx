@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { EventActions, EventPills, Tag } from "./event-bits";
 import { FlyerChip, InfoTile, SpeakerAvatar, splitTitle } from "./flyer-bits";
+import { BidiText } from "./bidi-text";
 
 /** Whole calendar days from `nowIso` to the event's start, counted in Israel time. */
 function daysUntil(startIso: string, nowIso: string) {
@@ -84,14 +85,14 @@ export async function NextEventCard({
         <>
           <h2 className="mt-5 text-[clamp(1.5rem,6vw,2rem)] leading-[1.12] font-extrabold text-balance">
             <Link href={`/events/${event.slug}`} className="rounded-sm transition-colors duration-150 hover:text-brand-purple-softer">
-              {title.head}
+              <BidiText text={title.head} />
               {title.accent && (
                 <>
                   {" "}
-                  <span className="text-brand-purple">{title.accent}</span>
+                  <span className="text-brand-purple"><BidiText text={title.accent} /></span>
                 </>
               )}
-              {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted">{title.tail}</span>}
+              {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted"><BidiText text={title.tail} /></span>}
             </Link>
           </h2>
           {event.series_no && seriesTotal && seriesTotal > 1 ? (

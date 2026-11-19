@@ -27,6 +27,7 @@ import { SpeakerLinkedIn } from "@/components/events/speaker-linkedin";
 import { SpeakerContactLinks } from "@/components/events/speaker-contact-links";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
+import { BidiText } from "@/components/events/bidi-text";
 
 export const revalidate = 300;
 
@@ -195,16 +196,16 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
               l === "en" ? "tracking-[-0.02em]" : "tracking-[-0.01em]",
             )}
           >
-            {head}
+            <BidiText text={head} />
             {accent && (
               <>
                 {" "}
-                <span className={past ? "text-fg-subtle" : "text-brand-purple"}>{accent}</span>
+                <span className={past ? "text-fg-subtle" : "text-brand-purple"}><BidiText text={accent} /></span>
               </>
             )}
             {tail && (
               <span className="mt-3 block text-[clamp(1.25rem,3.4vw,1.875rem)] leading-snug font-semibold tracking-normal text-pretty text-fg-muted">
-                {tail}
+                <BidiText text={tail} />
               </span>
             )}
           </h1>
@@ -335,7 +336,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                   <Back aria-hidden className="size-4" />
                   {t("prevMeetup")}
                 </span>
-                <span className="font-semibold text-fg">{loc(prev, "title", l)}</span>
+                <span className="font-semibold text-fg"><BidiText text={loc(prev, "title", l) ?? prev.slug} /></span>
                 <bdi dir="ltr" className="w-fit font-mono text-sm text-fg-subtle">
                   {formatShortDate(prev.starts_at, l)}
                 </bdi>
@@ -352,7 +353,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                   {t("nextMeetup")}
                   <Forward aria-hidden className="size-4" />
                 </span>
-                <span className="font-semibold text-fg">{loc(next, "title", l)}</span>
+                <span className="font-semibold text-fg"><BidiText text={loc(next, "title", l) ?? next.slug} /></span>
                 <bdi dir="ltr" className="w-fit font-mono text-sm text-fg-subtle">
                   {formatShortDate(next.starts_at, l)}
                 </bdi>

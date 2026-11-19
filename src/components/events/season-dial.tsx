@@ -10,6 +10,7 @@ import { dur, ease } from "@/lib/motion";
 import { SpeakerFace as Face, type FaceSpeaker } from "./speaker-face";
 import { SpeakerLinkedIn } from "./speaker-linkedin";
 import { SpeakerAvatar } from "./flyer-bits";
+import { BidiText } from "./bidi-text";
 
 export type DialEvent = {
   slug: string;
@@ -349,7 +350,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                           )}
                         />
                         <span className="sr-only">
-                          {e.title}, <time dateTime={e.startsAt}>{e.fullDate}</time>
+                          <BidiText text={e.title} />, <time dateTime={e.startsAt}>{e.fullDate}</time>
                         </span>
                       </Link>
                     </li>
@@ -428,7 +429,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
                   id="dial-pop-title"
                   className={cn("text-lg leading-snug font-bold text-balance text-fg", selected.speakers.length === 0 && "pe-8")}
                 >
-                  {selected.title}
+                  <BidiText text={selected.title} />
                 </h3>
                 <p className="mt-1.5 text-sm text-fg-muted">
                   {selected.fullDate}
@@ -474,7 +475,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
               {selected.tentative && <span className="tag tag-tentative">{te("tentative")}</span>}
               {selected.venueTbd && <span className="tag tag-tbd">{te("venueTbd")}</span>}
             </div>
-            <h3 className="mt-3 text-[1.375rem] leading-tight font-bold text-balance text-fg">{selected.title}</h3>
+            <h3 className="mt-3 text-[1.375rem] leading-tight font-bold text-balance text-fg"><BidiText text={selected.title} /></h3>
             <p className="mt-2 text-fg-muted">
               {selected.fullDate}
               <span aria-hidden className="mx-1.5 text-fg-faint">

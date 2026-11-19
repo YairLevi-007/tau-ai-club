@@ -17,6 +17,7 @@ import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersContent } from "@/components/content/members-content";
+import { BidiText } from "@/components/events/bidi-text";
 
 export const revalidate = 300;
 
@@ -95,7 +96,7 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
           <Eyebrow he="הרצאה" en="Lecture" />
           {event.state === "past" && <Tag>{te("past")}</Tag>}
         </div>
-        <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg">{title}</h1>
+        <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg"><BidiText text={title} /></h1>
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
           <CalendarDays aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
           <time dateTime={isoAttr(event.starts_at)}>{formatEventDate(event.starts_at, l)}</time>
