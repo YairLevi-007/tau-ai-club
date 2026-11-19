@@ -13,6 +13,8 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 19.11 | **tau-privacy becomes tau-security**: one read-only agent for all site security, not a new agent. It checks before every merge that touches auth, DB or API, plus a full check once a week. It never fixes; auth or builder fix. | Team | `docs/TEAM.md` |
+| 19.11 | **Fix the club-list leak now** (privacy check H1): asking Supabase Auth directly must not reveal whether an email is on the club list, and must not send a code to an unlisted email. | Auth | tau-auth, `docs/WORK-BOARD.md` |
 | 19.11 | **One command for all checks, in every agent folder.** One command runs tsc, eslint and the three suites in order, stops at the first failure and prints one pass/fail line. Each worktree uses its own ports, so two agents can test at the same time. Before a merge, the manager pushes the agent's branch for a Vercel Preview link, so the user can see the change on a phone first. | Tests, way of working | `tests/**` (qa), `docs/TEAM.md` |
 | 19.11 | **Add to home screen: yes.** The user picked it from the manager's suggestions. The site should open on a phone like an app, with the club icon, and go straight to the personal area after sign-in. The look (icon, opening screen, any hint in /me) isn't chosen yet: the designer shows mockups first. | Design, phones | `docs/WORK-BOARD.md` |
 | 18.11 | **Login code email: the dark, club-style design.** The user chose it over a light phone variant. Subject: `קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code`. | Design, auth | `design/email/code-email.html` (+ `.png`), HANDOVER G4. Live in Supabase → Email Templates → Magic link + Confirm sign up. |

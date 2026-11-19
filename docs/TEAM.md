@@ -25,7 +25,7 @@ The user talks to the manager. The manager:
 | **tau-auth** | Sign-in, members, permissions, emails | `src/app/api/auth/**`, `src/lib/auth/**`, `src/lib/supabase/**`, `supabase/migrations/**`, RLS, Supabase email templates | Page design |
 | **tau-qa** | Tests and checks | `tests/**` only | All app code. Reports bugs to the manager instead of fixing them |
 | **tau-content** (new) | Club content and operations: meetups, speakers, Luma links, attendance CSVs, summaries | Content through the admin pages, `supabase/seed.sql` content rows, `docs/OPEN-QUESTIONS.md` | Code. Asks the manager when content needs a code change |
-| **tau-privacy** (new, reads only) | Security and privacy of member data: phones, emails, RLS, what guests can see | Nothing. Writes a report to the manager | Everything (reads only) |
+| **tau-security** (reads only; was tau-privacy) | All site security and privacy: sign-in, permissions, RLS, API routes, member data (phones, emails), what guests can see, Supabase and Vercel settings, abuse (enumeration, spam, rate limits). Checks before every merge that touches auth, DB or API, plus a full check once a week | Nothing. Writes a report to the manager. Fixes go to auth or builder | Everything (reads only) |
 
 A task that crosses lanes (e.g. a new page with a new DB column) is split by the manager: auth does the DB part, builder the page, designer the look, in that order. Each part is its own line on the board.
 
@@ -41,7 +41,7 @@ A task that crosses lanes (e.g. a new page with a new DB column) is split by the
    | auth | `…\Projects\tau-ai-club-auth` | `agent/auth` |
    | qa | `…\Projects\tau-ai-club-qa` | `agent/qa` |
 
-   tau-content and tau-privacy don't need a folder: they work through the admin pages or only read.
+   tau-content and tau-security don't need a folder: they work through the admin pages or only read.
 2. **Claim before you start.** The manager writes the task on `docs/WORK-BOARD.md` with the agent and the files. Files that another task in progress has claimed are off limits until that task is merged.
 3. **Never delete or rewrite someone else's code.** If something in another lane is in the way, stop and tell the manager.
 4. **Before handing in:** `git pull` the latest `main` into your branch, run `tsc`, `eslint` and the tests for your area, then commit on your branch and tell the manager: what changed, which files, and how you checked it. Don't push to `main`.
