@@ -11,6 +11,7 @@ import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
 import { ClubAbout } from "@/components/home/club-about";
+import { HeroFaces, seasonSpeakers } from "@/components/home/hero-faces";
 import { PageBackdrop } from "@/components/site/page-backdrop";
 import { authEnabled } from "@/lib/supabase/config";
 
@@ -45,6 +46,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   // Members area on: the schedule (dates, times, places) is for members only, in /me.
   // Open question for the club (docs/OPEN-QUESTIONS.md #1). Guests see the vision, speakers and founders.
   const showSchedule = !authEnabled();
+  // Without the schedule card, the hero's second column shows the season's speakers instead (review 19.11, item 4).
+  const speakers = season.status === "ok" ? seasonSpeakers(season.events) : [];
+  const faces = !showSchedule && speakers.length > 0;
   const seriesTotal =
     season.status === "ok" && next?.series ? season.events.filter((e) => e.series === next.series).length : undefined;
 
@@ -55,7 +59,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
       <div className={cn(
           "mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",
-          showSchedule && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]",
+          (showSchedule || faces) && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]",
         )}>
         <section aria-labelledby="hero-heading">
           <h1
@@ -83,9 +87,12 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
               </bdi>
             </p>
           )}
+          {faces && <HeroFaces layout="row" speakers={speakers} locale={l} label={t("heroFacesLink", { count: speakers.length })} />}
         </section>
 
-        {!showSchedule ? null : season.status === "ok" ? (
+        {!showSchedule ? (
+          faces && <HeroFaces layout="wide" speakers={speakers} locale={l} label={t("heroFacesLink", { count: speakers.length })} />
+        ) : season.status === "ok" ? (
           <NextEventCard event={next} now={season.now} seriesTotal={seriesTotal} />
         ) : (
           <p role="status" data-testid="data-unavailable" className="rounded-lg border border-border bg-surface p-5">

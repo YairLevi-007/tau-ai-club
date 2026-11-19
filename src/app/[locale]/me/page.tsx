@@ -20,6 +20,7 @@ import { MyAttendance } from "@/components/members/my-attendance";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { HomeScreenCard } from "@/components/members/home-screen-card";
 import { cn } from "@/lib/utils";
+import { BidiText } from "@/components/events/bidi-text";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/me">): Promise<Metadata> {
   const { locale } = await params;
@@ -92,7 +93,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
         <div className="grid min-w-0 flex-1 basis-48 gap-0.5">
           <p className="flex flex-wrap items-center gap-2">
             <Link href={`/events/${e.slug}`} className="-my-2.5 inline-block py-2.5 font-semibold text-fg underline-offset-4 hover:underline">
-              {title}
+              <BidiText text={title} />
             </Link>
             {isToday && <span className="rounded-full bg-brand-purple px-2 py-0.5 text-[0.75rem] font-semibold text-fg">{t("today")}</span>}
           </p>

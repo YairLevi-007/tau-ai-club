@@ -90,3 +90,32 @@ export function googleCalendarUrl(
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
+
+
+const HEBREW = /[\u0590-\u05FF]/;
+// A run of English: starts with a Latin letter, may hold digits, spaces and inner punctuation,
+// ends on a letter or digit, then takes any punctuation that follows it (", " ": " ...).
+const LATIN_RUN = /[A-Za-z](?:[A-Za-z0-9\s.,:;&+'\u2019\-\u2013\u00b7/!?#@]*[A-Za-z0-9])?[.,:;!?]*/g;
+
+/**
+ * Display-only split of a mixed Hebrew/English text (design review item 1, 19.11). In a Hebrew
+ * line, a comma after an English run sits between English and Hebrew, so it takes the Hebrew
+ * direction and lands on the wrong side (",Claude Code"). The caller renders each `ltr` segment
+ * in its own LTR isolate (<bdi dir="ltr">), so the run keeps its punctuation.
+ *
+ * Text with no Hebrew (every English title) comes back as one plain segment, unchanged. Never use
+ * this on stored values: it only shapes rendering and adds no characters (copying stays clean).
+ */
+export function bidiSegments(text: string): { text: string; ltr: boolean }[] {
+  if (!HEBREW.test(text)) return [{ text, ltr: false }];
+  const out: { text: string; ltr: boolean }[] = [];
+  let last = 0;
+  for (const m of text.matchAll(LATIN_RUN)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push({ text: text.slice(last, at), ltr: false });
+    out.push({ text: m[0], ltr: true });
+    last = at + m[0].length;
+  }
+  if (last < text.length) out.push({ text: text.slice(last), ltr: false });
+  return out;
+}

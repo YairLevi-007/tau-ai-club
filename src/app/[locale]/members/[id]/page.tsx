@@ -9,10 +9,11 @@ import { createClient } from "@/lib/supabase/server";
 import { loc } from "@/lib/event-format";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberContact, getMemberProfile, LINK_KEYS } from "@/lib/members/profile";
-import { panelClass, smallBtn } from "@/components/admin/styles";
+import { raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 
 // Members only: no member's name goes into the title or any metadata.
@@ -41,6 +42,8 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
   const subline = [profile.year ? t("yearN", { n: profile.year }) : null, profile.faculty, profile.program];
 
   return (
+    <div className="relative isolate">
+    <PageBackdrop />
     <article className="mx-auto max-w-4xl px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="member-profile">
       <MembersEyebrow />
       <header className="mt-3 flex flex-col gap-5 rounded-lg border border-border-accent bg-bg-raised p-6 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] sm:flex-row sm:items-center sm:gap-7 sm:p-8">
@@ -58,7 +61,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
       </header>
 
       <div className={cn("mt-5 grid items-start gap-5", (links.length > 0 || contact) && "md:grid-cols-[minmax(0,1fr)_16rem]")}>
-        <section aria-label={t("about")} className={cn(panelClass, "p-5 sm:p-6")}>
+        <section aria-label={t("about")} className={cn(raisedPanelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6")}>
           <h2 className="text-sm font-semibold text-fg-subtle">{t("about")}</h2>
           {bio ? (
             <p className="mt-3 max-w-[65ch] text-[1.0625rem] leading-relaxed whitespace-pre-line text-fg-muted">{bio}</p>
@@ -70,7 +73,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
         {(links.length > 0 || contact) && (
           <div className="grid gap-5">
             {contact && (
-              <section aria-labelledby="contact-heading" className={cn(panelClass, "p-5 sm:p-6")} data-testid="member-contact">
+              <section aria-labelledby="contact-heading" className={cn(raisedPanelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6")} data-testid="member-contact">
                 <h2 id="contact-heading" className="text-sm font-semibold text-fg-subtle">
                   {t("contact")}
                 </h2>
@@ -97,7 +100,7 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
               </section>
             )}
         {links.length > 0 && (
-          <section aria-labelledby="links-heading" className={cn(panelClass, "p-5 sm:p-6")}>
+          <section aria-labelledby="links-heading" className={cn(raisedPanelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6")}>
             <h2 id="links-heading" className="text-sm font-semibold text-fg-subtle">
               {t("links")}
             </h2>
@@ -127,5 +130,6 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
         )}
       </div>
     </article>
+    </div>
   );
 }

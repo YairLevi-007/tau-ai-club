@@ -2,8 +2,9 @@ import { getLocale } from "next-intl/server";
 import { LockKeyhole } from "lucide-react";
 import { loc } from "@/lib/event-format";
 import type { Locale } from "@/i18n/routing";
-import type { SeasonEvent } from "@/lib/data/types";
-import { SpeakerFace, initialsOf } from "@/components/events/speaker-face";
+import type { EventState, SeasonEvent } from "@/lib/data/types";
+import { SpeakerAvatar, roleCapsClass } from "@/components/events/flyer-bits";
+import { raisedPanelClass } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 
 /** Eyebrow: Silkscreen is Latin only, so Hebrew gets Rubik. */
@@ -27,25 +28,48 @@ export function ContentIntro({ eyebrow, title, body }: { eyebrow: React.ReactNod
   );
 }
 
-/** Speakers of an event: face, name, and role/company when known (public fields only). */
+/**
+ * Speakers of an event: the same ringed round photo with the company badge as on the home page,
+ * then name, company and role (company first, role in the accent small caps), as on the home cards.
+ * Public fields only.
+ */
 export function SpeakerList({ event, locale, size = 56, className }: { event: SeasonEvent; locale: Locale; size?: number; className?: string }) {
   if (!event.event_speakers.length) return null;
   return (
     <ul className={cn("flex flex-wrap gap-x-6 gap-y-3", className)} data-testid="content-speakers">
       {event.event_speakers.map(({ speaker }) => {
         const name = loc(speaker, "name", locale) ?? "";
-        const role = [loc(speaker, "role", locale), loc(speaker, "company", locale)].filter(Boolean).join(" · ");
+        const company = loc(speaker, "company", locale);
+        const role = loc(speaker, "role", locale);
         return (
           <li key={speaker.id} className="flex min-w-0 items-center gap-3">
-            <SpeakerFace speaker={{ name, initials: initialsOf(name), photoUrl: speaker.photo_url }} size={size} />
+            <SpeakerAvatar name={name} photoUrl={speaker.photo_url} company={company} size={size} />
             <span className="grid min-w-0">
               <span className="font-semibold text-fg">{name}</span>
-              {role && <span className="text-sm text-fg-muted">{role}</span>}
+              {company && (
+                <span className="text-sm text-fg-muted">
+                  <bdi>{company}</bdi>
+                </span>
+              )}
+              {role && <span className={roleCapsClass(locale)}>{role}</span>}
             </span>
           </li>
         );
       })}
     </ul>
+  );
+}
+
+/**
+ * A lecture or workshop card in the personal area's look (user, 19.11: the whole site follows
+ * /me): the purple raised panel. Coming and next ones get the stronger purple edge; past ones
+ * stay a step quieter. For the cards in lectures/page.tsx and workshops/page.tsx.
+ */
+export function contentCardClass(state: EventState) {
+  return cn(
+    raisedPanelClass,
+    "relative grid gap-4 p-5 shadow-[var(--highlight-top)] transition-colors duration-150 hover:border-brand-purple sm:p-6",
+    state === "past" ? "border-border-strong" : state === "next" || state === "live" ? "border-brand-purple shadow-[var(--glow-featured)]" : "",
   );
 }
 
