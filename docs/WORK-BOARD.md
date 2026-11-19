@@ -8,7 +8,7 @@ to "Done (last 2 weeks)".
 
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
-| — | | | | |
+| Privacy check: member phones and emails on the live site and in Supabase RLS (read only) | tau-privacy | none (reads only; report goes in the manager's notes folder) | — | Started 19.11 |
 
 ## Waiting for the user
 
