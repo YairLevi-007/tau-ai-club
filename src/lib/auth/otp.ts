@@ -103,8 +103,8 @@ export async function isAllowlisted(email: string): Promise<boolean | null> {
   const admin = adminClient();
   if (!admin) return null;
   // An RPC (POST body), so the email never lands in a URL or the API request logs.
-  const { data, error } = await admin.rpc("email_on_club_list", { p_email: email });
-  if (error) throw new Error(`allowlist lookup failed: ${error.code ?? "unknown"}`);
+  const { data, error, status } = await admin.rpc("email_on_club_list", { p_email: email });
+  if (error) throw new CodeRequestError(status === 401 || status === 403 ? "KEY_REJECTED" : "LOOKUP_FAILED", `${status} ${error.code ?? ""}`);
   return data === true;
 }
 
@@ -124,4 +124,41 @@ export async function requestCodeAsServer(email: string) {
   if (!admin) return null;
   const { error } = await admin.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
   return { error };
+}
+
+// ---------------------------------------------------------------------------
+// Failure log lines. A failed code request is never shown to the visitor (that would
+// reveal who is on the list), so a login outage would be silent without these.
+// Every line starts with AUTH_CODE_FAIL (one alert/search matches all of them), then the
+// kind, then status and Supabase's error code. Never the email.
+// ---------------------------------------------------------------------------
+export type CodeFailKind =
+  | "NO_SECRET_KEY" // SUPABASE_SECRET_KEY missing: fell back to the publishable key (blocked once CAPTCHA is on)
+  | "KEY_REJECTED" // 401/403: the secret key is wrong, revoked or not accepted
+  | "CAPTCHA_BLOCKED" // Supabase asked for a CAPTCHA: the request wasn't treated as admin
+  | "RATE_LIMITED" // 429: Supabase's email or per-IP limit (the code says which)
+  | "LOOKUP_FAILED" // the club-list check failed
+  | "SEND_FAILED" // any other Supabase error
+  | "ERROR"; // network error / exception
+
+export class CodeRequestError extends Error {
+  constructor(
+    readonly kind: CodeFailKind,
+    readonly detail: string,
+  ) {
+    super(`${kind} ${detail}`);
+  }
+}
+
+export function logCodeFailure(kind: CodeFailKind, detail = "") {
+  console.error(`AUTH_CODE_FAIL ${kind}${detail ? ` ${detail}` : ""}`.trim());
+}
+
+/** Sorts a Supabase Auth error into a kind. */
+export function codeFailKind(error: { status?: number; code?: string; message?: string }): CodeFailKind {
+  if (error.code === "captcha_failed" || /captcha/i.test(error.message ?? "")) return "CAPTCHA_BLOCKED";
+  if (error.status === 429 || /rate.?limit/i.test(error.code ?? "")) return "RATE_LIMITED";
+  if (error.status === 401) return "KEY_REJECTED";
+  if (!error.status) return "ERROR"; // no HTTP answer (network, timeout)
+  return "SEND_FAILED";
 }
