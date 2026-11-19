@@ -34,6 +34,30 @@ const plexMono = IBM_Plex_Mono({
 const INTRO_ONCE_SCRIPT =
   "try{var k='tau-intro-seen';if(sessionStorage.getItem(k))document.documentElement.setAttribute('data-intro-seen','');sessionStorage.setItem(k,'1')}catch(e){}";
 
+/**
+ * iPhone opening screens for the home-screen app (designer's part 2, public/home-screen/launch/).
+ * iOS picks the one whose media query matches the phone exactly, so there's one per screen size:
+ * CSS width x height at a pixel ratio, and the file is that size in device pixels.
+ */
+const IPHONE_SCREENS: [width: number, height: number, ratio: number][] = [
+  [440, 956, 3],
+  [402, 874, 3],
+  [430, 932, 3],
+  [393, 852, 3],
+  [428, 926, 3],
+  [390, 844, 3],
+  [375, 812, 3],
+  [414, 896, 3],
+  [414, 896, 2],
+  [375, 667, 2],
+  [414, 736, 3],
+  [320, 568, 2],
+];
+const IPHONE_LAUNCH_IMAGES = IPHONE_SCREENS.map(([w, h, r]) => ({
+  url: `/home-screen/launch/launch-${w * r}x${h * r}.png`,
+  media: `(device-width: ${w}px) and (device-height: ${h}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: portrait)`,
+}));
+
 // Android Chrome fires beforeinstallprompt once, often before /me has hydrated (members usually
 // arrive by client navigation). Keep it for the /me "home screen" card; preventDefault keeps
 // Chrome's own mini-bar away, so the only offer is that card (option 2, DECISIONS 19.11).
@@ -69,7 +93,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
     }),
     // Home screen (option 2): iPhone uses these for the icon's name and its own window. The
     // manifest link comes from src/app/manifest.ts, the icon from src/app/apple-icon.png.
-    appleWebApp: { capable: true, title: "TAU AI Club", statusBarStyle: "default" },
+    appleWebApp: { capable: true, title: "TAU AI Club", statusBarStyle: "default", startupImage: IPHONE_LAUNCH_IMAGES },
     // Preview deployments must not be indexed; only production is.
     robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
   };
