@@ -86,12 +86,16 @@ export async function NextEventCard({
         <>
           <h2 className="mt-5 text-[clamp(1.5rem,6vw,2rem)] leading-[1.12] font-extrabold text-balance">
             <Link href={`/events/${event.slug}`} className="rounded-sm transition-colors duration-150 hover:text-brand-purple-softer">
-              <BidiText text={title.head} context={fullTitle} />
-              {title.accent && (
-                <>
-                  {" "}
-                  <span className="text-brand-purple"><BidiText text={title.accent} context={fullTitle} /></span>
-                </>
+              {title.accent ? (
+                // Head and accent as one text, the accent marked purple, so an English run that
+                // crosses them ("Zero to Hero 2: Claude Code,") stays in one piece.
+                <BidiText
+                  text={`${title.head} ${title.accent}`}
+                  context={fullTitle}
+                  marks={[{ start: title.head.length + 1, end: title.head.length + 1 + title.accent.length, className: "text-brand-purple" }]}
+                />
+              ) : (
+                <BidiText text={title.head} context={fullTitle} />
               )}
               {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted"><BidiText text={title.tail} context={fullTitle} /></span>}
             </Link>

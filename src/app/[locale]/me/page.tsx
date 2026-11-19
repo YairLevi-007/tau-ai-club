@@ -18,7 +18,6 @@ import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
 import { ProfileEditor } from "@/components/members/profile-editor";
 import { MyAttendance } from "@/components/members/my-attendance";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { HomeScreenCard } from "@/components/members/home-screen-card";
 import { cn } from "@/lib/utils";
 import { BidiText } from "@/components/events/bidi-text";
 
@@ -151,8 +150,6 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
             <p className="max-w-[60ch] text-[1.0625rem] text-fg-muted">{t("detailsBody")}</p>
           </header>
           <ProfileEditor memberId={viewer.member.id} name={name} profile={profile} contact={contact} photoSrc={photoSrc} />
-          {/* "The club on your home screen": phones, in the browser, until added or dismissed (DECISIONS 19.11). */}
-          <HomeScreenCard />
         </div>
 
         {todays.length > 0 && (

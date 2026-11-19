@@ -5,8 +5,8 @@ import type { MetadataRoute } from "next";
  * Installed, the club opens on /me in its own window (/me sends a signed-out member to /login
  * first). Android builds its opening screen from background_color, the icon and the name.
  *
- * The icons are stand-ins cut from design/home-screen/assets/icon-2.png; the designer makes the
- * final sizes (WORK-BOARD, part 2).
+ * Icons: the designer's final set (home-screen part 2, 2681fb0), including a maskable 512 that
+ * Android crops to its own shape.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -25,6 +25,7 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/home-screen/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/home-screen/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/home-screen/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }
