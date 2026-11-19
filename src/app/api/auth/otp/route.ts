@@ -2,12 +2,15 @@ import { NextResponse, after, type NextRequest } from "next/server";
 import { safeNext } from "@/lib/auth/next-path";
 import { localeParam, localized, routeClient } from "@/lib/auth/route-client";
 import {
+  CodeRequestError,
   LIMITS,
   OTP_COOKIE_OPTIONS,
   OTP_EMAIL_COOKIE,
   allow,
   clientIp,
+  codeFailKind,
   isAllowlisted,
+  logCodeFailure,
   normalizeEmail,
   requestCodeAsServer,
   sameOrigin,
@@ -56,15 +59,21 @@ export async function POST(request: NextRequest) {
     try {
       const listed = await isAllowlisted(email);
       if (listed === false) return;
-      const sent = await requestCodeAsServer(email);
-      // null = no secret key (local dev / tests): the publishable key and the auth hook alone.
-      const error = sent
-        ? sent.error
-        : (await client.supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })).error;
+      let sent = await requestCodeAsServer(email);
+      if (!sent) {
+        // No secret key: the publishable key and the auth hook alone. Fine in local dev and
+        // tests; in production, with CAPTCHA on, this fails, so it is always logged there.
+        if (process.env.NODE_ENV === "production") logCodeFailure("NO_SECRET_KEY");
+        sent = await client.supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      }
       // Never shown to the visitor (that would reveal who is on the list). No email in the log.
-      if (error) console.error("signInWithOtp failed:", error.status ?? "", error.code ?? error.message);
+      if (sent.error) {
+        const { status, code } = sent.error;
+        logCodeFailure(codeFailKind(sent.error), `${status ?? ""} ${code ?? ""}`.trim());
+      }
     } catch (e) {
-      console.error("code request failed:", e instanceof Error ? e.message : "unknown");
+      if (e instanceof CodeRequestError) logCodeFailure(e.kind, e.detail);
+      else logCodeFailure("ERROR", e instanceof Error ? e.name : "unknown");
     }
   });
 
