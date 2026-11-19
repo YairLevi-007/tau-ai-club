@@ -14,8 +14,10 @@ to "Done (last 2 weeks)".
 | Design review item 2: card consistency (lecture vs workshop cards) and one avatar shape | tau-designer | card and avatar components (`src/components/**`, visual only), `globals.css`. Not the files item 1 claims; if a page file is needed, it waits for item 1 | agent/design | Started 19.11 (user: "1 and 2 first") |
 | Design review items 3, 4, 6, 7, 8: home page look (visual markup only) | tau-designer | `src/app/[locale]/page.tsx`, home-only components (not `next-event-card.tsx`), `messages/*.json` | agent/design | After items 1 and 2 |
 | Design review items 11–13: lectures and workshops pages | tau-designer | `lectures/**`, `workshops/**` (visual only) | agent/design | After items 1 and 2 |
-| Design review items 9–10: /me sections | tau-designer | `me/page.tsx` and /me components (visual) | agent/design | Waits for item 1 and home-screen part 1 to be merged |
-| Design review item 5: next-meetup card for members on home | — | — | — | Waits for the user's answer |
+| Design review item 5, part 1: "next meetup" card on home for signed-in members only (data and logic; no schedule in public HTML, home stays ISR for guests) | tau-builder | `src/app/[locale]/page.tsx` (the card's spot only), a new members-only route or component under `src/app/api/**` or `src/components/events/**` (logic) | agent/build | Started 19.11. tau-security checks it before the merge |
+| Design review item 5, part 2: the card's look on home | tau-designer | visual markup of the card on home | agent/design | After part 1 |
+| Design review items 9–10: /me sections | tau-designer | `src/app/[locale]/me/page.tsx`, /me components (visual) | agent/design | Started 19.11 |
+| Design review, round 2 (reads only): English pages, login, admin, 360px | tau-designer | `design/review/round-2/**` | agent/design | After 9–10 |
 | Add to home screen, part 2: final icon sizes, iPhone launch images, the card's look (after part 1 is merged) | tau-designer | `public/` icons and launch images, `design/home-screen/**`, the card's visual markup, `messages/*.json` card wording | agent/design | Waiting for part 1 |
 | One command for all checks + own ports per worktree | tau-qa | `tests/**`, `playwright.config.ts` | agent/qa | Started 19.11 |
 | Club-list leak (privacy H1): Supabase Auth must give the same answer for listed and unlisted emails, and send codes only to listed ones | tau-auth | `supabase/migrations/**` (new file), Supabase Auth hooks/settings, `src/lib/auth/**` if needed | agent/auth | Started 19.11 |
