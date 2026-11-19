@@ -18,10 +18,13 @@ const hasMemberHint = () => /(?:^|;\s*)tau_member=1(?:;|$)/.test(document.cookie
  * `children`. The card itself is server-rendered and has no entrance animation. A non-member,
  * an error, or no answer leaves `children` as they are. Guests send no request at all.
  */
-export function MemberNextEvent({ children }: { children?: ReactNode }) {
+export function MemberNextEvent({ children, pending }: { children?: ReactNode; pending?: ReactNode }) {
   const member = useSyncExternalStore(subscribe, hasMemberHint, () => false);
   const locale = useLocale();
   const [card, setCard] = useState<ReactNode>(null);
+  // Set when the request has settled with no card (not a member, an error), so `pending`
+  // gives the space back to `children`.
+  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
     if (!member) return;
@@ -30,14 +33,34 @@ export function MemberNextEvent({ children }: { children?: ReactNode }) {
       try {
         const result = await memberNextEvent(locale);
         if (live && result) startTransition(() => setCard(result));
+        else if (live) giveBack();
       } catch {
         // Keep the guest view.
+        if (live) giveBack();
       }
     });
     return () => {
       live = false;
     };
+    // No card after all (not a member, an error): drop the page's member mark, so the guest
+    // layout (the honeycomb on wide screens, no placeholder) comes back.
+    function giveBack() {
+      delete document.documentElement.dataset.memberHint;
+      setSettled(true);
+    }
   }, [member, locale]);
 
-  return card ?? children;
+  // Layout (design review item 5, part 2). The page marks <html data-member-hint> before its first
+  // paint (MEMBER_HINT_SCRIPT in next-event-placeholder.tsx, from the same cookie), and CSS then shows `pending` in place of
+  // `children`. So a member sees the card's frame from the first paint, and the card lands in it
+  // without moving anything. The card has no entrance animation. Guests never see `pending`.
+  if (card) return <div className="grid min-h-[37rem] lg:min-h-[38.75rem]">{card}</div>;
+  if (settled || !pending) return children;
+  return (
+    <>
+      {children && <div className="contents [[data-member-hint]_&]:hidden">{children}</div>}
+      <div className="hidden [[data-member-hint]_&]:grid">{pending}</div>
+    </>
+  );
 }
+

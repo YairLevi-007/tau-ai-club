@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { jsonLdHtml, organizationJsonLd } from "@/lib/structured-data";
 import { NextEventCard } from "@/components/events/next-event-card";
 import { MemberNextEvent } from "@/components/events/member-next-event";
+import { MEMBER_HINT_SCRIPT, NextEventPlaceholder } from "@/components/events/next-event-placeholder";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
@@ -57,6 +58,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     <div className="relative isolate">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(orgJsonLd)} />
       <PageBackdrop />
+      {/* Before the hero paints: mark a member's browser, so their layout is there from the first paint (no jump). */}
+      {!showSchedule && <script dangerouslySetInnerHTML={{ __html: MEMBER_HINT_SCRIPT }} />}
 
       <div className={cn(
           "mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",
@@ -93,7 +96,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
 
         {!showSchedule ? (
           // Signed-in members get their Next event card here after load (review item 5); guests and the cached HTML keep the faces.
-          <MemberNextEvent>
+          // Part 2: a placeholder holds the card's place from the moment the page knows it's a member, so nothing jumps
+          // when the card lands, and members keep the faces (the short row, now also on wide screens; DECISIONS 19.11).
+          <MemberNextEvent pending={<NextEventPlaceholder label={t("memberNextLoading")} />}>
             {faces && <HeroFaces layout="wide" speakers={speakers} locale={l} label={t("heroFacesLink", { count: speakers.length })} />}
           </MemberNextEvent>
         ) : season.status === "ok" ? (
