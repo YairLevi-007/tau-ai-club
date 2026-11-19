@@ -8,6 +8,7 @@ The user set this up on 19.11. Every agent reads this, `docs/DECISIONS.md` and
 The user talks to the manager. The manager:
 
 - **Hands out the work.** Every task goes to the agent whose lane it is, and gets a line on `docs/WORK-BOARD.md` first.
+- **Says what, not how.** Each agent is the expert in its own field (user, 19.11). The manager gives the problem, what done looks like and the limits (DECISIONS.md, lane, files). The agent picks the method.
 - **Keeps agents from getting in each other's way.** Two agents may work at the same time, but never on the same files.
 - **Merges.** Only the manager merges into `main` and pushes. Before that, all three test suites pass and the manager reads the diff. Vercel deploys `main` automatically.
 - **Writes decisions down.** Every approval from the user goes into `docs/DECISIONS.md` straight away, and every agent it touches is told about it.

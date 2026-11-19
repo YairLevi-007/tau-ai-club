@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 19.11 | **Add to home screen: yes.** The user picked it from the manager's suggestions. The site should open on a phone like an app, with the club icon, and go straight to the personal area after sign-in. The look (icon, opening screen, any hint in /me) isn't chosen yet: the designer shows mockups first. | Design, phones | `docs/WORK-BOARD.md` |
 | 18.11 | **Login code email: the dark, club-style design.** The user chose it over a light phone variant. Subject: `קוד הכניסה שלך למועדון ה-AI · Your TAU AI Club code`. | Design, auth | `design/email/code-email.html` (+ `.png`), HANDOVER G4. Live in Supabase → Email Templates → Magic link + Confirm sign up. |
 | 18.11 | No public sign-up. Guests see only a "כניסה לחברים" button. Login is a 6-digit email code, only for emails on the club list. | Auth, design | `src/app/api/auth/*`, `hook_before_user_created` |
 | 18.11 | The schedule (dates, times, places) is for members only **for now**. Guests see the vision, speakers (no dates) and founders. Meetup pages and calendar files are members only. Stopgap: still an open question for the club. | Home, events | `docs/OPEN-QUESTIONS.md` #1, `showSchedule`, `src/lib/calendar-access.ts` |
