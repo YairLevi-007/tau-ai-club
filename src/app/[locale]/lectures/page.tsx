@@ -12,7 +12,8 @@ import { markdownToText } from "@/lib/content/markdown";
 import { formatEventDate, isoAttr, loc } from "@/lib/event-format";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { Tag } from "@/components/events/event-bits";
-import { ContentIntro, Eyebrow, SpeakerList } from "@/components/content/content-bits";
+import { ContentIntro, Eyebrow, SpeakerList, contentCardClass } from "@/components/content/content-bits";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
@@ -54,6 +55,8 @@ export default async function LecturesPage({ params }: PageProps<"/[locale]/lect
   const past = lectures.filter((e) => e.state === "past").reverse();
   const coming = lectures.filter((e) => e.state !== "past");
   const Forward = l === "he" ? ArrowLeft : ArrowRight;
+  // Two columns on wide screens; a card left alone on the last row takes the whole row.
+  const listClass = "grid gap-4 lg:grid-cols-2 lg:[&>li:last-child:nth-child(odd)]:col-span-2";
 
   const card = (e: (typeof lectures)[number]) => {
     const title = loc(e, "title", l) ?? e.slug;
@@ -61,13 +64,7 @@ export default async function LecturesPage({ params }: PageProps<"/[locale]/lect
     const blurbText = blurb ? markdownToText((l === "en" ? blurb.body_en : null) || blurb.body_he) : null;
     return (
       <li key={e.slug}>
-        <article
-          className={cn(
-            "relative grid gap-4 rounded-lg border bg-surface p-5 transition-colors duration-150 hover:border-border-accent sm:p-6",
-            e.state === "past" ? "border-border" : "border-border-accent",
-          )}
-          data-testid="lecture-card"
-        >
+        <article className={cn(contentCardClass(e.state), "h-full content-start")} data-testid="lecture-card">
           <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
             <time dateTime={isoAttr(e.starts_at)}>{formatEventDate(e.starts_at, l)}</time>
             {e.state === "past" ? <Tag>{te("past")}</Tag> : <Tag tone={e.state === "next" || e.state === "live" ? "next" : "neutral"}>{t("upcoming")}</Tag>}
@@ -95,25 +92,29 @@ export default async function LecturesPage({ params }: PageProps<"/[locale]/lect
   };
 
   return (
-    <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="lectures-page">
-      <ContentIntro eyebrow={<Eyebrow he="מחזור 02" en="Cohort 02" />} title={t("lecturesTitle")} body={t("lecturesBody")} />
-      {lectures.length === 0 && <p className="text-fg-subtle">{t("lecturesEmpty")}</p>}
-      {past.length > 0 && (
-        <section aria-labelledby="past-lectures" className="grid gap-4">
-          <h2 id="past-lectures" className="text-lg font-bold text-fg-muted">
-            {t("past")}
-          </h2>
-          <ul className="grid gap-4 lg:grid-cols-2">{past.map(card)}</ul>
-        </section>
-      )}
-      {coming.length > 0 && (
-        <section aria-labelledby="coming-lectures" className="grid gap-4">
-          <h2 id="coming-lectures" className="text-lg font-bold text-fg-muted">
-            {t("upcoming")}
-          </h2>
-          <ul className="grid gap-4 lg:grid-cols-2">{coming.map(card)}</ul>
-        </section>
-      )}
+    // The personal area's look (user, 19.11): its backdrop and purple raised cards.
+    <div className="relative isolate">
+      <PageBackdrop />
+      <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="lectures-page">
+        <ContentIntro eyebrow={<Eyebrow he="מחזור 02" en="Cohort 02" />} title={t("lecturesTitle")} body={t("lecturesBody")} />
+        {lectures.length === 0 && <p className="text-fg-subtle">{t("lecturesEmpty")}</p>}
+        {past.length > 0 && (
+          <section aria-labelledby="past-lectures" className="grid gap-4">
+            <h2 id="past-lectures" className="text-lg font-bold text-fg-muted">
+              {t("past")}
+            </h2>
+            <ul className={listClass}>{past.map(card)}</ul>
+          </section>
+        )}
+        {coming.length > 0 && (
+          <section aria-labelledby="coming-lectures" className="grid gap-4">
+            <h2 id="coming-lectures" className="text-lg font-bold text-fg-muted">
+              {t("upcoming")}
+            </h2>
+            <ul className={listClass}>{coming.map(card)}</ul>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

@@ -9,7 +9,8 @@ import { getSeason } from "@/lib/events";
 import { hasBody } from "@/lib/content/sections";
 import { formatEventDate, isoAttr, loc } from "@/lib/event-format";
 import { Tag } from "@/components/events/event-bits";
-import { ContentIntro, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { ContentIntro, MembersOnlyMark, MembersSoon, SpeakerList, contentCardClass } from "@/components/content/content-bits";
+import { PageBackdrop } from "@/components/site/page-backdrop";
 import { authEnabled } from "@/lib/supabase/config";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { cn } from "@/lib/utils";
@@ -50,52 +51,50 @@ export default async function WorkshopsPage({ params }: PageProps<"/[locale]/wor
   const Forward = l === "he" ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="workshops-page">
-      <ContentIntro eyebrow={<MembersEyebrow />} title={t("workshopsTitle")} body={t("workshopsBody")} />
-      {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
-      {workshops.length === 0 ? (
-        <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
-      ) : (
-        <ol className="grid gap-4 md:grid-cols-3">
-          {workshops.map((w, i) => (
-            <li key={w.slug}>
-              <article
-                className={cn(
-                  "relative grid h-full content-start gap-3 rounded-lg border bg-surface p-5 transition-colors duration-150 hover:border-border-accent sm:p-6",
-                  w.state === "past" ? "border-border" : "border-border-accent",
-                )}
-                data-testid="workshop-card"
-              >
-                <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
-                  <span>{t("workshopNo", { n: w.series_no ?? i + 1, total: workshops.length })}</span>
-                  {w.state === "past" && <Tag>{te("past")}</Tag>}
-                  {(w.state === "next" || w.state === "live") && <Tag tone="next">{te(w.state === "live" ? "happeningNow" : "next")}</Tag>}
-                </div>
-                <h2 className="text-xl font-bold text-balance text-fg">
-                  <Link href={`/workshops/${w.slug}`} className="rounded-sm after:absolute after:inset-0 after:rounded-lg">
-                    <BidiText text={loc(w, "title", l) ?? w.slug} />
-                  </Link>
-                </h2>
-                <time dateTime={isoAttr(w.starts_at)} className="text-fg-muted">
-                  {formatEventDate(w.starts_at, l)}
-                </time>
-                <SpeakerList event={w} locale={l} size={36} />
-                {prepReady.has(w.slug) && (
-                  <p className="inline-flex items-center gap-1.5 text-sm text-fg-muted">
-                    <ListChecks aria-hidden className="size-4 text-brand-purple-soft" />
-                    {t("prepReady")}
-                  </p>
-                )}
-                <span aria-hidden className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-semibold text-brand-purple-soft">
-                  {t("workshopsTitle")}
-                  <Forward className="size-4" />
-                </span>
-              </article>
-            </li>
-          ))}
-        </ol>
-      )}
-      <MembersOnlyMark label={t("membersOnlyBadge")} />
+    // The personal area's look (user, 19.11): its backdrop and purple raised cards.
+    <div className="relative isolate">
+      <PageBackdrop />
+      <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="workshops-page">
+        <ContentIntro eyebrow={<MembersEyebrow />} title={t("workshopsTitle")} body={t("workshopsBody")} />
+        {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
+        {workshops.length === 0 ? (
+          <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
+        ) : (
+          <ol className="grid gap-4 md:grid-cols-3">
+            {workshops.map((w, i) => (
+              <li key={w.slug}>
+                <article className={cn(contentCardClass(w.state), "h-full content-start gap-3")} data-testid="workshop-card">
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-fg-muted">
+                    <span>{t("workshopNo", { n: w.series_no ?? i + 1, total: workshops.length })}</span>
+                    {w.state === "past" && <Tag>{te("past")}</Tag>}
+                    {(w.state === "next" || w.state === "live") && <Tag tone="next">{te(w.state === "live" ? "happeningNow" : "next")}</Tag>}
+                  </div>
+                  <h2 className="text-xl font-bold text-balance text-fg">
+                    <Link href={`/workshops/${w.slug}`} className="rounded-sm after:absolute after:inset-0 after:rounded-lg">
+                      <BidiText text={loc(w, "title", l) ?? w.slug} />
+                    </Link>
+                  </h2>
+                  <time dateTime={isoAttr(w.starts_at)} className="text-fg-muted">
+                    {formatEventDate(w.starts_at, l)}
+                  </time>
+                  <SpeakerList event={w} locale={l} size={36} />
+                  {prepReady.has(w.slug) && (
+                    <p className="inline-flex items-center gap-1.5 text-sm text-fg-muted">
+                      <ListChecks aria-hidden className="size-4 text-brand-purple-soft" />
+                      {t("prepReady")}
+                    </p>
+                  )}
+                  <span aria-hidden className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm font-semibold text-brand-purple-soft">
+                    {t("workshopsTitle")}
+                    <Forward className="size-4" />
+                  </span>
+                </article>
+              </li>
+            ))}
+          </ol>
+        )}
+        <MembersOnlyMark label={t("membersOnlyBadge")} />
+      </div>
     </div>
   );
 }
