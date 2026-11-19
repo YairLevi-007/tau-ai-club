@@ -49,12 +49,16 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
       {!season || season.events.length === 0 ? (
         <p className="text-fg-muted">{t("seasonEmpty")}</p>
       ) : (
+        // On a phone the dates don't fit beside the names: names are cut short (full name on hover
+        // and on the member's page) and a fade at the end edge shows the grid scrolls. The grid
+        // itself stays dense (DECISIONS 18.11). Round 2, item 10.
+        <div className="relative">
         <div className={cn(panelClass, "relative overflow-x-auto overscroll-x-contain")}>
           <table className="w-full border-separate border-spacing-0 text-sm" data-testid="attendance-grid">
             <caption className="sr-only">{t("gridCaption")}</caption>
             <thead>
               <tr className="text-fg-subtle">
-                <th scope="col" className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-4 py-3 text-start text-xs font-medium">
+                <th scope="col" className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-3 py-3 text-start text-xs font-medium sm:px-4">
                   {t("member")}
                 </th>
                 {season.events.map((e) => {
@@ -84,9 +88,13 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
                 <tr key={m.id} className="group/row" data-testid="attendance-row">
                   <th
                     scope="row"
-                    className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-4 py-2.5 text-start font-normal whitespace-nowrap group-last/row:border-0 group-hover/row:[background-image:linear-gradient(var(--surface-hover),var(--surface-hover)),linear-gradient(var(--surface),var(--surface))]"
+                    className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-3 py-2.5 text-start font-normal whitespace-nowrap sm:px-4 group-last/row:border-0 group-hover/row:[background-image:linear-gradient(var(--surface-hover),var(--surface-hover)),linear-gradient(var(--surface),var(--surface))]"
                   >
-                    <Link href={`/admin/attendance/${m.id}`} className="font-medium text-fg underline-offset-4 hover:underline">
+                    <Link
+                      href={`/admin/attendance/${m.id}`}
+                      title={m.full_name}
+                      className="block max-w-[8.5rem] truncate font-medium text-fg underline-offset-4 hover:underline sm:max-w-none"
+                    >
                       {m.full_name}
                     </Link>
                   </th>
@@ -114,6 +122,11 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
               ))}
             </tbody>
           </table>
+        </div>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-px end-px w-10 rounded-e-lg from-bg/90 to-transparent sm:hidden ltr:bg-linear-to-l rtl:bg-linear-to-r"
+        />
         </div>
       )}
       <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-subtle" aria-label={t("legendTitle")}>
