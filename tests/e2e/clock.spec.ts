@@ -35,7 +35,7 @@ const cases: Case[] = [
 ];
 
 test.describe.configure({ mode: "serial" });
-let port = 3200;
+let port = Number(process.env.PW_CLOCK_PORT) || 3200;
 for (const c of cases) {
   test(c.name, async ({ page }) => {
     const srv = await startDev(c.now, port++);
