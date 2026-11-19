@@ -34,6 +34,12 @@ const plexMono = IBM_Plex_Mono({
 const INTRO_ONCE_SCRIPT =
   "try{var k='tau-intro-seen';if(sessionStorage.getItem(k))document.documentElement.setAttribute('data-intro-seen','');sessionStorage.setItem(k,'1')}catch(e){}";
 
+// Android Chrome fires beforeinstallprompt once, often before /me has hydrated (members usually
+// arrive by client navigation). Keep it for the /me "home screen" card; preventDefault keeps
+// Chrome's own mini-bar away, so the only offer is that card (option 2, DECISIONS 19.11).
+const INSTALL_PROMPT_SCRIPT =
+  "addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__tauInstallPrompt=e;dispatchEvent(new Event('tau:installprompt'))})";
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -61,6 +67,9 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
       siteName: t("siteName"),
       imageAlt: t("ogAlt"),
     }),
+    // Home screen (option 2): iPhone uses these for the icon's name and its own window. The
+    // manifest link comes from src/app/manifest.ts, the icon from src/app/apple-icon.png.
+    appleWebApp: { capable: true, title: "TAU AI Club", statusBarStyle: "default" },
     // Preview deployments must not be indexed; only production is.
     robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
   };
@@ -83,6 +92,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       <head>
         {/* Play the home intro once per session (design/motion-spec.md §2). Runs before paint. */}
         <script dangerouslySetInnerHTML={{ __html: INTRO_ONCE_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col">
         <a
