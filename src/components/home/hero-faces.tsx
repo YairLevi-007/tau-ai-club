@@ -55,10 +55,15 @@ export function HeroFaces({
     </a>
   );
 
-  // Phone and tablet: one overlapping row under the tagline.
+  // Phone and tablet (and members on wide screens): one overlapping row under the tagline.
   if (layout === "row")
     return (
-      <div className="intro mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 [--i:5] lg:hidden" data-testid="hero-faces">
+      // Below lg for everyone; on wide screens too for a member, whose Next event card takes the
+      // honeycomb's place (<html data-member-hint>, see MemberNextEvent).
+      <div
+        className="intro mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 [--i:5] lg:hidden lg:[[data-member-hint]_&]:flex"
+        data-testid="hero-faces"
+      >
         <span aria-hidden className="flex -space-x-2.5">
           {people.slice(0, 5).map((p) => (
             <SpeakerAvatar key={p.id} name={p.name} photoUrl={p.photo} size={40} />
