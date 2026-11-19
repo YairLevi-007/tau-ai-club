@@ -16,7 +16,7 @@ to "Done (last 2 weeks)".
 | Design review items 11–13: lectures and workshops pages | tau-designer | `lectures/**`, `workshops/**` (visual only) | agent/design | After items 1 and 2 |
 | Design review item 5, part 1: "next meetup" card on home for signed-in members only (data and logic; no schedule in public HTML, home stays ISR for guests) | tau-builder | `src/app/[locale]/page.tsx` (the card's spot only), a new members-only route or component under `src/app/api/**` or `src/components/events/**` (logic) | agent/build | Started 19.11. tau-security checks it before the merge |
 | Design review item 5, part 2: the card's look on home | tau-designer | visual markup of the card on home | agent/design | After part 1 |
-| Design review items 9–10: /me sections | tau-designer | `src/app/[locale]/me/page.tsx`, /me components (visual) | agent/design | Started 19.11 |
+| Design review items 9–10: /me sections, plus "הבא" above the dial | tau-designer | `src/app/[locale]/me/page.tsx`, /me components (visual), `src/components/events/season-dial.tsx`, `season-timeline.tsx` | agent/design | Started 19.11 |
 | Design review, round 2 (reads only): English pages, login, admin, 360px | tau-designer | `design/review/round-2/**` | agent/design | After 9–10 |
 | Add to home screen, part 2: final icon sizes, iPhone launch images, the card's look (after part 1 is merged) | tau-designer | `public/` icons and launch images, `design/home-screen/**`, the card's visual markup, `messages/*.json` card wording | agent/design | Waiting for part 1 |
 | One command for all checks + own ports per worktree | tau-qa | `tests/**`, `playwright.config.ts` | agent/qa | Started 19.11 |

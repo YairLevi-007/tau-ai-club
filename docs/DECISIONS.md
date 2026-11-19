@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 19.11 | **In /me, the season block's "הבא" (next meetup) card sits above the dial**, not under it (user: "אני רוצה שהבא יהיה לפני המחוגה, יותר גבוה מהמחוגה."). The order of the /me sections (18.11) doesn't change, only the layout inside the season block. | /me | `season-dial.tsx`, `season-timeline.tsx` |
 | 19.11 | **Signed-in members see a "next meetup" card on the home page too**, not only in /me (design review item 5; user: "לא רק באיזור האישי"). Guests still see no schedule (the 18.11 row stands). The home page stays fast for guests and must never put the schedule in the public HTML. | Home, events | `src/app/[locale]/page.tsx`, `NextEventCard` |
 | 19.11 | **New home page approved** (design review items 3, 4, 6, 7, 8; user: "אני אוהב את החדש"). **Speakers show twice on purpose:** faces in the hero and "הכירו את המרצים" below. Keep both (user: "להשאיר את שניהם"). | Home | `design/review/home/compare-*.jpg`, `src/app/[locale]/page.tsx` |
 | 19.11 | **The whole site looks like the personal area, not like today's lectures and workshops** (user: "חשוב אני רוצה שהעיצוב יהיה כמו האיזור האישי ולא כמו הסדנאות והרצאות"). Cards and backdrop everywhere follow /me: `raisedPanelClass` (purple-raised) and `PageBackdrop`. The flat grey cards on lectures and workshops go. Applies to design review item 2 and items 11–13. | Design, all pages | `raisedPanelClass`, `PageBackdrop` |
