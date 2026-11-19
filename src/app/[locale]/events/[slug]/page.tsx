@@ -197,12 +197,16 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
               l === "en" ? "tracking-[-0.02em]" : "tracking-[-0.01em]",
             )}
           >
-            <BidiText text={head} context={title} />
-            {accent && (
-              <>
-                {" "}
-                <span className={past ? "text-fg-subtle" : "text-brand-purple"}><BidiText text={accent} context={title} /></span>
-              </>
+            {accent ? (
+              // Head and accent as one text, the accent marked, so an English run that crosses
+              // them ("Zero to Hero 2: Claude Code,") stays in one piece.
+              <BidiText
+                text={`${head} ${accent}`}
+                context={title}
+                marks={[{ start: head.length + 1, end: head.length + 1 + accent.length, className: past ? "text-fg-subtle" : "text-brand-purple" }]}
+              />
+            ) : (
+              <BidiText text={head} context={title} />
             )}
             {tail && (
               <span className="mt-3 block text-[clamp(1.25rem,3.4vw,1.875rem)] leading-snug font-semibold tracking-normal text-pretty text-fg-muted">
