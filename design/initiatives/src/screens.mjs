@@ -322,3 +322,131 @@ export const flowAdmin = `
     <div class="row"><span class="btn btn-primary sm">שליחה לטל</span><span class="btn btn-ghost sm">ביטול</span></div>
   </div>
 </div>`;
+
+
+/* =====================================================================
+   OPTION 1, CHOSEN · two kinds (DECISIONS 19.11): club initiatives and members' initiatives
+   ===================================================================== */
+const ADMIN = ["רוני אלון", "רא", "ראש המועדון", "d"];
+const clubBadge = `<span class="club-badge"><img src="/brand/logo-mark.png" alt="">יוזמת המועדון</span>`;
+const kindMember = `<span class="kind-member">יוזמה של חבר</span>`;
+const SHIFT = {
+  type: "התנדבות", title: "מתנדבים לערב הפתיחה של מחזור 03",
+  short: "צריכים עשרה אנשים שיקבלו את המחזור הבא: הרשמה בכניסה, הדגמות קצרות, וסיור בבניין.",
+  when: `${b("14.1")}, ${ltr("17:30")}`, where: "בניין שרייבר", until: `הרשמה עד ${b("7.1")}`,
+};
+
+/* The card, in two kinds. Club: purple frame and glow, the club badge, "המועדון מבקש".
+   A member's: the same card, quieter, with who proposed it. */
+const kindCard = (x, { club = false, adoptedFrom, count, need, fs = F.slice(1, 5), joined = false, by = DANA, full = false }) => `
+  <li class="ini-card ${club ? "club" : ""}">
+    <div class="between"><span class="row">${club ? clubBadge : kindMember}<span class="chip">${x.type}</span></span><span class="subtle" style="font-size:.8125rem">${x.until ?? ""}</span></div>
+    <h3><a class="stretch" href="#">${x.title}</a></h3>
+    <p>${x.short}</p>
+    <div class="meta"><span>${I.cal}${x.when}</span><span>${I.pin}${x.where}</span></div>
+    <div class="joinbar" style="position:relative;z-index:1">
+      <span class="row">${faces(fs)}<span>${b(count)} בפנים${need ? ` · ${need}` : ""}</span></span>
+      ${full ? '<span class="chip">מלא</span>' : joined ? `<span class="joined">${I.check}אני בפנים</span>` : '<span class="btn btn-primary sm">אני בפנים</span>'}
+    </div>
+    <div class="by">${L(by)}${adoptedFrom ? `<p class="adopted">${I.spark}<span>${adoptedFrom}</span></p>` : ""}</div>
+  </li>`;
+
+export const kList = `
+<div class="ini">
+  ${head("אזור החברים", "יוזמות", "דברים לעשות יחד. יוזמות המועדון הן מה שהמועדון מבקש מכם. יוזמות של חברים הן רעיונות של חברים, שמנהל אישר.", propose)}
+  <nav class="filters" aria-label="סינון"><a aria-current="true">הכל</a><a>של המועדון</a><a>של חברים</a><a>שלי</a></nav>
+  <section class="kind-sec">
+    <h2 class="sec-club">${clubBadge}<span>המועדון מבקש</span></h2>
+    <ul class="ini-list two">
+      ${kindCard(SHIFT, { club: true, count: 6, need: "מחפשים עוד 4", by: ADMIN, fs: F.slice(0, 4) })}
+      ${kindCard(HACK, { club: true, count: 23, need: "עוד מקום ל-17", adoptedFrom: "הציעה דנה כהן · המועדון אימץ ב-<bdi>18.11</bdi>" })}
+    </ul>
+  </section>
+  <section class="kind-sec">
+    <h2 class="sec">יוזמות של חברים</h2>
+    <ul class="ini-list two">
+      ${kindCard(READ, { count: 9, need: "עוד מקום ל-1", fs: F.slice(0, 4), by: YOAV, joined: true })}
+      ${kindCard(BOT, { count: 4, need: "מחפשים עוד 2", fs: F.slice(2, 5), by: TAL })}
+    </ul>
+  </section>
+</div>`;
+
+export const kItem = `
+<div class="ini">
+  <a class="back" href="#">${I.back}כל היוזמות</a>
+  <div class="detail">
+    <div style="display:grid;gap:1.25rem">
+      <div class="row">${clubBadge}<span class="chip">${HACK.type}</span><span class="subtle" style="font-size:.8125rem">${HACK.until}</span></div>
+      <h1>${HACK.title}</h1>
+      <div class="meta" style="font-size:.9375rem"><span>${I.cal}${HACK.when}</span><span>${I.pin}${HACK.where}</span></div>
+      <p class="club-why">${I.spark}<span><b>למה זו יוזמת המועדון:</b> דנה הציעה את ההאקתון, וראשי המועדון החליטו לאמץ אותו. המועדון עוזר עם חדר, אוכל ומנטורים.</span></p>
+      <div class="prose">
+        <p>${HACK.short}</p>
+        <p>מתחלקים לצוותים של שלושה–ארבעה. אפשר להגיע עם צוות או לבד, ונמצא לכם צוות במקום. בסוף יום שישי כל צוות מציג חמש דקות.</p>
+      </div>
+    </div>
+    <aside class="ini-card club">
+      <div class="spots"><div class="between"><b style="font-size:1.125rem">${b("23")} בפנים</b><span>מקום ל-${b("40")}</span></div><div class="bar"><i style="width:57%"></i></div></div>
+      <span class="row">${faces(F)}<span class="muted" style="font-size:.875rem">ועוד ${b("18")}</span></span>
+      <span class="btn btn-primary" style="width:100%">אני בפנים</span>
+      <hr class="hr">
+      <p class="eyebrow-he text-sm">מי מוביל</p>
+      ${L(DANA)}
+      <p class="adopted" style="margin:0">${I.spark}<span>הציעה את היוזמה · המועדון אימץ ב-${b("18.11")}</span></p>
+    </aside>
+  </div>
+</div>`;
+
+/* Admin: on approval, a switch "יוזמת המועדון" next to "אישור ופרסום". */
+const queueKind = (x, by, sent, on) => `
+  <li class="ini-card ${on ? "club" : ""}">
+    <div class="between"><span class="row"><span class="pend">${I.clock}ממתינה</span><span class="chip">${x.type}</span></span><span class="subtle" style="font-size:.8125rem">נשלחה ${sent}</span></div>
+    <h3>${x.title}</h3>
+    <p>${x.short}</p>
+    <div class="meta"><span>${I.cal}${x.when}</span><span>${I.pin}${x.where}</span></div>
+    <div class="by">${L(by)}</div>
+    <div class="club-switch${on ? " on" : ""}">
+      <div class="toggle" style="min-height:2.75rem"><span style="display:grid;gap:.125rem"><b style="font-size:.9375rem">${on ? clubBadge : ""} זו יוזמה של המועדון</b><small class="subtle" style="font-size:.8125rem">${on ? "תופיע תחת \"המועדון מבקש\". דנה תקבל מייל שהמועדון אימץ אותה." : "תופיע תחת \"יוזמות של חברים\"."}</small></span><i class="${on ? "" : "off"}"></i></div>
+    </div>
+    <div class="row"><span class="btn btn-primary sm">${I.check}${on ? "אישור כיוזמת המועדון" : "אישור ופרסום"}</span><span class="btn btn-ghost sm">החזרה עם הערה</span><span class="btn btn-ghost sm" style="color:var(--fg-subtle)">דחייה</span></div>
+  </li>`;
+
+export const kAdminApprove = `
+<div class="ini" style="gap:1.5rem">
+  <header style="display:grid;gap:.5rem"><div class="between"><h1 style="font-size:1.875rem">יוזמות</h1><span class="btn btn-primary sm">${I.plus}יוזמת המועדון חדשה</span></div>
+    <p class="subtle" style="margin:0;font-size:.9375rem">יוזמה שמנהל מפרסם היא יוזמת המועדון ועולה מיד. יוזמה של חבר מחכה כאן לאישור.</p></header>
+  <nav class="filters" aria-label="סינון"><a aria-current="true">ממתינות לאישור · ${b("2")}</a><a>פורסמו · ${b("4")}</a><a>הוחזרו · ${b("1")}</a></nav>
+  <ul class="ini-list">
+    ${queueKind(HACK, DANA, `היום, ${ltr("10:42")}`, true)}
+    ${queueKind(BOT, TAL, "אתמול", false)}
+  </ul>
+</div>`;
+
+/* Admin, later: the published list, each row can change kind. */
+const pubRow = (x, by, club, adopted) => `
+  <li class="pub-row">
+    <div style="display:grid;gap:.375rem;min-width:0">
+      <span class="row">${club ? clubBadge : kindMember}<span class="subtle" style="font-size:.8125rem">${adopted ?? ""}</span></span>
+      <b style="font-size:1rem;color:var(--fg)">${x.title}</b>
+      <span class="subtle" style="font-size:.8125rem">${by[0]} · ${b(x.n)} בפנים</span>
+    </div>
+    <span class="btn btn-ghost sm">${club ? "החזרה ליוזמה של חבר" : `${I.spark}הפיכה ליוזמת המועדון`}</span>
+  </li>`;
+
+export const kAdminLater = `
+<div class="ini" style="gap:1.5rem">
+  <header style="display:grid;gap:.5rem"><div class="between"><h1 style="font-size:1.875rem">יוזמות</h1><span class="btn btn-primary sm">${I.plus}יוזמת המועדון חדשה</span></div></header>
+  <nav class="filters" aria-label="סינון"><a>ממתינות לאישור · ${b("1")}</a><a aria-current="true">פורסמו · ${b("4")}</a><a>הוחזרו · ${b("1")}</a></nav>
+  <ul class="pub-list">
+    ${pubRow({ ...SHIFT, n: 6 }, ADMIN, true, "פרסם רוני אלון")}
+    ${pubRow({ ...HACK, n: 23 }, DANA, true, `אומצה ב-${b("18.11")}`)}
+    ${pubRow({ ...READ, n: 9 }, YOAV, false)}
+    ${pubRow({ ...BOT, n: 4 }, TAL, false)}
+  </ul>
+  <div class="ini-card club confirm">
+    <b style="color:var(--fg);font-size:1.0625rem">להפוך את "${BOT.title}" ליוזמת המועדון?</b>
+    <p style="margin:0">היא תעבור ל"המועדון מבקש" ותקבל את הסימן של המועדון. טל נשארת המובילה, ותקבל מייל. מי שכבר בפנים נשאר.</p>
+    <label class="field">למה? <small>לא חובה. מופיע בעמוד היוזמה.</small><span class="in">המועדון עוזר עם שרת ועם קשר לדיקנט.</span></label>
+    <div class="row"><span class="btn btn-primary sm">${I.spark}הפיכה ליוזמת המועדון</span><span class="btn btn-ghost sm">ביטול</span></div>
+  </div>
+</div>`;

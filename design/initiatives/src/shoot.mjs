@@ -37,6 +37,10 @@ const SCREENS = [
   ["o3-post", "/lectures", "member", S.o3Post, "view"],
   ["flow-pending", "/lectures", "member", S.flowPending, "full"],
   ["flow-admin", "/admin/events", "admin", S.flowAdmin, "full"],
+  ["k-list", "/lectures", "member", S.kList, "full"],
+  ["k-item", "/lectures", "member", S.kItem, "full"],
+  ["k-admin-approve", "/admin/events", "admin", S.kAdminApprove, "full"],
+  ["k-admin-later", "/admin/events", "admin", S.kAdminLater, "full"],
 ].filter(([n]) => !ONLY || ONLY.test(n));
 
 function inject({ html, kind }) {

@@ -179,3 +179,26 @@
 .ini-card.pending { border-style: dashed; border-color: var(--brand-purple-soft); background: color-mix(in srgb, var(--bg-raised) 70%, transparent); box-shadow: none; }
 .admin-note { margin: 0; padding: .75rem .875rem; border-radius: var(--r-md); border-inline-start: 3px solid var(--brand-purple); background: var(--surface); color: var(--fg-muted); font-size: .9375rem; line-height: 1.55; }
 .admin-note b { color: var(--fg); }
+
+/* two kinds (19.11): club initiatives vs members' initiatives */
+.ini-card.club { border-color: var(--brand-purple); background-image: var(--card-featured-bg); box-shadow: var(--glow-featured), var(--highlight-top); }
+.club-badge { display: inline-flex; align-items: center; gap: .4375rem; height: 1.75rem; padding-inline: .5rem .75rem; border-radius: 999px;
+  border: 1px solid var(--brand-purple); background: var(--bg-deep); color: var(--fg); font-size: .8125rem; font-weight: 700; white-space: nowrap; }
+[dir="rtl"] .club-badge { padding-inline: .75rem .5rem; }
+.club-badge img { height: .875rem; width: auto; image-rendering: pixelated; }
+.kind-member { display: inline-flex; align-items: center; height: 1.625rem; padding-inline: .625rem; border-radius: 999px; font-size: .8125rem; font-weight: 500; color: var(--fg-subtle); background: var(--surface); }
+.kind-sec { display: grid; gap: 1rem; }
+.sec-club { display: flex; align-items: center; gap: .625rem; margin: 0; font-size: 1.125rem; font-weight: 800; color: var(--fg); }
+.adopted { display: flex; align-items: center; gap: .375rem; margin: .5rem 0 0; font-size: .8125rem; color: var(--brand-purple-soft); }
+.adopted svg { width: .875rem; height: .875rem; flex-shrink: 0; }
+.club-why { display: flex; gap: .625rem; align-items: start; margin: 0; padding: .875rem 1rem; border-radius: var(--r-md); border: 1px solid var(--border-accent);
+  background: color-mix(in srgb, var(--brand-purple) 10%, transparent); font-size: .9375rem; line-height: 1.6; color: var(--fg-muted); max-width: 64ch; }
+.club-why svg { width: 1.125rem; height: 1.125rem; margin-top: .2rem; flex-shrink: 0; color: var(--brand-purple-soft); }
+.club-why b { color: var(--fg); }
+.club-switch { padding: .25rem .875rem; border-radius: var(--r-md); border: 1px solid var(--border); background: color-mix(in srgb, var(--bg-deep) 50%, transparent); }
+.club-switch.on { border-color: var(--border-accent); background: color-mix(in srgb, var(--brand-purple) 10%, transparent); }
+.club-switch b { display: inline-flex; align-items: center; gap: .5rem; flex-wrap: wrap; color: var(--fg); }
+.pub-list { display: grid; margin: 0; padding: 0; list-style: none; border-radius: var(--r-lg); border: 1px solid color-mix(in srgb, var(--brand-purple) 40%, transparent); background: var(--bg-raised); overflow: hidden; }
+.pub-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; padding: 1rem 1.25rem; }
+.pub-row + .pub-row { border-top: 1px solid var(--border); }
+.confirm p { color: var(--fg-muted); }
