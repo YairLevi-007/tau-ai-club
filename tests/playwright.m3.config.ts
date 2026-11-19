@@ -30,7 +30,7 @@ export default defineConfig({
       DEBUG_NOW: "2026-11-17T12:00:00+02:00",
       NEXT_TELEMETRY_DISABLED: "1",
       AUTH_ENABLED: "true",
-      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:1" /* a port nothing listens on; NOT 54321, the default local Supabase port, which a dev stack or mock may hold */,
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fake",
     },
   },

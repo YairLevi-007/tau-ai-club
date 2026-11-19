@@ -32,7 +32,7 @@ export default defineConfig({
       // auth code paths (redirects, garbage cookies, PKCE) execute. USE_FIXTURES=1 still serves the
       // season. The switched-off state ("coming soon") is covered by tests/e2e/auth-off.spec.ts.
       AUTH_ENABLED: "true",
-      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+      NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:1" /* a port nothing listens on; NOT 54321, the default local Supabase port, which a dev stack or mock may hold */,
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fake",
     },
   },
