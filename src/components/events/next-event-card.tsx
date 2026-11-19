@@ -44,7 +44,8 @@ export async function NextEventCard({
   const live = event?.state === "live";
   const tp = await getTranslations("eventPage");
   const blurb = event ? loc(event, "blurb", locale) : null;
-  const title = splitTitle(event ? (loc(event, "title", locale) ?? event.slug) : "");
+  const fullTitle = event ? (loc(event, "title", locale) ?? event.slug) : "";
+  const title = splitTitle(fullTitle);
   const venue = event ? venueLabel(event, locale) : null;
   const weekday = (iso: string) =>
     new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-GB", { timeZone: TIME_ZONE, weekday: "short" }).format(new Date(iso));
@@ -85,14 +86,14 @@ export async function NextEventCard({
         <>
           <h2 className="mt-5 text-[clamp(1.5rem,6vw,2rem)] leading-[1.12] font-extrabold text-balance">
             <Link href={`/events/${event.slug}`} className="rounded-sm transition-colors duration-150 hover:text-brand-purple-softer">
-              <BidiText text={title.head} />
+              <BidiText text={title.head} context={fullTitle} />
               {title.accent && (
                 <>
                   {" "}
-                  <span className="text-brand-purple"><BidiText text={title.accent} /></span>
+                  <span className="text-brand-purple"><BidiText text={title.accent} context={fullTitle} /></span>
                 </>
               )}
-              {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted"><BidiText text={title.tail} /></span>}
+              {title.tail && <span className="mt-1.5 block text-[1.0625rem] leading-snug font-semibold text-fg-muted"><BidiText text={title.tail} context={fullTitle} /></span>}
             </Link>
           </h2>
           {event.series_no && seriesTotal && seriesTotal > 1 ? (
