@@ -18,11 +18,13 @@ const useMemberHint = () => useSyncExternalStore(subscribe, isMember, () => fals
 export function MemberSectionLinks({
   lectures,
   workshops,
+  initiatives,
   className,
   linkClassName,
 }: {
   lectures: string;
   workshops: string;
+  initiatives: string;
   className: string;
   linkClassName: string;
 }) {
@@ -38,6 +40,11 @@ export function MemberSectionLinks({
       <li>
         <Link href="/workshops" className={linkClassName}>
           {workshops}
+        </Link>
+      </li>
+      <li>
+        <Link href="/initiatives" className={linkClassName}>
+          {initiatives}
         </Link>
       </li>
     </ul>

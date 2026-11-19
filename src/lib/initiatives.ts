@@ -1,5 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { TIME_ZONE } from "@/i18n/routing";
 
 /**
  * Initiatives (יוזמות): the data layer. Members only, so every call takes the cookie-aware client
@@ -90,3 +91,6 @@ export function signupOpen(i: Pick<Initiative, "status" | "spots" | "joined_coun
   if (i.spots != null && i.joined_count >= i.spots) return false;
   return i.signup_until == null || i.signup_until >= today;
 }
+
+/** Today's date in Israel ("2026-11-19"), which is what "sign up by" is measured against. */
+export const israelToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(new Date());
