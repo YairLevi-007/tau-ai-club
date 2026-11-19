@@ -97,23 +97,34 @@ const HEBREW = /[\u0590-\u05FF]/;
 // ends on a letter or digit, then takes any punctuation that follows it (", " ": " ...).
 const LATIN_RUN = /[A-Za-z](?:[A-Za-z0-9\s.,:;&+'\u2019\-\u2013\u00b7/!?#@]*[A-Za-z0-9])?[.,:;!?]*/g;
 
+export type BidiSegment = { text: string; ltr: boolean };
+
 /**
  * Display-only split of a mixed Hebrew/English text (design review item 1, 19.11). In a Hebrew
  * line, a comma after an English run sits between English and Hebrew, so it takes the Hebrew
  * direction and lands on the wrong side (",Claude Code"). The caller renders each `ltr` segment
- * in its own LTR isolate (<bdi dir="ltr">), so the run keeps its punctuation.
+ * in its own LTR isolate (<bdi dir="ltr">), so the run keeps its punctuation ("Corporate,").
  *
- * Text with no Hebrew (every English title) comes back as one plain segment, unchanged. Never use
+ * One exception: a title that opens with a single English word and punctuation ("AI, עבר
+ * ועתיד…") is left to the normal Hebrew flow. Isolated, "AI," would sit at the right edge with
+ * its comma as the first thing a Hebrew reader meets (",AI"); in the Hebrew flow the comma sits
+ * between "AI" and the Hebrew that follows.
+ *
+ * `context` is the whole title when `text` is only a piece of it (the h1's "Zero to Hero 2:" before
+ * the accent): the piece is shaped as part of a Hebrew title even if it has no Hebrew of its own,
+ * and the opening-word exception applies only to the piece that opens the title.
+ * Text whose context has no Hebrew (every English title) comes back as one plain segment, unchanged. Never use
  * this on stored values: it only shapes rendering and adds no characters (copying stays clean).
  */
-export function bidiSegments(text: string): { text: string; ltr: boolean }[] {
-  if (!HEBREW.test(text)) return [{ text, ltr: false }];
-  const out: { text: string; ltr: boolean }[] = [];
+export function bidiSegments(text: string, context: string = text): BidiSegment[] {
+  if (!HEBREW.test(context)) return [{ text, ltr: false }];
+  const out: BidiSegment[] = [];
   let last = 0;
   for (const m of text.matchAll(LATIN_RUN)) {
     const at = m.index ?? 0;
     if (at > last) out.push({ text: text.slice(last, at), ltr: false });
-    out.push({ text: m[0], ltr: true });
+    const leadingWord = at === 0 && context.startsWith(text) && !/\s/.test(m[0]) && /[.,:;!?]$/.test(m[0]);
+    out.push({ text: m[0], ltr: !leadingWord });
     last = at + m[0].length;
   }
   if (last < text.length) out.push({ text: text.slice(last), ltr: false });

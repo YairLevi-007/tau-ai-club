@@ -196,16 +196,16 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
               l === "en" ? "tracking-[-0.02em]" : "tracking-[-0.01em]",
             )}
           >
-            <BidiText text={head} />
+            <BidiText text={head} context={title} />
             {accent && (
               <>
                 {" "}
-                <span className={past ? "text-fg-subtle" : "text-brand-purple"}><BidiText text={accent} /></span>
+                <span className={past ? "text-fg-subtle" : "text-brand-purple"}><BidiText text={accent} context={title} /></span>
               </>
             )}
             {tail && (
               <span className="mt-3 block text-[clamp(1.25rem,3.4vw,1.875rem)] leading-snug font-semibold tracking-normal text-pretty text-fg-muted">
-                <BidiText text={tail} />
+                <BidiText text={tail} context={title} />
               </span>
             )}
           </h1>

@@ -6,8 +6,8 @@ import { bidiSegments } from "@/lib/event-format";
  * ",Claude Code" (design review item 1, 19.11). English-only text renders exactly as before.
  * Display only: no characters are added, so copying gives the plain title.
  */
-export function BidiText({ text }: { text: string }) {
-  const segments = bidiSegments(text);
+export function BidiText({ text, context }: { text: string; /** The whole title, when `text` is a piece of it. */ context?: string }) {
+  const segments = bidiSegments(text, context);
   if (segments.length === 1 && !segments[0].ltr) return text;
   return segments.map((s, i) =>
     s.ltr ? (
