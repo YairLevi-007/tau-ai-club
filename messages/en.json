@@ -664,18 +664,5 @@
     "choose": "Choose a file",
     "change": "Change file",
     "none": "No file chosen yet"
-  },
-  "homeScreen": {
-    "title": "The club on your home screen",
-    "body": "An icon on your phone that opens straight to your area, no searching for the site.",
-    "howTo": "How do I add it?",
-    "install": "Add to home screen",
-    "notNow": "Not now",
-    "sheetTitle": "Put the club on your home screen?",
-    "sheetBody": "One tap and you're in your area. No searching for the site, no address bar.",
-    "step1": "Tap <b>Share</b> <icon></icon> in Safari's bar",
-    "step2": "Choose <b>Add to Home Screen</b> <icon></icon>",
-    "gotIt": "Got it",
-    "later": "Maybe later"
   }
 }

@@ -58,11 +58,10 @@ const IPHONE_LAUNCH_IMAGES = IPHONE_SCREENS.map(([w, h, r]) => ({
   media: `(device-width: ${w}px) and (device-height: ${h}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: portrait)`,
 }));
 
-// Android Chrome fires beforeinstallprompt once, often before /me has hydrated (members usually
-// arrive by client navigation). Keep it for the /me "home screen" card; preventDefault keeps
-// Chrome's own mini-bar away, so the only offer is that card (option 2, DECISIONS 19.11).
-const INSTALL_PROMPT_SCRIPT =
-  "addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__tauInstallPrompt=e;dispatchEvent(new Event('tau:installprompt'))})";
+// The site never offers "add to home screen" (DECISIONS 19.11, changed): members add it themselves
+// from the browser menu, which keeps working. preventDefault only keeps Android Chrome's own
+// pop-up mini-bar off our pages; nothing stores or replays the prompt.
+const NO_INSTALL_PROMPT_SCRIPT = "addEventListener('beforeinstallprompt',function(e){e.preventDefault()})";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -116,7 +115,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       <head>
         {/* Play the home intro once per session (design/motion-spec.md §2). Runs before paint. */}
         <script dangerouslySetInnerHTML={{ __html: INTRO_ONCE_SCRIPT }} />
-        <script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: NO_INSTALL_PROMPT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col">
         <a
