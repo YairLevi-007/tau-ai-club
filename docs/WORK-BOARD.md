@@ -9,6 +9,7 @@ to "Done (last 2 weeks)".
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
 | Add to home screen, part 1: wiring (web manifest, opens on /me, the /me card's logic: phone + browser only, iPhone explainer, Android install prompt, dismiss) | tau-builder | `src/app/manifest.ts` (new), `src/app/[locale]/me/page.tsx`, new component under `src/components/members/` (logic), `src/app/[locale]/layout.tsx` (head tags only) | agent/build | Started 19.11 |
+| Design review of every page (home, /me, lectures, workshops): screenshots + a list of improvements per area, reads only. Building waits for the user's picks | tau-designer | `design/review/**` (report and screenshots only) | agent/design | Started 19.11 |
 | Add to home screen, part 2: final icon sizes, iPhone launch images, the card's look (after part 1 is merged) | tau-designer | `public/` icons and launch images, `design/home-screen/**`, the card's visual markup, `messages/*.json` card wording | agent/design | Waiting for part 1 |
 | One command for all checks + own ports per worktree | tau-qa | `tests/**`, `playwright.config.ts` | agent/qa | Started 19.11 |
 | Club-list leak (privacy H1): Supabase Auth must give the same answer for listed and unlisted emails, and send codes only to listed ones | tau-auth | `supabase/migrations/**` (new file), Supabase Auth hooks/settings, `src/lib/auth/**` if needed | agent/auth | Started 19.11 |
