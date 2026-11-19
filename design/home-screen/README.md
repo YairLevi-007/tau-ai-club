@@ -24,3 +24,9 @@ Each option board has two rows, iPhone (Safari) and Android (Chrome), with four 
 - `assets/mark.png` and `assets/lockup.png` are cut from `public/brand/logo-mark.png`.
 - `assets/me-*.png` are real screenshots of /me from a local server. The data is the seed fixtures and a made-up member, "נועה לוי". The hint was injected from `hints/*.html`.
 - `board.html?opt=1|2|3` and `board.html?view=icons` draw the boards. They were saved at 1.5×.
+
+## Final assets (option 2, built 19.11)
+- `final/make.html` draws one asset: `?kind=icon|maskable|launch&w=..&h=..`. `final/make.mjs` renders all of them with Playwright (icons at 4× then scaled down). Run from the repo root: `node design/home-screen/final/make.mjs`.
+- Output: `public/home-screen/icon-512.png`, `icon-192.png`, `icon-maskable-512.png` (mark at 62%, inside Android's 80% safe circle), `src/app/apple-icon.png` (180), and 12 iPhone launch images in `public/home-screen/launch/launch-{W}x{H}.png` (iPhone SE 1st gen up to 16 Pro Max, portrait).
+- Wiring them up (manifest `maskable` entry, `appleWebApp.startupImage` with media queries) is the builder's.
+- Check sheet: `design/review/home-screen/assets-sheet.jpg` (approved icon-2 · new 512 · maskable with the safe circle · apple-icon; launch images below).

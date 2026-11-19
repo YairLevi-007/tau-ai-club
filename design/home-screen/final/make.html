@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Home-screen assets</title>
+<!-- Final "add to home screen" assets, option 2 (DECISIONS 19.11). Rendered by make.mjs at exact pixel sizes.
+     ?kind=icon      full-bleed square: the TAU mark on the logo's indigo and grid (same as ../assets/icon-2.png)
+     ?kind=maskable  the same, mark smaller so it stays inside Android's 80% safe circle
+     ?kind=launch    iPhone opening screen: indigo + grid, the full logo, "COHORT 02 · 2026–27"
+     Colours are the frozen tokens; the logo is never mirrored. -->
+<style>
+  @font-face { font-family: "Silkscreen"; src: url("silkscreen-latin.woff2") format("woff2"); }
+  :root { --logo-indigo:#241163; --logo-grid:#291666; --brand-purple-soft:#b98aff; }
+  html, body { margin:0; width:100%; height:100%; overflow:hidden; }
+  body { position:relative; background: radial-gradient(70% 70% at 50% 50%, #28136c, #1f0f57); }
+  .grid { position:absolute; inset:0; opacity:.9;
+    --cell: calc(var(--u) * 128); --line: max(1px, calc(var(--u) * 3));
+    background: repeating-linear-gradient(0deg, var(--logo-grid) 0 var(--line), transparent var(--line) var(--cell)),
+                repeating-linear-gradient(90deg, var(--logo-grid) 0 var(--line), transparent var(--line) var(--cell));
+    background-position: center; }
+  img { position:absolute; left:50%; transform:translateX(-50%); }
+  .mark { top:50%; transform:translate(-50%,-50%); }
+  .lockup { top:50%; transform:translate(-50%,-62%); }
+  .cohort { position:absolute; left:0; right:0; text-align:center; font-family:"Silkscreen", monospace; color:var(--brand-purple-soft); letter-spacing:.25em; }
+</style></head>
+<body>
+<div class="grid"></div>
+<script>
+  const q = new URLSearchParams(location.search), kind = q.get("kind") || "icon";
+  const W = innerWidth, H = innerHeight, S = Math.min(W, H);
+  document.body.style.setProperty("--u", S / 1024 + "px");
+  if (kind === "launch") {
+    // Wider screens get a smaller share so the logo looks the same size on every iPhone.
+    document.body.style.background = "radial-gradient(80% 55% at 50% 45%, #28136c, #1f0f57)";
+    const img = Object.assign(document.createElement("img"), { src: "../assets/lockup.png", className: "lockup" });
+    img.style.width = Math.round(W * 0.56) + "px"; document.body.append(img);
+    const c = Object.assign(document.createElement("div"), { className: "cohort", textContent: "COHORT 02 · 2026–27" });
+    c.style.fontSize = Math.round(W * 0.034) + "px"; c.style.top = Math.round(H * 0.5 + W * 0.26) + "px"; document.body.append(c);
+  } else {
+    const img = Object.assign(document.createElement("img"), { src: "../assets/mark.png", className: "mark" });
+    img.style.width = Math.round(S * (kind === "maskable" ? 0.62 : 0.742)) + "px"; document.body.append(img);
+  }
+</script>
+</body></html>
