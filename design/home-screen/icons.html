@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Home-screen icons</title>
+<!-- Icon candidates 2 and 3 for "add to home screen" (icon 1 is the current src/app/icon.png).
+     Full-bleed squares: iOS and Android cut their own corners/circle, so the mark stays (near enough) inside
+     the central 80% circle (Android's maskable safe zone). Colours are the frozen tokens. -->
+<style>
+  :root { --bg:#0b0a1f; --logo-indigo:#241163; --logo-grid:#291666; --logo-block:#36167e; --brand-purple:#8a2bff; --brand-purple-deeper:#5c1cab; }
+  body { margin:0; background:#222; display:flex; gap:40px; padding:40px; }
+  .icon { position:relative; width:1024px; height:1024px; overflow:hidden; }
+  .icon img.mark { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .grid { position:absolute; inset:0; background-image:
+      linear-gradient(var(--g) 0 0), linear-gradient(90deg, var(--g) 0 0);
+    background: repeating-linear-gradient(0deg, var(--g) 0 3px, transparent 3px 128px),
+                repeating-linear-gradient(90deg, var(--g) 0 3px, transparent 3px 128px);
+    background-position: 0 62px, 62px 0; }
+  /* 2: the logo's own world: indigo with its radial falloff and 1px grid, mark only */
+  #i2 { background: radial-gradient(70% 70% at 50% 50%, #28136c, #1f0f57); }
+  #i2 .grid { --g: var(--logo-grid); opacity:.9; }
+  #i2 img.mark { width:760px; }
+  /* 3: the site's night: near-black, a purple glow under the mark, faint grid, one pixel block */
+  #i3 { background: var(--bg); }
+  #i3 .glow { position:absolute; inset:0; background:
+      radial-gradient(48% 40% at 50% 56%, rgba(138,43,255,.42), transparent 72%),
+      radial-gradient(30% 26% at 64% 40%, rgba(92,28,171,.35), transparent 70%); }
+  #i3 .grid { --g: var(--logo-grid); opacity:.55;
+    -webkit-mask: radial-gradient(60% 60% at 50% 50%, #000 30%, transparent 85%); mask: radial-gradient(60% 60% at 50% 50%, #000 30%, transparent 85%); }
+  #i3 img.mark { width:740px; }
+</style></head>
+<body>
+  <div class="icon" id="i2"><div class="grid"></div><img class="mark" src="assets/mark.png" alt=""></div>
+  <div class="icon" id="i3"><div class="glow"></div><div class="grid"></div><img class="mark" src="assets/mark.png" alt=""></div>
+</body></html>
