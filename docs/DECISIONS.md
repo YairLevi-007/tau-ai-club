@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 19.11 | **Initiatives: option 1 ("פשוט, לחברים").** Two kinds, shown apart: a **member's initiative** (personal; an admin approves it before it shows) and a **club initiative** (what the club wants done: posted by an admin, or a member's initiative that an admin marks as the club's). Designer shows the split before the build. | Initiatives | `design/initiatives/` (agent/design 7b558d3) |
 | 19.11 | **Anyone may fork the code and try it on their own; for now nobody outside the team gets Write.** One-click GitHub Codespaces setup so non-developers need no installs. | Repo | `CONTRIBUTING.md`, `.devcontainer/` |
 | 19.11 | **New "Initiatives" (יוזמות) tab: any member can post an initiative, an admin approves it before it shows; an admin's own initiative goes up at once. Every member can sign up for one.** Designer shows options first; the builder builds the approved one. | Initiatives (new) | designer mockups, then `src/` |
 | 19.11 | **Outside people change code only through GitHub pull requests; nothing reaches `main` without the user's OK and passing checks.** Vercel and the Supabase/Gmail secrets stay with the user only. Content (initiatives, meetups) goes through the site, not code. | Repo, all | GitHub branch protection, `CONTRIBUTING.md` |
