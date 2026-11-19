@@ -65,7 +65,13 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   const Forward = locale === "he" ? ChevronLeft : ChevronRight;
 
   const todays = upcoming.filter((e) => israelDay(e.starts_at) === today);
-  const later = upcoming.filter((e) => israelDay(e.starts_at) !== today);
+  // The season dial opens on the next meetup, with its speaker and details, so the list below skips
+  // that one (design review item 10). On a meetup day "today" shows it instead. The list then shows
+  // the next three, and the rest fold away behind "N more" (item 9).
+  const dialShown = season.status === "ok";
+  const dialSlug = dialShown ? upcoming[0]?.slug : undefined;
+  const later = upcoming.filter((e) => israelDay(e.starts_at) !== today && e.slug !== dialSlug);
+  const SHOWN = 3;
 
   const eventRow = (e: (typeof upcoming)[number]) => {
     const isToday = israelDay(e.starts_at) === today;
@@ -76,7 +82,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
       <li
         key={e.slug}
         className={cn(
-          "flex flex-wrap items-center gap-x-4 gap-y-3 rounded-md border px-3.5 py-3",
+          "flex items-center gap-x-3 gap-y-3 rounded-md border px-3 py-3 sm:flex-wrap sm:gap-x-4 sm:px-3.5",
           isToday ? "border-border-accent bg-brand-purple/[0.08]" : "border-border bg-bg-deep/45",
         )}
       >
@@ -90,7 +96,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
           <span className="font-mono text-[1.375rem] font-bold">{day.format(start)}</span>
           <span className={cn("mt-1 text-[0.75rem]", isToday ? "text-fg" : "text-fg-subtle")}>{month.format(start)}</span>
         </time>
-        <div className="grid min-w-0 flex-1 basis-48 gap-0.5">
+        <div className="grid min-w-0 flex-1 gap-0.5 sm:basis-48">
           <p className="flex flex-wrap items-center gap-2">
             <Link href={`/events/${e.slug}`} className="-my-2.5 inline-block py-2.5 font-semibold text-fg underline-offset-4 hover:underline">
               <BidiText text={title} />
@@ -105,9 +111,16 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
             {venue && <span className="text-fg-subtle">· {venue}</span>}
           </p>
         </div>
-        <a href={icsHref(e.slug)} download className={smallBtn} data-testid="me-event-ics">
+        {/* An icon on phones (44px), the full label from sm up. */}
+        <a
+          href={icsHref(e.slug)}
+          download
+          className={cn(smallBtn, "max-sm:size-11 max-sm:p-0")}
+          title={t("addToCalendar")}
+          data-testid="me-event-ics"
+        >
           <CalendarPlus aria-hidden />
-          {t("addToCalendar")}
+          <span className="max-sm:sr-only">{t("addToCalendar")}</span>
           <span className="sr-only">: {title}</span>
         </a>
       </li>
@@ -162,12 +175,23 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
 
         <section aria-labelledby="upcoming-heading" className={cn(raisedPanelClass, "grid gap-4 p-5 sm:p-6")} data-testid="me-upcoming">
           <h2 id="upcoming-heading" className={panelTitle}>
-            {t("upcomingTitle")}
+            {dialSlug ? t("laterTitle") : t("upcomingTitle")}
           </h2>
           {later.length === 0 ? (
             <p className="text-fg-subtle">{t("upcomingEmpty")}</p>
           ) : (
-            <ul className="grid gap-2.5">{later.map(eventRow)}</ul>
+            <>
+              <ul className="grid gap-2.5">{later.slice(0, SHOWN).map(eventRow)}</ul>
+              {later.length > SHOWN && (
+                <details className="group grid">
+                  <summary className="btn btn-ghost h-11 w-full cursor-pointer list-none justify-center px-3.5 text-sm text-brand-purple-soft [&::-webkit-details-marker]:hidden">
+                    <span className="group-open:hidden">{t.rich("moreMeetups", { count: later.length - SHOWN, n: (c) => <bdi>{c}</bdi> })}</span>
+                    <span className="hidden group-open:inline">{t("fewerMeetups")}</span>
+                  </summary>
+                  <ul className="mt-2.5 grid gap-2.5">{later.slice(SHOWN).map(eventRow)}</ul>
+                </details>
+              )}
+            </>
           )}
           <div className="grid gap-2 border-t border-border pt-4">
             <h3 className="font-semibold text-fg">{t("seasonFeedTitle")}</h3>
