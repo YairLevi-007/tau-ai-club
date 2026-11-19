@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ChevronDown, Pencil } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
@@ -92,7 +93,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
           {members.map((m) => {
             const emails = [...m.member_emails].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
             return (
-              <li key={m.id} data-testid="member-row" className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 p-4 sm:p-5">
+              <li key={m.id} data-testid="member-row" className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
                   <div className="flex min-w-0 flex-wrap items-center gap-2.5">
                     <p className="min-w-0 text-base font-bold break-words text-fg">{m.full_name}</p>
@@ -135,7 +136,17 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                   ))}
                 </ul>
 
-                <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+                {/* The tools fold away: a short row per member, "Edit" opens role, extra email and
+                    remove. With 40 members, a full form on every row made a very long page
+                    (round 2, item 12). */}
+                <details className="group/edit">
+                  <summary className={cn(smallBtn, "w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden")}>
+                    <Pencil aria-hidden />
+                    {t("edit")}
+                    <ChevronDown aria-hidden className="transition-transform duration-150 group-open/edit:rotate-180" />
+                    <span className="sr-only">: {m.full_name}</span>
+                  </summary>
+                <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-3 border-t border-border pt-3">
                   <ActionForm action={setRole} className="flex flex-wrap items-end gap-2">
                     <input type="hidden" name="member_id" value={m.id} />
                     <label className={labelClass}>
@@ -169,6 +180,7 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                     </button>
                   </ActionForm>
                 </div>
+                </details>
               </li>
             );
           })}
