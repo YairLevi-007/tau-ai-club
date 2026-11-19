@@ -8,7 +8,7 @@
 //   * a member's proposal is invisible to other members until an admin publishes it;
 //   * members write only through the RPCs (no direct insert/update/delete);
 //   * who joined: each member sees only their own joins; names only for the lead and admins,
-//     never an email; everyone else gets counts;
+//     never an email; everyone else gets counts; inactive members never show by name;
 //   * the review flow (return with a note, edit and resend, publish as the club's, reject),
 //     spots, sign-up closing, the lead can't join, the 5-waiting spam guard.
 
@@ -176,6 +176,10 @@ export async function runInitiativeChecks(db, check) {
   // ---- spam guard: 5 waiting proposals per member -----------------------------------------------
   for (let i = 0; i < 5; i++) await propose("jo", `הצעה ${i + 1}`);
   check(/too many/.test((await propose("jo", "הצעה 6")).error ?? ""), "initiatives: a 6th waiting proposal is refused");
+  // A rejected proposal frees a waiting slot, but not today's: at most 5 new ones in 24 hours.
+  const joWaiting = (await as("jo", "select id from public.initiatives where status = 'pending'")).rows.map((r) => r.id);
+  for (const id of joWaiting) await as("admin", "select public.admin_review_initiative($1, 'reject', false, 'לא כרגע')", [id]);
+  check(/too many proposals today/.test((await propose("jo", "הצעה 7")).error ?? ""), "initiatives: a 6th proposal in 24 hours is refused, even after rejections");
 
   // ---- language columns and bad input ------------------------------------------------------------
   const en = await propose("lea", "Reading group: papers on Agents", { lang: "en" });
@@ -184,6 +188,21 @@ export async function runInitiativeChecks(db, check) {
   check(Boolean((await propose("lea", "   ")).error), "initiatives: an empty title is refused");
   check(Boolean((await propose("lea", "x", { lang: "fr" })).error), "initiatives: an unknown language is refused");
   check(Boolean((await propose("lea", "x".repeat(121))).error), "initiatives: a title over 120 characters is refused");
+
+  // ---- inactive members don't show by name (security review F1) ---------------------------------
+  // The enum has only 'active' today; the join flow adds more later. Add one here to test with.
+  await db.exec("alter type public.member_status add value if not exists 'inactive'");
+  const idF = (await propose("admin", "ערב פתיחה")).rows?.[0]?.id;
+  check(!(await as("jo", "select public.join_initiative($1)", [idF])).error, "initiatives: jo joins the admin's initiative");
+  await db.query("update public.members set status = 'inactive' where id = $1", [joMember]);
+  check((await as("admin", "select * from public.initiative_people($1)", [idF])).rows?.length === 0, "initiatives: an inactive joiner isn't listed by name");
+  check((await as("admin", "select joined_count from public.initiative_cards() where initiative_id = $1", [idF])).rows?.[0]?.joined_count === 0, "initiatives: an inactive joiner isn't counted");
+  check(Boolean((await as("jo", "select * from public.initiative_cards()")).error), "initiatives: an inactive member can't read the cards");
+  await db.query("update public.members set status = 'inactive' where id = $1", [leaMember]);
+  const goneLead = (await as("admin", "select lead_name, lead_photo from public.initiative_cards() where initiative_id = $1", [id1])).rows?.[0];
+  check(goneLead && goneLead.lead_name === null && goneLead.lead_photo === null, "initiatives: an inactive lead's name and photo aren't shown");
+  check(ids(await as("admin", SEE)).includes(id1), "initiatives: an inactive lead's initiative stays for the admin to decide");
+  await db.query("update public.members set status = 'active' where id in ($1, $2)", [leaMember, joMember]);
 
   // ---- clean up (later checks and the fixture export don't expect these rows) --------------------
   await db.exec("delete from public.initiatives");

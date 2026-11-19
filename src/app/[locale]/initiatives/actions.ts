@@ -78,6 +78,7 @@ async function readFields(fd: FormData): Promise<Fields | ErrorKey> {
 
 /** Which message a database error maps to. */
 function dbErrorKey(message: string) {
+  if (/too many proposals today/i.test(message)) return "errorTooManyToday" as const;
   if (/too many proposals/i.test(message)) return "errorTooMany" as const;
   if (/no spots left/i.test(message)) return "errorFull" as const;
   if (/sign-up has closed/i.test(message)) return "errorClosed" as const;

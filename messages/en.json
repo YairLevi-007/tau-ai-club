@@ -757,6 +757,8 @@
     "errorTooMany": "You already have 5 proposals waiting for approval. Wait for an answer, or withdraw one.",
     "errorFull": "No spots left.",
     "errorClosed": "Sign-up has closed.",
-    "errorGeneric": "Something went wrong. Try again."
+    "errorGeneric": "Something went wrong. Try again.",
+    "leadGone": "The lead is no longer a member",
+    "errorTooManyToday": "You've already sent 5 proposals today. You can send more tomorrow."
   }
 }

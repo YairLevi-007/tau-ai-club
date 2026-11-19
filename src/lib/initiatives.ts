@@ -36,8 +36,8 @@ export type Initiative = {
   review_note: string | null;
   submitted_at: string;
   published_at: string | null;
-  // From initiative_cards():
-  lead_name: string;
+  // From initiative_cards(). The lead's name and photo are null once the lead is no longer active.
+  lead_name: string | null;
   lead_photo: string | null;
   joined_count: number;
   i_joined: boolean;
@@ -49,7 +49,7 @@ const COLUMNS =
   "id, lead_id, kind, proposed_kind, category, status, title_he, title_en, summary_he, summary_en, when_text, where_text, spots, signup_until, club_reason_he, club_reason_en, review_note, submitted_at, published_at";
 
 type Row = Omit<Initiative, "lead_name" | "lead_photo" | "joined_count" | "i_joined">;
-type Card = { initiative_id: string; lead_name: string; lead_photo: string | null; joined_count: number; i_joined: boolean };
+type Card = { initiative_id: string; lead_name: string | null; lead_photo: string | null; joined_count: number; i_joined: boolean };
 
 const isId = (id: string) => /^[0-9a-f-]{36}$/i.test(id);
 
@@ -66,7 +66,7 @@ export async function getInitiatives(supabase: SupabaseClient): Promise<Initiati
   const byId = new Map(((cards.data ?? []) as Card[]).map((c) => [c.initiative_id, c]));
   return ((rows.data ?? []) as Row[]).map((r) => {
     const c = byId.get(r.id);
-    return { ...r, lead_name: c?.lead_name ?? "", lead_photo: c?.lead_photo ?? null, joined_count: c?.joined_count ?? 0, i_joined: c?.i_joined ?? false };
+    return { ...r, lead_name: c?.lead_name ?? null, lead_photo: c?.lead_photo ?? null, joined_count: c?.joined_count ?? 0, i_joined: c?.i_joined ?? false };
   });
 }
 

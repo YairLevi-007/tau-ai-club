@@ -175,6 +175,13 @@ begin
   ) >= 5 then
     raise exception 'too many proposals waiting for review' using errcode = '54000';
   end if;
+  -- And at most 5 new proposals a day, whatever became of them (a rejected one doesn't free a slot).
+  if not v_admin and (
+    select count(*) from public.initiatives i
+    where i.lead_id = v_me and i.created_at > now() - interval '24 hours'
+  ) >= 5 then
+    raise exception 'too many proposals today' using errcode = '54000';
+  end if;
 
   insert into public.initiatives (
     lead_id, kind, proposed_kind, category, status,
@@ -328,6 +335,9 @@ $$;
 
 -- What a card needs beyond the row: the lead's name and photo, how many are in, whether I'm in.
 -- Only for initiatives the caller may see (published, their own, or any for an admin). No joiner names.
+-- Only active members show by name (as in member_directory): when the lead is no longer active, the
+-- initiative stays (an admin decides whether to edit or remove it) but lead_name and lead_photo are
+-- null, and the page says the lead is no longer a member. Inactive joiners aren't counted.
 create or replace function public.initiative_cards()
 returns table (
   initiative_id uuid,
@@ -348,9 +358,12 @@ begin
   return query
     select
       i.id,
-      m.full_name,
-      p.photo_url,
-      (select count(*)::int from public.initiative_members j where j.initiative_id = i.id),
+      case when m.status = 'active' then m.full_name end,
+      case when m.status = 'active' then p.photo_url end,
+      (select count(*)::int
+         from public.initiative_members j
+         join public.members jm on jm.id = j.member_id
+        where j.initiative_id = i.id and jm.status = 'active'),
       exists (select 1 from public.initiative_members j where j.initiative_id = i.id and j.member_id = v_me)
     from public.initiatives i
     join public.members m on m.id = i.lead_id
@@ -360,6 +373,7 @@ end;
 $$;
 
 -- Who's in, by name: for the initiative's lead and for admins only. Never emails or contact data.
+-- Active members only (a member who was made inactive doesn't show).
 create or replace function public.initiative_people(p_id uuid)
 returns table (member_id uuid, full_name text, photo_url text, joined_at timestamptz)
 language plpgsql
@@ -380,7 +394,7 @@ begin
     from public.initiative_members j
     join public.members m on m.id = j.member_id
     left join public.profiles p on p.member_id = j.member_id
-    where j.initiative_id = p_id
+    where j.initiative_id = p_id and m.status = 'active'
     order by j.joined_at;
 end;
 $$;

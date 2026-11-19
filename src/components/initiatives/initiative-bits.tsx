@@ -131,6 +131,8 @@ export async function JoinControl({ initiative, viewerId, today, wide = false }:
 /** The lead: photo or initials, name, "מי מוביל". */
 export async function LeadLine({ initiative, photoSrc }: { initiative: Initiative; photoSrc: string | null }) {
   const t = await getTranslations("initiatives");
+  // Only active members show by name: a lead who left shows as such (security review F1).
+  if (!initiative.lead_name) return <p className="text-sm text-fg-subtle">{t("leadGone")}</p>;
   return (
     <div className="flex items-center gap-3">
       <MemberAvatar name={initiative.lead_name} src={photoSrc} size={40} />
