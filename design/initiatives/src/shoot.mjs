@@ -28,13 +28,15 @@ const cookies = [{ name: "sb-127-auth-token", value: "base64-" + Buffer.from(JSO
 const SCREENS = [
   ["o1-list", "/lectures", "member", S.o1List, "full"],
   ["o1-item", "/lectures", "member", S.o1Item, "full"],
-  ["o1-post", "/admin/events", "admin", S.o1Post, "full"],
+  ["o1-post", "/lectures", "member", S.o1Post, "view"],
   ["o2-list", "/lectures", "member", S.o2List, "full"],
   ["o2-item", "/lectures", "member", S.o2Item, "full"],
   ["o2-post", "/lectures", "member", S.o2Post, "view"],
   ["o3-list", "/lectures", "guest", S.o3List, "full"],
-  ["o3-item", "/lectures", "member", S.o3Item, "full"],
-  ["o3-post", "/admin/events", "admin", S.o3Post, "full"],
+  ["o3-item", "/lectures", "guest", S.o3Item, "full"],
+  ["o3-post", "/lectures", "member", S.o3Post, "view"],
+  ["flow-pending", "/lectures", "member", S.flowPending, "full"],
+  ["flow-admin", "/admin/events", "admin", S.flowAdmin, "full"],
 ].filter(([n]) => !ONLY || ONLY.test(n));
 
 function inject({ html, kind }) {

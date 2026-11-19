@@ -168,3 +168,14 @@
 
 /* header tab mark */
 .tab-new { border-color: var(--border-accent) !important; background: color-mix(in srgb, var(--brand-purple) 14%, transparent); }
+
+/* approval flow (19.11 decision: members propose, an admin approves) */
+.by { padding-top: .75rem; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+.note-approve { display: flex; gap: .5rem; align-items: start; margin: 0; font-size: .875rem; color: var(--fg-subtle); }
+.note-approve svg { width: 1rem; height: 1rem; margin-top: .2rem; flex-shrink: 0; color: var(--brand-purple-soft); }
+.pend { display: inline-flex; align-items: center; gap: .375rem; height: 1.75rem; padding-inline: .625rem; border-radius: 999px; font-size: .8125rem; font-weight: 600; border: 1px dashed var(--brand-purple-soft); color: var(--brand-purple-soft); }
+.pend svg { width: .875rem; height: .875rem; }
+.pend.back-to { border-style: solid; border-color: var(--border-strong); color: var(--fg); }
+.ini-card.pending { border-style: dashed; border-color: var(--brand-purple-soft); background: color-mix(in srgb, var(--bg-raised) 70%, transparent); box-shadow: none; }
+.admin-note { margin: 0; padding: .75rem .875rem; border-radius: var(--r-md); border-inline-start: 3px solid var(--brand-purple); background: var(--surface); color: var(--fg-muted); font-size: .9375rem; line-height: 1.55; }
+.admin-note b { color: var(--fg); }

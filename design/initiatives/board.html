@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Initiatives options</title>
 <!--
-  "יוזמות" tab, options to choose from (19.11, tau-designer). Open board.html?opt=1|2|3 or ?view=all.
+  "יוזמות" tab, options to choose from (19.11, tau-designer). Open board.html?opt=1|2|3, ?view=approval or ?view=all.
   The screens are real pages of the local site (fixtures, a mock member), with each option's content
   injected by src/shoot.mjs (src/screens.mjs + src/mock.css). Names and initiatives are made up.
 -->
@@ -39,7 +39,7 @@
   .desk .bar { height:30px; display:flex; align-items:center; gap:7px; padding:0 12px; direction:ltr; }
   .desk .bar i { width:10px; height:10px; border-radius:50%; background:#3a3846; }
   .desk .bar span { margin-inline-start:14px; flex:1; height:18px; border-radius:9px; background:#2a2834; font:500 11px/18px 'IBM Plex Mono'; color:#9c93c9; padding:0 10px; }
-  .desk .view { aspect-ratio:1440/1000; overflow:hidden; } .desk img { width:100%; display:block; }
+  .desk .view { aspect-ratio:1440/1000; overflow:hidden; background:#0b0a1f; } .desk img { width:100%; display:block; }
   .phone { border-radius:44px; padding:10px; background:#1b1a22; box-shadow:0 0 0 2px #34323d, 0 40px 80px -30px rgba(0,0,0,.8); }
   .phone .view { width:360px; height:1040px; border-radius:34px; overflow:hidden; background:#000; } .phone img { width:100%; display:block; }
   .phones { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
@@ -54,53 +54,73 @@
   .rec b { color:var(--fg); }
   .thumbs { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-top:30px; }
   .thumbs .desk .view { aspect-ratio:1440/820; }
+  .fixed { display:flex; flex-wrap:wrap; gap:10px 28px; align-items:baseline; margin-top:22px; padding:14px 18px; border-radius:14px; border:1px dashed rgba(169,112,255,.6); font-size:17px; color:var(--fg-muted); }
+  .fixed b { color:var(--brand-purple-soft); font-size:15px; font-weight:600; width:100%; }
+  .fixed i { font-style:normal; color:var(--fg); font-weight:600; }
 </style>
 </head>
 <body>
 <div class="board" id="board"></div>
 <script>
+const FIXED = [["מי מציע", "כל חבר, מכפתור \"הצעת יוזמה\" בלשונית."], ["מי מאשר", "מנהל. יוזמה של חבר עולה אחרי אישור; של מנהל עולה מיד."], ["מי מצטרף", "כל חבר, בלחיצה באתר."]];
 const OPTS = {
-  1: { name: "לוח מודעות", short: "פוסט קצר וקישור החוצה",
-    lede: "הכי פשוט: ראש מועדון מפרסם יוזמה, והחברים מצטרפים דרך קישור (וואטסאפ, טופס, לומה). האתר לא יודע מי הצטרף.",
-    facts: [["מי רואה", "רק חברים מחוברים. הלשונית מופיעה ליד הרצאות וסדנאות."], ["מה יש ביוזמה", "סוג, כותרת, כמה מילים, מתי ואיפה, מי מוביל, וכפתור אחד החוצה."], ["\"אני בפנים\"", "אין. הכפתור פותח קבוצה או טופס מחוץ לאתר.", "minus"], ["איך מפרסמים", "בניהול, בלשונית חדשה \"יוזמות\", עם תצוגה מקדימה של הכרטיס."]],
-    caps: [["הרשימה", "החדשה למעלה, עם תג \"חדש\" לשבוע."], ["יוזמה אחת", "הפרטים, וכפתור ההצטרפות בצד."], ["ראש מועדון מפרסם", "טופס בניהול, ומשמאל רואים איך הכרטיס ייראה."]] },
-  2: { name: "\"אני בפנים\"", short: "מצטרפים בלחיצה באתר",
-    lede: "חברים לוחצים \"אני בפנים\" ישר באתר. רואים מי עוד בפנים וכמה מקומות נשארו. המוביל מקבל רשימה עם מיילים, וראשי המועדון מפרסמים ישר מהלשונית.",
-    facts: [["מי רואה", "רק חברים מחוברים."], ["מה יש ביוזמה", "סוג, כותרת, כמה מילים, מתי ואיפה, כמה מקומות, עד מתי נרשמים, מי מוביל."], ["\"אני בפנים\"", "כן. כפתור אחד. פנים של מי שבפנים, ומספר המקומות שנשארו. אפשר לבטל."], ["איך מפרסמים", "כפתור \"יוזמה חדשה\" בלשונית, שרק ראשי המועדון רואים. טופס קצר בחלון."]],
-    caps: [["הרשימה", "סינון לפי סוג, ו\"שלי\" למה שהצטרפתי אליו."], ["יוזמה אחת, אחרי \"אני בפנים\"", "המוביל רואה גם מי בפנים, ויכול להעתיק את המיילים."], ["ראש מועדון מפרסם", "חלון מעל הלשונית (בטלפון: מגירה מלמטה)."]] },
-  3: { name: "מה בונים במועדון", short: "פתוח לכולם, מצטרפים לתפקיד",
-    lede: "גם אורחים רואים מה המועדון בונה. כל יוזמה עוברת שלבים (מגייסים, בעבודה, הושלם) ומחפשת אנשים לתפקידים. חברים בוחרים תפקיד. יוזמה שהסתיימה נשארת עם קישור לתוצאה.",
-    facts: [["מי רואה", "כולם, גם אורחים (בלי שמות של חברים). רק חברים מצטרפים."], ["מה יש ביוזמה", "שלב, סוג, כותרת, כמה מילים, תפקידים וכמה אנשים בכל אחד, מי מוביל, קישור לתוצאה."], ["\"אני בפנים\"", "כן, לפי תפקיד: \"אני על זה\" ליד פיתוח, עיצוב, כתיבה..."], ["איך מפרסמים", "בניהול, עם רשימת תפקידים, שלב, ומתג \"גם אורחים רואים\"."]],
-    caps: [["הרשימה, כמו שאורח רואה", "שלבים במקום תאריכים. הושלמו נשארים כתיק עבודות."], ["יוזמה אחת, לחבר", "בוחרים תפקיד. תפקיד מלא נראה חלש יותר."], ["ראש מועדון מפרסם", "בניהול: תפקידים, שלב, וקישור לתוצאה בסוף."]] },
+  1: { name: "פשוט, לחברים", short: "כרטיס קצר ו\"אני בפנים\"",
+    lede: "רק חברים רואים. כל יוזמה היא כרטיס קצר: מה, מתי, איפה, כמה מקומות. מצטרפים בלחיצה, רואים מי עוד בפנים, ומי שמוביל שולח עדכונים לכולם מהאתר.",
+    facts: [["מי רואה", "רק חברים מחוברים. הלשונית ליד הרצאות וסדנאות."], ["מה יש ביוזמה", "סוג, כותרת, כמה מילים, מתי ואיפה, כמה מקומות, מי מוביל."], ["איך מצטרפים", "\"אני בפנים\" אחד. אפשר לבטל."], ["כמה עבודה", "הכי קטן מהשלוש."]],
+    caps: [["הרשימה", "סינון לפי סוג, ו\"שלי\" למה שהצעתי ולמה שהצטרפתי."], ["יוזמה אחת, אחרי \"אני בפנים\"", "מי שמוביל רואה מי בפנים ושולח עדכון. המיילים לא מוצגים."], ["חבר מציע יוזמה", "חלון מעל הלשונית (בטלפון: מגירה). \"שליחה לאישור\"."]] },
+  2: { name: "עם תפקידים, לחברים", short: "שלבים, ובוחרים במה לעזור",
+    lede: "רק חברים רואים. מתאים לפרויקטים: כל יוזמה עוברת שלבים (מגייסים, בעבודה, הושלם) ומחפשת אנשים לתפקידים. חברים בוחרים תפקיד. יוזמה שהסתיימה נשארת עם קישור לתוצאה.",
+    facts: [["מי רואה", "רק חברים מחוברים."], ["מה יש ביוזמה", "שלב, סוג, כותרת, כמה מילים, תפקידים וכמה אנשים בכל אחד, מי מוביל, קישור לתוצאה."], ["איך מצטרפים", "\"אני על זה\" ליד תפקיד: פיתוח, עיצוב, כתיבה..."], ["כמה עבודה", "בינוני: תפקידים ושלבים."]],
+    caps: [["הרשימה", "שלבים במקום תאריכים. הושלמו נשארים כתיק עבודות."], ["יוזמה אחת", "בוחרים תפקיד. תפקיד מלא נראה חלש יותר."], ["חבר מציע יוזמה", "כמו ב-1, ועוד רשימת תפקידים."]] },
+  3: { name: "פתוח לכולם", short: "גם אורחים רואים, בלי שמות",
+    lede: "גם מי שלא במועדון רואה מה החברים עושים יחד, טוב לגיוס למחזור הבא. אורחים רואים כמה בפנים, לא מי. רק חברים מצטרפים ומציעים. הושלמו נשארות כתיק עבודות.",
+    facts: [["מי רואה", "כולם. אורחים בלי שמות ופנים של חברים."], ["מה יש ביוזמה", "כמו ב-1, ועוד \"הושלמו\" עם קישור לתוצאה."], ["איך מצטרפים", "חבר: \"אני בפנים\". אורח: \"כניסה לחברים כדי להצטרף\"."], ["כמה עבודה", "בינוני, ועוד בדיקת פרטיות לעמוד ציבורי."]],
+    caps: [["הרשימה, כמו שאורח רואה", "מספרים בלי שמות. \"כניסה לחברים\" למטה."], ["יוזמה אחת, לאורח", "כמה בפנים, וכפתור כניסה כדי להצטרף."], ["חבר מציע יוזמה", "כמו ב-1. אומרים לו שגם אורחים יראו."]] },
 };
 const q = new URLSearchParams(location.search);
-const opt = q.get("opt");
+const opt = q.get("opt"), view = q.get("view");
 const B = document.getElementById("board");
 const desk = (src, url, h) => `<div class="desk"><div class="bar"><i></i><i></i><i></i><span>${url}</span></div><div class="view"${h ? ` style="aspect-ratio:1440/${h}"` : ""}><img src="${src}"></div></div>`;
+const phone = (src) => `<div class="phone"><div class="view"><img src="${src}"></div></div>`;
+const fixedStrip = `<div class="fixed"><b>בכל האפשרויות (הוחלט 19.11)</b>${FIXED.map(([t, s]) => `<span><i>${t}:</i> ${s}</span>`).join("")}</div>`;
+const rows = (shots) => `
+    <div class="row"><div class="row-label"><span class="eyebrow">DESKTOP</span><p>מחשב</p></div>
+      ${shots.map((s, i) => `<figure>${desk(`screens/${s.k}-desk.png`, s.url)}<figcaption><span class="n">0${i + 1}</span><b>${s.cap[0]}</b><p>${s.cap[1]}</p></figcaption></figure>`).join("")}</div>
+    <div class="row"><div class="row-label"><span class="eyebrow">PHONE</span><p>טלפון</p></div>
+      ${shots.map((s, i) => `<figure>${phone(`screens/${s.k}-phone.png`)}<figcaption><span class="n">0${i + 1}</span><b>${s.cap[0]}</b></figcaption></figure>`).join("")}</div>`;
 if (opt) {
   const o = OPTS[opt], k = `o${opt}`;
-  const urls = ["tauaiclub.com/initiatives", "tauaiclub.com/initiatives/campus-agents-hackathon", opt === "2" ? "tauaiclub.com/initiatives" : "tauaiclub.com/admin/initiatives/new"];
-  if (opt === "3") urls[1] = "tauaiclub.com/initiatives/new-students-bot";
-  const names = ["list", "item", "post"];
+  const slug = opt === "2" ? "new-students-bot" : "campus-agents-hackathon";
+  const urls = ["tauaiclub.com/initiatives", `tauaiclub.com/initiatives/${slug}`, "tauaiclub.com/initiatives"];
   B.innerHTML = `
     <span class="eyebrow">OPTION 0${opt} / 03 · INITIATIVES</span>
     <h1>אפשרות ${opt}: <em>${o.name}</em></h1>
     <p class="lede">${o.lede}</p>
-    <div class="facts">${o.facts.map(([t, s, c]) => `<div class="fact ${c ?? ""}"><b>${t}</b><span>${s}</span></div>`).join("")}</div>
-    <div class="row"><div class="row-label"><span class="eyebrow">DESKTOP</span><p>מחשב</p></div>
-      ${names.map((n, i) => `<figure>${desk(`screens/${k}-${n}-desk.png`, urls[i])}<figcaption><span class="n">0${i + 1}</span><b>${o.caps[i][0]}</b><p>${o.caps[i][1]}</p></figcaption></figure>`).join("")}</div>
-    <div class="row"><div class="row-label"><span class="eyebrow">PHONE</span><p>טלפון</p></div>
-      ${names.map((n, i) => `<figure><div class="phone"><div class="view"><img src="screens/${k}-${n}-phone.png"></div></div><figcaption><span class="n">0${i + 1}</span><b>${o.caps[i][0]}</b></figcaption></figure>`).join("")}</div>`;
+    ${fixedStrip}
+    <div class="facts">${o.facts.map(([t, s]) => `<div class="fact"><b>${t}</b><span>${s}</span></div>`).join("")}</div>
+    ${rows(["list", "item", "post"].map((n, i) => ({ k: `${k}-${n}`, url: urls[i], cap: o.caps[i] })))}`;
+} else if (view === "approval") {
+  B.innerHTML = `
+    <span class="eyebrow">APPROVAL · SAME IN ALL OPTIONS</span>
+    <h1>הצעה של חבר: <em>עד שמנהל מאשר</em></h1>
+    <p class="lede">חבר שולח יוזמה מהלשונית. היא מחכה לאישור, ורק הוא רואה אותה. מנהל מאשר בלשונית חדשה "יוזמות" בניהול: אישור, החזרה עם הערה, או דחייה. יוזמה של מנהל עולה מיד, בלי התור הזה.</p>
+    ${fixedStrip}
+    ${rows([
+      { k: "o1-post", url: "tauaiclub.com/initiatives", cap: ["חבר שולח", "\"שליחה לאישור\". מנהל רואה במקום זה \"פרסום\"."] },
+      { k: "flow-pending", url: "tauaiclub.com/initiatives?filter=mine", cap: ["ממתינה לאישור", "ב\"שלי\": מסגרת מקווקוות, רק הוא רואה. אפשר לערוך או לבטל. הצעה שהוחזרה מראה את ההערה."] },
+      { k: "flow-admin", url: "tauaiclub.com/admin/initiatives", cap: ["מנהל מאשר", "תור \"ממתינות לאישור\" עם מספר. החזרה עם הערה נשלחת במייל ובלשונית."] },
+    ])}`;
 } else {
   B.innerHTML = `
     <span class="eyebrow">INITIATIVES · 3 OPTIONS</span>
     <h1>לשונית <em>"יוזמות"</em>: שלוש אפשרויות</h1>
-    <p class="lede">ראשי המועדון מפרסמים יוזמות, והחברים מצטרפים. כל אפשרות עונה אחרת על שלוש שאלות: מי רואה, מה יש ביוזמה, והאם מצטרפים באתר. אפשר גם לערבב, למשל אפשרות 2 עם השלבים של 3.</p>
+    <p class="lede">כל חבר מציע יוזמה, מנהל מאשר, וכל חבר מצטרף באתר. זה כבר הוחלט וזהה בכל האפשרויות. מה שנשאר לבחור: מי רואה את הלשונית, ומה יש בכל יוזמה. אפשר לערבב, למשל 1 עם "הושלמו" של 3.</p>
+    ${fixedStrip}
     <div class="thumbs">${[1, 2, 3].map((n) => `<figure>${desk(`screens/o${n}-list-desk.png`, "tauaiclub.com/initiatives", 820)}<figcaption><span class="n">0${n}</span><b>${OPTS[n].name}</b><p>${OPTS[n].short}</p></figcaption></figure>`).join("")}</div>
     <table><thead><tr><th></th>${[1, 2, 3].map((n) => `<th>${n}. ${OPTS[n].name}<small>${OPTS[n].short}</small></th>`).join("")}</tr></thead>
-      <tbody>${[0, 1, 2, 3].map((r) => `<tr><th>${OPTS[1].facts[r][0]}</th>${[1, 2, 3].map((n) => `<td>${OPTS[n].facts[r][1]}</td>`).join("")}</tr>`).join("")}
-      <tr><th>כמה עבודה לבנות</th><td>קטן: טבלה אחת ולשונית בניהול.</td><td>בינוני: גם רשימת מצטרפים, מקומות, וטופס בלשונית לראשי המועדון.</td><td>הכי גדול: תפקידים, שלבים, ועמוד ציבורי שצריך לשמור בו על פרטיות החברים.</td></tr></tbody></table>
-    <div class="rec"><b>ההמלצה שלי: אפשרות 2.</b> היא שומרת על ההחלטה שהתוכן לחברים בלבד, ונותנת לראשי המועדון את מה שקישור החוצה לא נותן: לדעת מי בפנים, בלי לרדוף אחרי טפסים. אם תרצו להראות לאורחים מה המועדון עושה, אפשר להוסיף אחר כך את "הושלמו" מאפשרות 3.</div>`;
+      <tbody>${[0, 1, 2, 3].map((r) => `<tr><th>${OPTS[1].facts[r][0]}</th>${[1, 2, 3].map((n) => `<td>${OPTS[n].facts[r][1]}</td>`).join("")}</tr>`).join("")}</tbody></table>
+    <div class="rec"><b>ההמלצה שלי: אפשרות 1.</b> היא שומרת על "לחברים בלבד" כמו שאר התוכן, והכי מהירה לבנות. יוזמות של חברים יהיו מגוונות (קבוצת קריאה, ערב, פרויקט), וכרטיס פשוט מתאים לכולן. אם בהמשך יהיו הרבה פרויקטים, אפשר להוסיף תפקידים מ-2. אם תרצו להראות לאורחים מה המועדון עושה, אפשר להוסיף את "הושלמו" מ-3.</div>
+    <p class="lede" style="margin-top:22px;font-size:18px">ובלוח נפרד, <b style="color:var(--fg)">approval.png</b>: איך נראית הצעה שמחכה לאישור, ואיפה מנהל מאשר. זהה בכל האפשרויות.</p>`;
 }
 </script>
 </body>
