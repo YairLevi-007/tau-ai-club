@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
  * A member's photo (a short-lived signed URL) or their initials. A plain <img>, not
  * next/image: member photos are private and must not land in the shared image cache.
  * Decorative, since the name is always written next to it.
+ * Round with a soft purple ring everywhere, as in the personal area (review 19.11, item 2: it was
+ * a square on a member's page and round in /me).
  */
 export function MemberAvatar({
   name,
@@ -21,7 +23,7 @@ export function MemberAvatar({
     <span
       aria-hidden
       className={cn(
-        "relative grid shrink-0 place-items-center overflow-hidden rounded-md border border-border-accent bg-brand-purple-deeper font-bold text-fg",
+        "relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-brand-purple-deeper font-bold text-fg ring-2 ring-brand-purple/40 ring-offset-2 ring-offset-bg",
         className,
       )}
       style={{ width: size, height: size, fontSize: size * 0.36 }}

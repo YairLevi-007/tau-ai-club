@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { raisedPanelClass } from "@/components/admin/styles";
+import { PageBackdrop } from "@/components/site/page-backdrop";
+import { cn } from "@/lib/utils";
 import { getEventBySlug, getSeason } from "@/lib/events";
 import { getPublicSections } from "@/lib/content/data";
 import { LECTURE_SECTIONS, bodyFor, contentKindOf } from "@/lib/content/sections";
@@ -82,54 +85,60 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
   const membersOrder = LECTURE_SECTIONS.filter((s) => s !== "blurb");
 
   return (
-    <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="lecture-page" data-state={event.state}>
-      <Link
-        href="/lectures"
-        className="inline-flex min-h-11 w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
-      >
-        <Back aria-hidden className="size-4" />
-        {t("backToLectures")}
-      </Link>
+    <div className="relative isolate">
+      <PageBackdrop />
+      <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="lecture-page" data-state={event.state}>
+        <Link
+          href="/lectures"
+          className="inline-flex min-h-11 w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
+        >
+          <Back aria-hidden className="size-4" />
+          {t("backToLectures")}
+        </Link>
 
-      <header className="grid gap-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <Eyebrow he="הרצאה" en="Lecture" />
-          {event.state === "past" && <Tag>{te("past")}</Tag>}
-        </div>
-        <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg"><BidiText text={title} /></h1>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-fg-muted">
-          <CalendarDays aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
-          <time dateTime={isoAttr(event.starts_at)}>{formatEventDate(event.starts_at, l)}</time>
-          <bdi dir="ltr" className="font-mono text-sm">
-            {formatTimeRange(event.starts_at, event.ends_at)}
-          </bdi>
-          <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
-            {te("details")}
-          </Link>
-        </p>
-        <SpeakerList event={event} locale={l} size={72} />
-      </header>
+        <header className="grid gap-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <Eyebrow he="הרצאה" en="Lecture" />
+            {event.state === "past" && <Tag>{te("past")}</Tag>}
+          </div>
+          <h1 className="text-[clamp(2rem,6.5vw,3.25rem)] leading-[1.08] font-extrabold text-balance text-fg"><BidiText text={title} /></h1>
+          {/* Speaker, date and time together in the personal area's raised panel (review 19.11, item 13). */}
+          <div className={cn(raisedPanelClass, "grid gap-4 p-5 shadow-[var(--highlight-top)] sm:p-6")}>
+            <SpeakerList event={event} locale={l} size={72} />
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-4 text-fg-muted">
+              <CalendarDays aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+              <time dateTime={isoAttr(event.starts_at)}>{formatEventDate(event.starts_at, l)}</time>
+              <bdi dir="ltr" className="font-mono text-sm">
+                {formatTimeRange(event.starts_at, event.ends_at)}
+              </bdi>
+              <Link href={`/events/${slug}`} className="inline-flex min-h-11 items-center text-sm text-brand-purple-soft underline underline-offset-4 hover:text-fg">
+                {te("details")}
+              </Link>
+            </p>
+          </div>
+        </header>
 
-      {blurb ? (
-        <SectionBlock
-          section="blurb"
-          title={t("section_blurb")}
-          body={bodyFor(blurb, l)}
-          hebrewOnly={{ label: t("hebrewOnly"), hint: t("hebrewOnlyHint") }}
-        />
-      ) : (
-        <p className="text-fg-subtle">{t("summaryComing")}</p>
-      )}
-
-      <div className="grid gap-6 border-t border-border pt-10">
-        <MembersOnlyMark label={t("membersPart")} />
-        {/* While the members area is off there is nothing to fetch and no one to sign in. */}
-        {authEnabled() ? (
-          <MembersContent slug={slug} order={membersOrder} path={`/lectures/${slug}`} />
+        {blurb ? (
+          <SectionBlock
+            section="blurb"
+            title={t("section_blurb")}
+            body={bodyFor(blurb, l)}
+            hebrewOnly={{ label: t("hebrewOnly"), hint: t("hebrewOnlyHint") }}
+          />
         ) : (
-          <MembersSoon title={t("soonTitle")} body={t("soonBody")} />
+          <p className="text-fg-subtle">{t("summaryComing")}</p>
         )}
-      </div>
-    </article>
+
+        <div className="grid gap-6 border-t border-border pt-10">
+          <MembersOnlyMark label={t("membersPart")} />
+          {/* While the members area is off there is nothing to fetch and no one to sign in. */}
+          {authEnabled() ? (
+            <MembersContent slug={slug} order={membersOrder} path={`/lectures/${slug}`} />
+          ) : (
+            <MembersSoon title={t("soonTitle")} body={t("soonBody")} />
+          )}
+        </div>
+      </article>
+    </div>
   );
 }
