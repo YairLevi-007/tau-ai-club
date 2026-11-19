@@ -9,6 +9,7 @@ to "Done (last 2 weeks)".
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
 | Add to home screen: mockups to choose from (icon on the phone, how it opens, a hint in /me if needed) | tau-designer | `design/home-screen/**` (new) | agent/design | Started 19.11 |
+| One command for all checks + own ports per worktree | tau-qa | `tests/**`, `playwright.config.ts` | agent/qa | Started 19.11 |
 | Privacy check: member phones and emails on the live site and in Supabase RLS (read only) | tau-privacy | none (reads only; report goes in the manager's notes folder) | — | Started 19.11 |
 
 ## Waiting for the user
