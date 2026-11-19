@@ -9,6 +9,7 @@ to "Done (last 2 weeks)".
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
 | "Initiatives" (יוזמות) tab: 2–3 options as pictures in the /me look, Hebrew RTL, phone + desktop (header tab, list, one initiative, how a club head posts). Choices shown inside: who sees it, what an initiative holds, "I'm in" | tau-designer | `design/initiatives/**` (design only, no `src/`) | agent/design | Started 19.11 |
+| Initiatives (יוזמות), build, in 4 parts: **1. database** (migration, RLS, RPCs, db:check), 2. member pages (/initiatives, propose, "אני בפנים", "שלי", header tab), 3. admin tab (queue: approve with the club switch, return with a note, reject), 4. email on the answer (free Gmail SMTP; needs two env vars from the user). tau-security reviews before merge | tau-builder | 1: `supabase/migrations/<new>_initiatives.sql`, `scripts/rls-initiatives.mjs`, `scripts/check-db.mjs` (one line), `src/lib/initiatives.ts`. 2–4 add: `src/app/[locale]/initiatives/**`, `src/app/[locale]/admin/initiatives/**`, `src/components/initiatives/**`, the header's member links, `messages/*.json` (`initiatives` keys), `src/lib/email/**` | agent/build | Started 19.11 (part 1) |
 | Club-list leak (privacy H1): code live. Next: a failure signal in the logs (security M1), then the user turns on CAPTCHA in Supabase (dev, then prod), then tau-security checks it live | tau-auth | `src/app/api/auth/otp/route.ts`, `src/lib/auth/otp.ts` | agent/auth | Started 19.11 |
 
 ## Waiting for the user

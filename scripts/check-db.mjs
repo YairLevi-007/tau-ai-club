@@ -17,6 +17,7 @@ import { runProfileChecks } from "./rls-m2-profiles.mjs";
 import { runAttendanceChecks } from "./rls-m2-attendance.mjs";
 import { runContentChecks } from "./rls-m3-content.mjs";
 import { runLaunchChecks } from "./rls-launch.mjs";
+import { runInitiativeChecks } from "./rls-initiatives.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const migrationsDir = join(root, "supabase", "migrations");
@@ -319,6 +320,7 @@ await runProfileChecks(db, check);
 await runAttendanceChecks(db, check);
 await runContentChecks(db, check);
 await runLaunchChecks(db, check);
+await runInitiativeChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
 // QA's independent members-launch suite (its own PGlite instance), so db:check fails when it does.
