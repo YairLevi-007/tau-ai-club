@@ -16,6 +16,7 @@ import { ContentIntro, Eyebrow, SpeakerList } from "@/components/content/content
 import { cn } from "@/lib/utils";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
+import { BidiText } from "@/components/events/bidi-text";
 
 export const revalidate = 300;
 
@@ -73,7 +74,7 @@ export default async function LecturesPage({ params }: PageProps<"/[locale]/lect
           </div>
           <h3 className="text-xl font-bold text-balance text-fg sm:text-2xl">
             <Link href={`/lectures/${e.slug}`} className="rounded-sm after:absolute after:inset-0 after:rounded-lg">
-              {title}
+              <BidiText text={title} />
             </Link>
           </h3>
           <SpeakerList event={e} locale={l} size={44} />
