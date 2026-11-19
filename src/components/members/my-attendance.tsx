@@ -7,6 +7,7 @@ import { formatShortDate, loc } from "@/lib/event-format";
 import { hintClass, raisedPanelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 import { AttendanceMark } from "@/components/admin/attendance/attendance-mark";
+import { BidiText } from "@/components/events/bidi-text";
 
 /**
  * "My attendance" on /profile: the meetups this member was checked in at this season (from the
@@ -39,7 +40,7 @@ export async function MyAttendance({ supabase, memberId }: { supabase: SupabaseC
               >
                 <AttendanceMark status="checked_in" />
                 <bdi className="w-11 shrink-0 font-mono text-[0.8125rem] text-fg-subtle">{formatShortDate(r.event.starts_at, locale)}</bdi>
-                <span className="min-w-0 font-medium text-fg">{loc(r.event, "title", locale)}</span>
+                <span className="min-w-0 font-medium text-fg"><BidiText text={loc(r.event, "title", locale) ?? ""} /></span>
               </Link>
             </li>
           ))}
