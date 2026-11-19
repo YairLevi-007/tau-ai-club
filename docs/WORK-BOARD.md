@@ -8,8 +8,7 @@ to "Done (last 2 weeks)".
 
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
-| Club-list leak (privacy H1): code done (`7686964`); tau-security reviews it before the merge. Then the user turns on CAPTCHA in Supabase (dev, then prod) | tau-auth | `src/app/api/auth/otp/route.ts`, `src/lib/auth/otp.ts` | agent/auth | In review |
-| One command for all checks (`tests/run-all.mjs`), the flaky forged-JWT test, the title-comma test | tau-qa | `tests/**` | agent/qa | Done on the branch, to merge next |
+| Club-list leak (privacy H1): code live. Next: a failure signal in the logs (security M1), then the user turns on CAPTCHA in Supabase (dev, then prod), then tau-security checks it live | tau-auth | `src/app/api/auth/otp/route.ts`, `src/lib/auth/otp.ts` | agent/auth | Started 19.11 |
 
 ## Waiting for the user
 
@@ -23,6 +22,7 @@ to "Done (last 2 weeks)".
 
 | Date | Task | Commit |
 |---|---|---|
+| 19.11 | One command for every check (`node tests/run-all.mjs`, ~6 min); the flaky forged-JWT test fixed; a title-comma test. H1 code (no effect until CAPTCHA is on) | `d4a4fb0` |
 | 19.11 | Live: new home page (items 3–8), members' next meetup on home (item 5), lectures, workshops, the event page and member pages in the /me look, /me items 9–10 (next above the dial), title flips fixed, round 2 (English line, 44px taps, admin on phones, members rows), and the home-screen icon + launch screens (no card) | `15668ae` |
 | 19.11 | Privacy check (tau-privacy, read only): RLS, code, git and guest site clean; 1 high (club-list leak), 2 medium | report in manager notes |
 | 18.11 | Personal area: new order, details fold behind an edit button, my attendance moved in, /profile forwards to /me | `4b98d47` |

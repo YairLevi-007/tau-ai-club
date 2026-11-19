@@ -44,7 +44,7 @@ A task that crosses lanes (e.g. a new page with a new DB column) is split by the
    tau-content and tau-security don't need a folder: they work through the admin pages or only read.
 2. **Claim before you start.** The manager writes the task on `docs/WORK-BOARD.md` with the agent and the files. Files that another task in progress has claimed are off limits until that task is merged.
 3. **Never delete or rewrite someone else's code.** If something in another lane is in the way, stop and tell the manager.
-4. **Before handing in:** `git pull` the latest `main` into your branch, run `tsc`, `eslint` and the tests for your area, then commit on your branch and tell the manager: what changed, which files, and how you checked it. Don't push to `main`.
+4. **Before handing in:** `git pull` the latest `main` into your branch, run `node tests/run-all.mjs` (every check, its own ports, one result line; `--only=` for a subset), then commit on your branch and tell the manager: what changed, which files, and how you checked it. Don't push to `main`.
 5. **Never push to `main`, never force-push, never `git reset --hard` a shared branch.**
 6. **Tests run one suite at a time** (they share ports). m3 uses `PW_M3_PORT=3741`.
 
