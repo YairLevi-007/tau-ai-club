@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatShortDate, formatTimeRange, loc } from "@/lib/event-format";
 import { panelClass, smallBtn } from "@/components/admin/styles";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { BidiText } from "@/components/events/bidi-text";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 
@@ -71,7 +72,7 @@ export default async function AdminEventsPage({ params }: PageProps<"/[locale]/a
           {rows.map((e) => (
             <li key={e.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 p-4 transition-colors duration-150 hover:bg-surface-hover sm:px-5">
               <div className="grid min-w-0 gap-1.5">
-                <p className="font-bold text-fg">{loc(e, "title", locale)}</p>
+                <p className="font-bold text-fg"><BidiText text={loc(e, "title", locale) ?? e.slug} /></p>
                 <p className="text-sm text-fg-muted">
                   <bdi>{formatShortDate(e.starts_at, locale)}</bdi> · <bdi dir="ltr">{formatTimeRange(e.starts_at, e.ends_at)}</bdi> ·{" "}
                   {e.venue ? loc(e.venue, "name", locale) : t("venueTbd")} · {t("speakerCount", { n: e.event_speakers.length })}
