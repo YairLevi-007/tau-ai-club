@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Home-screen options</title>
+<!--
+  "Add to home screen" mockups (task 19.11, tau-designer). Open board.html?opt=1|2|3 or ?view=icons.
+  The /me screens are real screenshots of the site (local dev, fixtures, a mock member "נועה לוי"),
+  with each option's hint injected (hints/*.html). Everything else is drawn here with the frozen
+  tokens (src/app/tokens.css values, copied, not changed). Icons: assets/icon-{1,2,3}.png (icons.html).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Silkscreen&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-purple:#8a2bff; --brand-purple-deeper:#5c1cab; --brand-purple-soft:#a970ff;
+    --logo-indigo:#241163; --logo-grid:#291666; --logo-block:#36167e;
+    --bg:#0b0a1f; --bg-deep:#070a1c; --bg-raised:#120b3a; --border:#2a2540; --border-strong:#3a3458;
+    --fg:#f6f4ff; --fg-muted:#cfc8f0; --fg-subtle:#9c93c9;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-deep); color:var(--fg); font-family:Rubik, sans-serif; }
+  .board { width:2040px; padding:56px 64px 64px; background:
+      radial-gradient(40% 30% at 85% 0%, rgba(138,43,255,.16), transparent 70%), var(--bg-deep); }
+  .eyebrow { font-family:Silkscreen; font-size:14px; letter-spacing:.25em; color:var(--brand-purple-soft); direction:ltr; display:inline-block; }
+  h1 { margin:10px 0 8px; font-size:52px; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+  h1 em { font-style:normal; color:var(--brand-purple-soft); }
+  .lede { margin:0; font-size:22px; color:var(--fg-muted); max-width:70ch; line-height:1.5; }
+  .facts { display:flex; gap:14px; margin:26px 0 8px; flex-wrap:wrap; }
+  .fact { border:1px solid rgba(138,43,255,.4); background:var(--bg-raised); border-radius:14px; padding:14px 18px; min-width:280px; flex:1; }
+  .fact b { display:block; font-size:14px; color:var(--brand-purple-soft); font-weight:600; margin-bottom:4px; }
+  .fact span { font-size:17px; color:var(--fg); line-height:1.45; }
+  .fact.plus { border-color:var(--border); background:rgba(246,244,255,.03); }
+  .row { display:grid; grid-template-columns:120px repeat(4, 1fr); align-items:start; gap:24px; margin-top:44px; }
+  .row-label { padding-top:20px; }
+  .row-label .eyebrow { font-size:16px; }
+  .row-label p { margin:6px 0 0; font-size:15px; color:var(--fg-subtle); }
+  figure { margin:0; display:grid; justify-items:center; gap:16px; }
+  figcaption { text-align:center; max-width:400px; }
+  figcaption .n { font-family:'IBM Plex Mono'; color:var(--brand-purple-soft); font-weight:600; font-size:16px; margin-inline-end:8px; }
+  figcaption b { font-size:19px; font-weight:700; }
+  figcaption p { margin:4px 0 0; font-size:15px; color:var(--fg-subtle); line-height:1.45; }
+
+  /* ---------- phone frames ---------- */
+  .phone { position:relative; border-radius:62px; padding:12px; background:#1b1a22; box-shadow:0 0 0 2px #34323d, 0 40px 80px -30px rgba(0,0,0,.8); }
+  .phone.android { border-radius:40px; padding:10px; }
+  .screen { position:relative; overflow:hidden; border-radius:50px; width:390px; height:844px; background:#000; direction:ltr; }
+  .android .screen { border-radius:30px; width:412px; height:915px; }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:122px; height:35px; border-radius:20px; background:#000; z-index:20; }
+  .punch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:22px; height:22px; border-radius:50%; background:#000; z-index:20; }
+  .status { position:absolute; inset:0 0 auto; height:54px; display:flex; align-items:center; justify-content:space-between; padding:6px 34px 0 46px; font:600 17px/1 -apple-system, "SF Pro Text", Rubik, sans-serif; color:#fff; z-index:15; }
+  .android .status { height:40px; padding:4px 22px 0; font:500 15px/1 Roboto, Rubik, sans-serif; }
+  .status .r { display:flex; gap:6px; align-items:center; }
+  .bars { display:flex; gap:2px; align-items:flex-end; height:12px; } .bars i { width:3px; background:currentColor; border-radius:1px; }
+  .batt { width:25px; height:12px; border:1.5px solid currentColor; border-radius:4px; padding:1.5px; opacity:.95; } .batt i { display:block; height:100%; width:75%; background:currentColor; border-radius:1.5px; }
+  .home-ind { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:134px; height:5px; border-radius:3px; background:#fff; z-index:15; }
+  .gesture { position:absolute; bottom:0; inset-inline:0; height:24px; display:grid; place-items:center; z-index:15; }
+  .gesture i { width:108px; height:4px; border-radius:2px; background:#fff; opacity:.85; }
+  .page { position:absolute; inset-inline:0; display:block; }
+
+  /* Safari (iOS) bottom bar and Chrome (Android) top bar */
+  .safari { position:absolute; bottom:0; inset-inline:0; height:84px; background:rgba(24,22,34,.96); border-top:1px solid #2b2937; z-index:12; }
+  .safari .pill { position:absolute; top:10px; left:58px; right:58px; height:42px; border-radius:21px; background:#2c2a38; display:flex; align-items:center; justify-content:center; gap:7px; color:#f2f2f7; font:500 16px -apple-system, Rubik, sans-serif; }
+  .safari .ic { position:absolute; top:19px; width:22px; height:22px; color:#a99cff; }
+  .chrome { position:absolute; top:40px; inset-inline:0; height:56px; background:#1f1e27; display:flex; align-items:center; gap:10px; padding:0 12px; z-index:12; }
+  .chrome .pill { flex:1; height:40px; border-radius:20px; background:#2e2d38; display:flex; align-items:center; gap:8px; padding:0 14px; color:#e8e6f0; font:400 16px Roboto, Rubik, sans-serif; }
+  .chrome .tabs { width:22px; height:22px; border:2px solid #cfcbe0; border-radius:5px; font:600 12px/18px Roboto, sans-serif; text-align:center; color:#cfcbe0; }
+  .chrome .dots { width:4px; height:18px; background:radial-gradient(circle, #cfcbe0 2px, transparent 2.5px) 0 0/4px 6px repeat-y; }
+
+  /* Home screens */
+  .wall { position:absolute; inset:0; background:
+      radial-gradient(70% 45% at 20% 15%, #3b4f6e 0%, transparent 70%),
+      radial-gradient(60% 50% at 85% 70%, #4a3c5c 0%, transparent 70%),
+      linear-gradient(180deg, #1d2534, #141823 60%, #1a1622); }
+  .apps { position:absolute; top:78px; inset-inline:26px; display:grid; grid-template-columns:repeat(4, 64px); justify-content:space-between; row-gap:26px; direction:rtl; }
+  .android .apps { top:70px; inset-inline:30px; grid-template-columns:repeat(4, 60px); row-gap:30px; }
+  .app { display:grid; justify-items:center; gap:6px; width:64px; }
+  .app .t { width:62px; height:62px; border-radius:14px; display:grid; place-items:center; overflow:hidden; }
+  .android .app .t { width:58px; height:58px; border-radius:50%; }
+  .app .t svg { width:30px; height:30px; color:#fff; }
+  .app .t img { width:100%; height:100%; display:block; }
+  .app span { font:500 12px/1.1 -apple-system, Rubik, sans-serif; color:#fff; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.4); }
+  .app.ours .t { box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 0 7px rgba(169,112,255,.55); }
+  .dock { position:absolute; bottom:22px; inset-inline:14px; height:92px; border-radius:34px; background:rgba(255,255,255,.14); backdrop-filter:blur(10px); display:flex; justify-content:space-around; align-items:center; }
+  .dock .t { width:62px; height:62px; border-radius:14px; display:grid; place-items:center; } .dock svg { width:30px; height:30px; color:#fff; }
+  .search { position:absolute; bottom:128px; left:50%; transform:translateX(-50%); padding:7px 16px; border-radius:16px; background:rgba(255,255,255,.16); font:500 14px -apple-system, Rubik, sans-serif; color:#fff; direction:rtl; }
+  .android .dock { bottom:96px; inset-inline:30px; height:auto; background:none; justify-content:space-between; }
+  .android .dock .t { width:58px; height:58px; border-radius:50%; }
+  .android .gsearch { position:absolute; bottom:34px; inset-inline:22px; height:52px; border-radius:26px; background:rgba(235,232,245,.9); display:flex; align-items:center; padding:0 20px; gap:10px; color:#3a3646; font:400 16px Roboto, Rubik, sans-serif; direction:rtl; }
+  .android .clock { position:absolute; top:58px; inset-inline:30px; text-align:right; direction:rtl; color:#fff; font:400 15px Roboto, Rubik, sans-serif; opacity:.9; }
+
+  /* Splash screens */
+  .splash { position:absolute; inset:0; display:grid; place-items:center; }
+  .splash .stack { display:grid; justify-items:center; gap:22px; }
+  .splash .lockup { width:200px; display:block; }
+  .splash .cohort { font-family:Silkscreen; font-size:13px; letter-spacing:.3em; color:var(--brand-purple-soft); }
+  .splash .year { font-family:'IBM Plex Mono'; font-size:14px; color:var(--fg-subtle); margin-top:-12px; }
+  .grid-bg { position:absolute; inset:0; background:
+      repeating-linear-gradient(0deg, var(--logo-grid) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(90deg, var(--logo-grid) 0 1px, transparent 1px 56px); background-position:0 20px, 27px 0; }
+  .s-indigo { background:radial-gradient(70% 60% at 50% 48%, #28136c, #1f0f57); }
+  .s-night { background:var(--bg); }
+  .s-night .glow { position:absolute; inset:0; background:radial-gradient(60% 34% at 50% 44%, rgba(138,43,255,.30), transparent 70%), radial-gradient(40% 25% at 70% 36%, rgba(92,28,171,.22), transparent 70%); }
+  .s-night .grid-bg { -webkit-mask:radial-gradient(75% 45% at 50% 46%, #000 20%, transparent 80%); mask:radial-gradient(75% 45% at 50% 46%, #000 20%, transparent 80%); }
+  .px { position:absolute; width:18px; height:18px; }
+  .a-splash { position:absolute; inset:0; display:grid; place-items:center; }
+  .a-splash .stack { display:grid; justify-items:center; gap:26px; }
+  .a-splash img { width:128px; height:128px; border-radius:50%; display:block; }
+  .a-splash span { font:500 20px Roboto, Rubik, sans-serif; color:#fff; }
+  .note { position:absolute; bottom:46px; inset-inline:30px; text-align:center; font:500 13px/1.45 Rubik, sans-serif; color:rgba(246,244,255,.55); direction:rtl; }
+
+  /* Icons sheet */
+  .icons { display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; margin-top:40px; }
+  .icard { border:1px solid rgba(138,43,255,.4); background:var(--bg-raised); border-radius:14px; padding:28px; display:grid; gap:22px; }
+  .icard h2 { margin:0; font-size:28px; font-weight:800; display:flex; gap:12px; align-items:baseline; }
+  .icard h2 .n { font-family:'IBM Plex Mono'; color:var(--brand-purple-soft); margin-inline-end:10px; }
+  .icard .big { display:flex; gap:26px; align-items:end; justify-content:center; padding:22px; border-radius:10px; background:linear-gradient(180deg, #1d2534, #1a1622); }
+  .icard .big img { display:block; }
+  .icard .sizes { display:flex; gap:18px; align-items:end; justify-content:center; }
+  .icard .lbl { font-size:13px; color:var(--fg-subtle); text-align:center; margin-top:6px; }
+  .icard ul { margin:0; padding-inline-start:20px; display:grid; gap:6px; font-size:17px; color:var(--fg-muted); line-height:1.45; }
+  .icard li.minus::marker { color:#ff6b8a; } .icard li.plus::marker { color:var(--brand-purple-soft); }
+</style>
+</head>
+<body>
+<div class="board" id="board"></div>
+<script>
+const P = new URLSearchParams(location.search);
+const opt = Number(P.get("opt") || 1);
+const view = P.get("view");
+
+const svg = (d, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+// Generic placeholder apps (no real brands): lucide-style glyphs on soft colour tiles.
+const G = {
+  cam: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  cal: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  map: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+  msg: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 6L2 7"/>',
+  img: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  calc: '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M8 6h8M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>',
+  note: '<path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/>',
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/>',
+  web: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+};
+const tile = (g, c) => `<div class="t" style="background:${c}">${svg(G[g])}</div>`;
+const app = (g, c, name) => `<div class="app">${tile(g, c)}<span>${name}</span></div>`;
+const ours = (n) => `<div class="app ours"><div class="t"><img src="assets/icon-${n}.png" alt=""></div><span>TAU AI Club</span></div>`;
+
+const statusIOS = (dark = false) => `<div class="status"><span>9:41</span><span class="r"><span class="bars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span>${svg('<path d="M5 12.6a10 10 0 0 1 14 0M8.5 16.1a5 5 0 0 1 7 0M12 19.5h.01M1.4 9a15 15 0 0 1 21.2 0"/>', 'width="18" height="18"')}<span class="batt"><i></i></span></span></div>`;
+const statusAndroid = () => `<div class="status"><span>9:41</span><span class="r">${svg('<path d="M5 12.6a10 10 0 0 1 14 0M8.5 16.1a5 5 0 0 1 7 0M12 19.5h.01M1.4 9a15 15 0 0 1 21.2 0"/>', 'width="16" height="16"')}<span class="bars"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span><span class="batt" style="width:22px"><i></i></span></span></div>`;
+const lock = svg('<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>', 'width="13" height="13"');
+
+const ios = (inner) => `<div class="phone ios"><div class="screen"><div class="island"></div>${inner}<div class="home-ind"></div></div></div>`;
+const android = (inner) => `<div class="phone android"><div class="screen"><div class="punch"></div>${inner}</div></div>`;
+
+// 1. The hint, in the browser (Safari / Chrome), on the real /me.
+const browserIOS = (n) => ios(`<div style="position:absolute;inset:0;background:var(--bg)"></div>${statusIOS()}<img class="page" style="top:54px;width:390px" src="assets/me-hint${n}-ios.png">
+  <div class="safari"><span class="ic" style="left:18px">${svg('<path d="m15 18-6-6 6-6"/>')}</span><div class="pill">${lock}tauaiclub.com</div><span class="ic" style="right:18px">${svg('<path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>')}</span></div>`);
+const browserAndroid = (n) => android(`<div style="position:absolute;inset:0;background:var(--bg)"></div><div style="position:absolute;inset:0 0 auto;height:40px;background:#1f1e27"></div>${statusAndroid()}
+  <div class="chrome">${svg('<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', 'width="22" height="22" style="color:#cfcbe0"')}<div class="pill">${lock}tauaiclub.com</div><span class="tabs">4</span><span class="dots"></span></div>
+  <img class="page" style="top:96px;width:412px" src="assets/me-hint${n}-android.png"><div class="gesture" style="background:var(--bg)"><i></i></div>`);
+
+// 2. The icon on the home screen (Hebrew phone: apps flow right to left).
+const homeApps = (n, android) => {
+  const list = [["cam","#4b5563","מצלמה"],["cal","#e5484d","יומן"],["img","#d97706","תמונות"],["clock","#111827","שעון"],
+    ["map","#16a34a","מפות"], "OURS", ["sun","#2563eb","מזג אוויר"],["note","#ca8a04","פתקים"],
+    ["calc","#374151","מחשבון"],["music","#db2777","מוזיקה"],["mail","#0ea5e9","דואר"],["gear","#6b7280","הגדרות"]];
+  return list.map((a) => (a === "OURS" ? ours(n) : app(...a))).join("");
+};
+const homeIOS = (n) => ios(`<div class="wall"></div>${statusIOS()}<div class="apps">${homeApps(n)}</div><div class="search">${svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>','width="13" height="13" style="vertical-align:-2px"')} חיפוש</div>
+  <div class="dock">${tile("phone","#22c55e")}${tile("web","#3b82f6")}${tile("msg","#22c55e")}${tile("music","#ef4444")}</div>`);
+const homeAndroid = (n) => android(`<div class="wall"></div>${statusAndroid()}<div class="clock">יום חמישי, 19 בנובמבר</div><div class="apps" style="top:110px">${homeApps(n, true)}</div>
+  <div class="dock">${tile("phone","#22c55e")}${tile("msg","#3b82f6")}${tile("web","#f59e0b")}${tile("cam","#6b7280")}</div>
+  <div class="gsearch">${svg('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>','width="20" height="20"')} חיפוש</div><div class="gesture"><i></i></div>`);
+
+// 3. Opening. iPhone: a designed launch image. Android: Chrome builds it (background colour + icon + name).
+const splashIOS = {
+  1: () => `<div class="splash s-indigo"><div class="stack"><img class="lockup" src="assets/lockup.png" alt=""></div></div>`,
+  2: () => `<div class="splash s-indigo"><div class="grid-bg" style="opacity:.9"></div><div class="stack" style="position:relative"><img class="lockup" src="assets/lockup.png" alt=""><span class="cohort">COHORT 02</span><span class="year">2026–27</span></div></div>`,
+  3: () => `<div class="splash s-night"><div class="glow"></div><div class="grid-bg"></div>
+      <i class="px" style="background:var(--brand-purple);left:62px;top:500px"></i><i class="px" style="background:var(--logo-block);right:70px;top:300px;width:26px;height:26px"></i><i class="px" style="background:var(--logo-indigo);left:96px;top:250px"></i>
+      <div class="stack" style="position:relative"><img class="lockup" src="assets/lockup.png" alt=""><span class="cohort">COHORT 02</span><span class="year">2026–27</span></div></div>`,
+};
+const splashBg = { 1: "#241163", 2: "#241163", 3: "#0b0a1f" };
+const openIOS = (n) => ios(`${splashIOS[n]()}${statusIOS()}`);
+const openAndroid = (n) => android(`<div class="a-splash" style="background:${splashBg[n]}"><div class="stack"><img src="assets/icon-${n}.png" alt=""><span>TAU AI Club</span></div></div>${statusAndroid()}<div class="gesture"><i></i></div>`);
+
+// 4. Then: its own window, no address bar, straight into /me (signed out: /login, then /me).
+const appIOS = () => ios(`<div style="position:absolute;inset:0;background:var(--bg)"></div>${statusIOS()}<img class="page" style="top:54px;width:390px" src="assets/me-app-ios.png">`);
+const appAndroid = () => android(`<div style="position:absolute;inset:0;background:var(--bg)"></div>${statusAndroid()}<img class="page" style="top:40px;width:412px" src="assets/me-app-android.png"><div class="gesture" style="background:var(--bg)"><i></i></div>`);
+
+const OPTS = {
+  1: {
+    name: "שקט", tag: "OPTION 01",
+    lede: "האייקון של היום, בלי שינוי. בכניסה יש לוגו על סגול כהה. באזור האישי יש רק שורה אחת קטנה עם \"איך?\".",
+    facts: [["אייקון", "הלוגו המלא (TAU + AI CLUB) על הסגול של הלוגו. כבר קיים באתר."], ["פתיחה", "מסך סגול כהה עם הלוגו, ואז ישר לאזור האישי."], ["רמז ב-/me", "שורה אחת מתחת לכרטיס הפרטים. \"איך?\" פותח הסבר של שני צעדים באייפון, ובאנדרואיד את חלון ההתקנה של Chrome."]],
+    plus: ["הכי מהיר לבנות, ולא מפריע לאף אחד.", "חסרון: רוב החברים לא ישימו לב לשורה. גם \"AI CLUB\" כמעט לא קריא באייקון קטן, ובאנדרואיד העיגול חותך קרוב לטקסט."],
+    hint: ["רמז קטן בדפדפן", "שורה אחת מתחת לפרטים, עם \"איך?\"."],
+  },
+  2: {
+    name: "כרטיס באזור האישי", tag: "OPTION 02",
+    lede: "אייקון חדש עם הסימן הגדול בלבד, שקריא גם בגודל של אייקון. בכניסה יש מסך עם הלוגו ו-COHORT 02. באזור האישי יש כרטיס סגול אחד עם תצוגה של האייקון.",
+    facts: [["אייקון", "רק TAU בגדול, על הסגול והרשת של הלוגו. בלי \"AI CLUB\", כדי שיהיה קריא בגודל קטן."], ["פתיחה", "סגול הלוגו עם הרשת, הלוגו המלא ו-COHORT 02 · 2026–27."], ["רמז ב-/me", "כרטיס מתחת לפרטים: \"המועדון במסך הבית\". באייפון: \"איך מוסיפים?\" (הסבר). באנדרואיד: \"הוספה למסך הבית\" (חלון ההתקנה). \"לא עכשיו\" מסתיר אותו."]],
+    plus: ["מי שנכנס לאזור האישי רואה את הכרטיס, בלי שהוא קופץ על המסך.", "חסרון: עוד כרטיס בעמוד, אבל הוא נעלם אחרי \"לא עכשיו\" או אחרי ההוספה."],
+    hint: ["כרטיס בדפדפן", "מתחת לפרטים, עם האייקון שיקבלו."],
+  },
+  3: {
+    name: "חלון אחרי הכניסה", tag: "OPTION 03",
+    lede: "אייקון כהה כמו האתר, עם זוהר סגול. בכניסה יש מסך כמו ראש עמוד הבית. מיד אחרי הכניסה הראשונה בטלפון עולה חלון מלמטה, פעם אחת.",
+    facts: [["אייקון", "רק TAU בגדול, על הרקע הכהה של האתר עם זוהר סגול מתחת."], ["פתיחה", "כמו ראש עמוד הבית: כהה, רשת, זוהר, ריבועי פיקסל, הלוגו ו-COHORT 02."], ["רמז", "חלון מלמטה, פעם אחת אחרי הכניסה. באייפון עם שני צעדים, באנדרואיד עם כפתור הוספה. אחרי \"אולי אחר כך\" נשארת השורה הקטנה מאפשרות 1."]],
+    plus: ["הכי הרבה חברים יוסיפו, כי כולם רואים את זה ברגע הנכון.", "חסרון: חלון שקופץ, גם אם רק פעם אחת. אייקון כהה פחות בולט על רקע מסך כהה."],
+    hint: ["חלון אחרי הכניסה", "פעם אחת, מלמטה, מעל האזור האישי."],
+  },
+};
+
+function renderOption(n) {
+  const o = OPTS[n];
+  const steps = (dev) => [
+    [o.hint[0], o.hint[1], dev === "ios" ? browserIOS(n) : browserAndroid(n)],
+    ["האייקון במסך הבית", "השם מתחת: TAU AI Club.", dev === "ios" ? homeIOS(n) : homeAndroid(n)],
+    ["נגיעה באייקון: פתיחה", dev === "ios" ? "באייפון אנחנו מעצבים את המסך הזה." : "באנדרואיד Chrome בונה אותו: צבע הרקע, האייקון והשם.", dev === "ios" ? openIOS(n) : openAndroid(n)],
+    ["ישר לאזור האישי", "חלון משלו, בלי שורת כתובת. מי שלא מחובר מגיע לכניסה, ואחריה לכאן.", dev === "ios" ? appIOS() : appAndroid()],
+  ];
+  const row = (dev, label, sub) => `<div class="row"><div class="row-label"><span class="eyebrow">${label}</span><p>${sub}</p></div>${steps(dev).map(([t, p, ph], i) => `<figure>${ph}<figcaption><span class="n">0${i + 1}</span><b>${t}</b><p>${p}</p></figcaption></figure>`).join("")}</div>`;
+  return `<span class="eyebrow">${o.tag} / 03 · ADD TO HOME SCREEN</span>
+    <h1>אפשרות ${n}: <em>${o.name}</em></h1><p class="lede">${o.lede}</p>
+    <div class="facts">${o.facts.map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join("")}</div>
+    <div class="facts">${o.plus.map((s) => `<div class="fact plus"><span>${s}</span></div>`).join("")}</div>
+    ${row("ios", "IPHONE", "Safari, ואז מסך הבית")}${row("android", "ANDROID", "Chrome, ואז מסך הבית")}`;
+}
+
+function renderIcons() {
+  const notes = {
+    1: { t: "הלוגו המלא", plus: ["כבר קיים, אין עבודה."], minus: ["\"AI CLUB\" כמעט לא קריא בגודל אייקון.", "באנדרואיד העיגול חותך קרוב לטקסט."] },
+    2: { t: "TAU על סגול הלוגו", plus: ["הסימן גדול וקריא גם בגודל קטן.", "הסגול של הלוגו בולט במסך הבית."], minus: ["בלי \"AI CLUB\". השם מופיע מתחת לאייקון."] },
+    3: { t: "TAU על הכהה של האתר", plus: ["נראה בדיוק כמו האתר, עם הזוהר."], minus: ["על רקע מסך כהה הוא פחות בולט."] },
+  };
+  const card = (n) => `<div class="icard"><h2><span class="n">0${n}</span><span>${notes[n].t}</span></h2>
+    <div class="big"><div><img src="assets/icon-${n}.png" width="180" height="180" style="border-radius:40px"><div class="lbl">אייפון, 180</div></div>
+      <div><img src="assets/icon-${n}.png" width="150" height="150" style="border-radius:50%"><div class="lbl">אנדרואיד (עיגול)</div></div></div>
+    <div class="big sizes"><div><img src="assets/icon-${n}.png" width="62" height="62" style="border-radius:14px"><div class="lbl" style="color:#fff">גודל אמיתי</div></div>
+      <div><img src="assets/icon-${n}.png" width="40" height="40" style="border-radius:9px"><div class="lbl" style="color:#fff">תיקייה</div></div>
+      <div style="background:#f2f2f7;padding:10px;border-radius:12px"><img src="assets/icon-${n}.png" width="62" height="62" style="border-radius:14px"><div class="lbl" style="color:#333">רקע בהיר</div></div></div>
+    <ul>${notes[n].plus.map((s) => `<li class="plus">${s}</li>`).join("")}${notes[n].minus.map((s) => `<li class="minus">${s}</li>`).join("")}</ul></div>`;
+  return `<span class="eyebrow">ICONS · ADD TO HOME SCREEN</span><h1>שלושה <em>אייקונים</em></h1>
+    <p class="lede">כל אפשרות מגיעה עם אייקון משלה, אבל אפשר לערבב: אייקון מאפשרות אחת ורמז מאחרת. הצבעים מהטוקנים הקיימים. הלוגו לא משתנה ולא מתהפך, רק בלי השורה \"AI CLUB\" באייקונים 2 ו-3.</p>
+    <div class="icons">${[1, 2, 3].map(card).join("")}</div>`;
+}
+
+document.getElementById("board").innerHTML = view === "icons" ? renderIcons() : renderOption(opt);
+</script>
+</body>
+</html>
