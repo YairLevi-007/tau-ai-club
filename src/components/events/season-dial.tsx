@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, MapPin, RotateCcw, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { raisedPanelClass } from "@/components/admin/styles";
 import { dur, ease } from "@/lib/motion";
 import { SpeakerFace as Face, type FaceSpeaker } from "./speaker-face";
 import { SpeakerLinkedIn } from "./speaker-linkedin";
@@ -240,7 +241,98 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-14">
+      {/* The selected meetup comes first, above the dial on a phone and at the start on wide screens
+          (user, 19.11: "אני רוצה שהבא יהיה לפני המחוגה"). The dial follows in the DOM order too, so
+          keyboard and screen-reader order match what you see. */}
+      <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-14">
+        {/* ---------------- Selected meetup ---------------- */}
+        <div className="min-w-0">
+          <motion.article
+            key={selected.slug}
+            // First render: already in place (never transparent at load). After that, a short slide-in per change.
+            initial={interacted ? { opacity: 0, y: 8 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: dur.ui, ease: [...ease.out] }}
+            aria-live="polite"
+            className={cn(
+              raisedPanelClass,
+              // A steady height while you turn the dial: the card sits above it, so a shorter or
+              // longer meetup must not move the dial under your finger.
+              "grid min-h-[17.5rem] content-start p-5 shadow-[var(--highlight-top)] lg:min-h-0",
+              (selected.state === "next" || selected.state === "live") && "border-brand-purple",
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-1.5">
+              {selected.day === nowDay && selected.state !== "past" && <span className="tag tag-next">{te("today")}</span>}
+              {selected.state === "live" && <span className="tag tag-next">{te("happeningNow")}</span>}
+              {selected.state === "next" && selected.day !== nowDay && <span className="tag tag-next">{te("next")}</span>}
+              {selected.state === "past" && <span className="tag">{te("past")}</span>}
+              {selected.tentative && <span className="tag tag-tentative">{te("tentative")}</span>}
+              {selected.venueTbd && <span className="tag tag-tbd">{te("venueTbd")}</span>}
+            </div>
+            <h3 className="mt-3 text-[1.375rem] leading-tight font-bold text-balance text-fg"><BidiText text={selected.title} /></h3>
+            <p className="mt-2 text-fg-muted">
+              {selected.fullDate}
+              <span aria-hidden className="mx-1.5 text-fg-faint">
+                ·
+              </span>
+              <bdi dir="ltr" className="font-mono text-[0.875rem]">
+                {selected.timeRange}
+              </bdi>
+            </p>
+            {selected.speakers.length > 0 && (
+              <div className="mt-3 flex items-center gap-2.5">
+                <span className="flex -space-x-2">
+                  {selected.speakers.map((sp) => (
+                    <Face key={sp.name} speaker={sp} size={36} />
+                  ))}
+                </span>
+                <span className="text-fg-muted">{selected.speakers.map((sp) => sp.name).join(", ")}</span>
+              </div>
+            )}
+            {selected.venue && <p className="mt-1.5 text-fg-muted">{selected.venue}</p>}
+            <Link
+              href={`/events/${selected.slug}`}
+              tabIndex={-1}
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple-soft transition-colors duration-150 hover:text-brand-purple-softer"
+            >
+              {te("details")}
+              <DetailsArrow aria-hidden className="size-4" />
+            </Link>
+          </motion.article>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => choose(sel - 1)}
+              aria-disabled={sel === 0}
+              className="btn btn-ghost h-10 px-3 aria-disabled:opacity-40"
+            >
+              <PrevIcon aria-hidden />
+              {t("prevEvent")}
+            </button>
+            <button
+              type="button"
+              onClick={() => choose(sel + 1)}
+              aria-disabled={sel === events.length - 1}
+              className="btn btn-ghost h-10 px-3 aria-disabled:opacity-40"
+            >
+              {t("nextEventButton")}
+              <NextIcon aria-hidden />
+            </button>
+            {/* Always takes its place (hidden on the next meetup), so the row never grows or shrinks. */}
+            <button
+              type="button"
+              onClick={() => choose(homeIndex)}
+              aria-hidden={sel === homeIndex || undefined}
+              tabIndex={sel === homeIndex ? -1 : undefined}
+              className={cn("btn h-10 px-3 text-brand-purple-soft hover:bg-surface-hover", sel === homeIndex && "invisible")}
+            >
+              <RotateCcw aria-hidden />
+              {t("backToNext")}
+            </button>
+          </div>
+        </div>
         {/* ---------------- The dial ---------------- */}
         <div className="relative mx-auto w-full max-w-[22rem] pt-6 lg:max-w-[26rem]">
           {/* Fixed pointer (does not rotate) */}
@@ -451,87 +543,6 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-
-        {/* ---------------- Selected meetup ---------------- */}
-        <div className="min-w-0">
-          <motion.article
-            key={selected.slug}
-            // First render: already in place (never transparent at load). After that, a short slide-in per change.
-            initial={interacted ? { opacity: 0, y: 8 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: dur.ui, ease: [...ease.out] }}
-            aria-live="polite"
-            className={cn(
-              "rounded-lg border bg-surface p-5 shadow-[var(--highlight-top)]",
-              selected.state === "next" || selected.state === "live" ? "border-border-accent" : "border-border",
-            )}
-          >
-            <div className="flex flex-wrap items-center gap-1.5">
-              {selected.day === nowDay && selected.state !== "past" && <span className="tag tag-next">{te("today")}</span>}
-              {selected.state === "live" && <span className="tag tag-next">{te("happeningNow")}</span>}
-              {selected.state === "next" && selected.day !== nowDay && <span className="tag tag-next">{te("next")}</span>}
-              {selected.state === "past" && <span className="tag">{te("past")}</span>}
-              {selected.tentative && <span className="tag tag-tentative">{te("tentative")}</span>}
-              {selected.venueTbd && <span className="tag tag-tbd">{te("venueTbd")}</span>}
-            </div>
-            <h3 className="mt-3 text-[1.375rem] leading-tight font-bold text-balance text-fg"><BidiText text={selected.title} /></h3>
-            <p className="mt-2 text-fg-muted">
-              {selected.fullDate}
-              <span aria-hidden className="mx-1.5 text-fg-faint">
-                ·
-              </span>
-              <bdi dir="ltr" className="font-mono text-[0.875rem]">
-                {selected.timeRange}
-              </bdi>
-            </p>
-            {selected.speakers.length > 0 && (
-              <div className="mt-3 flex items-center gap-2.5">
-                <span className="flex -space-x-2">
-                  {selected.speakers.map((sp) => (
-                    <Face key={sp.name} speaker={sp} size={36} />
-                  ))}
-                </span>
-                <span className="text-fg-muted">{selected.speakers.map((sp) => sp.name).join(", ")}</span>
-              </div>
-            )}
-            {selected.venue && <p className="mt-1.5 text-fg-muted">{selected.venue}</p>}
-            <Link
-              href={`/events/${selected.slug}`}
-              tabIndex={-1}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple-soft transition-colors duration-150 hover:text-brand-purple-softer"
-            >
-              {te("details")}
-              <DetailsArrow aria-hidden className="size-4" />
-            </Link>
-          </motion.article>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => choose(sel - 1)}
-              aria-disabled={sel === 0}
-              className="btn btn-ghost h-10 px-3 aria-disabled:opacity-40"
-            >
-              <PrevIcon aria-hidden />
-              {t("prevEvent")}
-            </button>
-            <button
-              type="button"
-              onClick={() => choose(sel + 1)}
-              aria-disabled={sel === events.length - 1}
-              className="btn btn-ghost h-10 px-3 aria-disabled:opacity-40"
-            >
-              {t("nextEventButton")}
-              <NextIcon aria-hidden />
-            </button>
-            {sel !== homeIndex && (
-              <button type="button" onClick={() => choose(homeIndex)} className="btn h-10 px-3 text-brand-purple-soft hover:bg-surface-hover">
-                <RotateCcw aria-hidden />
-                {t("backToNext")}
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </MotionConfig>
