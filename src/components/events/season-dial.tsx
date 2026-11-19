@@ -294,7 +294,7 @@ export function SeasonDial({ events, startDay, endDay, nowDay, nextIndex, dayLab
             <Link
               href={`/events/${selected.slug}`}
               tabIndex={-1}
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple-soft transition-colors duration-150 hover:text-brand-purple-softer"
+              className="mt-2 inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-medium text-brand-purple-soft transition-colors duration-150 hover:text-brand-purple-softer"
             >
               {te("details")}
               <DetailsArrow aria-hidden className="size-4" />

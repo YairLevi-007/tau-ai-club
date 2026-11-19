@@ -18,7 +18,7 @@ export function SpeakerLinkedIn({ url, name, className }: { url: string | null; 
       aria-label={`LinkedIn – ${name}`}
       data-testid="speaker-linkedin"
       className={cn(
-        "inline-grid size-9 shrink-0 place-items-center rounded-md text-fg-subtle transition-colors duration-150 hover:bg-surface-hover hover:text-fg",
+        "inline-grid size-11 shrink-0 place-items-center rounded-md text-fg-subtle transition-colors duration-150 hover:bg-surface-hover hover:text-fg",
         className,
       )}
     >

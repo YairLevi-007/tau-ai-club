@@ -17,9 +17,13 @@ export async function ClubAbout({ locale }: { locale: Locale }) {
     <section aria-labelledby="club-about-heading" data-testid="club-about" className="mx-auto max-w-site px-4 pt-20 sm:px-8 lg:pt-28">
       <FlyerChip locale={locale}>{t("aboutChip")}</FlyerChip>
       <SectionHeading id="club-about-heading" locale={locale} line1={t("aboutLine1")} line2={t("aboutLine2")} className="mt-4" />
-      {/* The post's tagline, in English on both locales (Silkscreen is Latin only). Balanced, so on
-          a phone it breaks into two even lines instead of one long line and a stray word. */}
-      <p lang="en" className="eyebrow-pixel mt-5 text-[0.6875rem] leading-[1.9] text-balance">
+      {/* The post's tagline, in English on both locales (Silkscreen is Latin only). One line on a
+          phone too (round 2, item 2): slightly smaller with tighter tracking below sm, so it fits
+          from 360px up. Balanced if a narrower screen still wraps it. */}
+      <p
+        lang="en"
+        className="eyebrow-pixel mt-5 text-[0.625rem] leading-[1.9] tracking-[0.1em] text-balance sm:text-[0.6875rem] sm:tracking-[0.25em]"
+      >
         Building the Next Generation of AI Leaders
       </p>
       <p className="mt-3 max-w-[62ch] text-[1.0625rem] leading-relaxed text-pretty text-fg-muted">{t("aboutLead")}</p>

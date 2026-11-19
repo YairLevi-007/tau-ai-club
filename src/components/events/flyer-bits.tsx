@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { raisedPanelClass } from "@/components/admin/styles";
 import { initialsOf } from "./speaker-face";
 import { LockKeyhole } from "lucide-react";
 import { companyLogo } from "@/lib/company-logos";
@@ -58,7 +59,9 @@ export function InfoTile({
   return (
     <div
       className={cn(
-        "grid min-w-0 content-start gap-1 rounded-md border border-border-strong bg-bg-raised/40 shadow-[var(--highlight-top)]",
+        // The /me look (DECISIONS 19.11): purple-raised, like every card on the site.
+        raisedPanelClass,
+        "grid min-w-0 content-start gap-1 rounded-md shadow-[var(--highlight-top)]",
         compact ? "px-3.5 py-3" : "px-4 py-3.5",
         className,
       )}

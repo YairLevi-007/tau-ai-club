@@ -21,6 +21,7 @@ import { jlmDay } from "@/lib/season-ruler";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { eventJsonLd, jsonLdHtml } from "@/lib/structured-data";
 import { cn } from "@/lib/utils";
+import { raisedPanelClass } from "@/components/admin/styles";
 import { EventActions, Tag } from "@/components/events/event-bits";
 import { ChipSep, FlyerChip, InfoTile, PixelCluster, SpeakerAvatar, splitTitle } from "@/components/events/flyer-bits";
 import { SpeakerLinkedIn } from "@/components/events/speaker-linkedin";
@@ -161,10 +162,10 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
 
       {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />}
       <article data-testid="event-page" data-state={event.state} className="mx-auto max-w-site px-4 pt-6 sm:px-8 lg:pt-12">
-        {/* min-h-6 + padding: a 24px+ target (WCAG 2.5.8, audit S5). */}
+        {/* A 44px target, like every control on a phone (round 2, item 4). */}
         <Link
           href="/"
-          className="inline-flex min-h-6 w-fit items-center gap-2 rounded-sm py-1 text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
+          className="-my-2 inline-flex min-h-11 w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
         >
           <Back aria-hidden className="size-4" />
           {t("back")}
@@ -219,7 +220,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
         <div className="mt-10 grid max-w-[56rem] gap-10 lg:mt-12">
           {/* ---------- Speakers, as on the flyer: round photo, name, role, company ---------- */}
           {speakers.length > 0 && (
-            <section aria-labelledby="speakers-heading">
+            <section aria-labelledby="speakers-heading" className={cn(raisedPanelClass, "p-5 shadow-[var(--highlight-top)] sm:p-6")}>
               <h2 id="speakers-heading" className="sr-only">
                 {t("speakers")}
               </h2>
@@ -239,7 +240,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
                             <bdi>{sp.company}</bdi>
                           </p>
                         )}
-                        <SpeakerLinkedIn url={sp.linkedinUrl} name={sp.name} className="-ms-2 mt-1" />
+                        <SpeakerLinkedIn url={sp.linkedinUrl} name={sp.name} className="-ms-3 mt-0.5" />
                         {/* Members only: fetched after load from a no-store endpoint, never in this ISR HTML.
                             Not even rendered while the members area is off. */}
                         {authOn && <SpeakerContactLinks slug={event.slug} speakerId={sp.key} labels={contactLabels} />}
@@ -317,7 +318,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
             </dl>
 
             {past ? (
-              <p className="rounded-md border border-border bg-bg-deep/45 px-3.5 py-3 text-sm text-fg-subtle">{t("pastNote")}</p>
+              <p className={cn(raisedPanelClass, "rounded-md border-border-strong px-3.5 py-3 text-sm text-fg-subtle")}>{t("pastNote")}</p>
             ) : (
               <EventActions event={event} className="sm:max-w-md" />
             )}
@@ -330,7 +331,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
             {prev ? (
               <Link
                 href={`/events/${prev.slug}`}
-                className="group grid gap-1 rounded-lg border border-border p-4 transition-colors duration-150 hover:border-border-strong hover:bg-surface"
+                className={cn(raisedPanelClass, "group grid gap-1 p-4 shadow-[var(--highlight-top)] transition-colors duration-150 hover:border-brand-purple")}
               >
                 <span className="inline-flex items-center gap-1.5 text-sm text-fg-subtle">
                   <Back aria-hidden className="size-4" />
@@ -347,7 +348,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
             {next && (
               <Link
                 href={`/events/${next.slug}`}
-                className="group grid justify-items-end gap-1 rounded-lg border border-border p-4 text-end transition-colors duration-150 hover:border-border-strong hover:bg-surface"
+                className={cn(raisedPanelClass, "group grid justify-items-end gap-1 p-4 text-end shadow-[var(--highlight-top)] transition-colors duration-150 hover:border-brand-purple")}
               >
                 <span className="inline-flex items-center gap-1.5 text-sm text-fg-subtle">
                   {t("nextMeetup")}
