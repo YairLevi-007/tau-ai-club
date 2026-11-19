@@ -75,14 +75,22 @@ test("a forged unsigned JWT cannot make the endpoint reveal contacts", async ({ 
   const r = await get(request, "/api/events/zero-to-hero-1/speaker-contacts", { cookie: `sb-127-auth-token=${session}` });
   expect(r.status()).toBeLessThan(500);
   expect(await r.json()).toEqual({ contacts: {} });
+  // Follow the redirects by hand (a guest may be forwarded more than once: /profile -> /me -> login, /admin -> /admin/members -> login).
+  // Every path must end at login / members-only or a 404, never on a page with content.
   for (const p of ["/admin/members", "/en/profile"]) {
-    const pr = await get(request, p, { cookie: `sb-127-auth-token=${session}` });
-    const loc = pr.headers()["location"] ?? "";
-    expect([303, 307, 308, 404].includes(pr.status()) && (pr.status() === 404 || /\/login|\/members-only|\/admin/.test(loc)), `${p} -> ${pr.status()} ${loc}`).toBe(true);
-    if (/\/admin\//.test(loc)) {
-      const hop = await get(request, loc, { cookie: `sb-127-auth-token=${session}` });
-      expect(/\/login|\/members-only/.test(hop.headers()["location"] ?? "") || hop.status() === 404, `${p} -> ${loc} -> ${hop.status()}`).toBe(true);
+    let url = p;
+    const trail: string[] = [];
+    let end = "";
+    for (let hop = 0; hop < 5; hop++) {
+      const pr = await get(request, url, { cookie: `sb-127-auth-token=${session}` });
+      const loc = pr.headers()["location"] ?? "";
+      trail.push(`${url} -> ${pr.status()} ${loc}`);
+      if (pr.status() === 404) { end = "404"; break; }
+      expect([303, 307, 308].includes(pr.status()), trail.join(" | ")).toBe(true);
+      if (/\/login|\/members-only/.test(loc)) { end = "login"; break; }
+      url = loc;
     }
+    expect(end, trail.join(" | ")).not.toBe("");
   }
 });
 
