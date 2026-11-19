@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Initiatives options</title>
+<!--
+  "יוזמות" tab, options to choose from (19.11, tau-designer). Open board.html?opt=1|2|3 or ?view=all.
+  The screens are real pages of the local site (fixtures, a mock member), with each option's content
+  injected by src/shoot.mjs (src/screens.mjs + src/mock.css). Names and initiatives are made up.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Silkscreen&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --brand-purple:#8a2bff; --brand-purple-soft:#a970ff; --bg-deep:#070a1c; --bg-raised:#120b3a; --border:#2a2540;
+    --fg:#f6f4ff; --fg-muted:#cfc8f0; --fg-subtle:#9c93c9; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg-deep); color:var(--fg); font-family:Rubik, sans-serif; }
+  .board { width:2040px; padding:56px 64px 64px; background:radial-gradient(40% 30% at 85% 0%, rgba(138,43,255,.16), transparent 70%), var(--bg-deep); }
+  .eyebrow { font-family:Silkscreen; font-size:14px; letter-spacing:.25em; color:var(--brand-purple-soft); direction:ltr; display:inline-block; }
+  h1 { margin:10px 0 8px; font-size:52px; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+  h1 em { font-style:normal; color:var(--brand-purple-soft); }
+  .lede { margin:0; font-size:22px; color:var(--fg-muted); max-width:80ch; line-height:1.5; }
+  .facts { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin:26px 0 8px; }
+  .fact { border:1px solid rgba(138,43,255,.4); background:var(--bg-raised); border-radius:14px; padding:14px 18px; }
+  .fact b { display:block; font-size:14px; color:var(--brand-purple-soft); font-weight:600; margin-bottom:4px; }
+  .fact span { font-size:17px; color:var(--fg); line-height:1.45; }
+  .fact.minus { border-color:var(--border); background:rgba(246,244,255,.03); }
+  .row { display:grid; grid-template-columns:110px repeat(3, 1fr); gap:24px; margin-top:44px; align-items:start; }
+  .row-label { padding-top:8px; }
+  .row-label .eyebrow { font-size:16px; }
+  .row-label p { margin:6px 0 0; font-size:15px; color:var(--fg-subtle); }
+  figure { margin:0; display:grid; justify-items:center; gap:14px; }
+  figcaption { text-align:center; max-width:560px; }
+  figcaption .n { font-family:'IBM Plex Mono'; color:var(--brand-purple-soft); font-weight:600; font-size:16px; margin-inline-end:8px; }
+  figcaption b { font-size:19px; font-weight:700; }
+  figcaption p { margin:4px 0 0; font-size:15px; color:var(--fg-subtle); line-height:1.45; }
+  .desk { width:100%; border-radius:12px; overflow:hidden; border:1px solid #34323d; background:#1b1a22; box-shadow:0 30px 60px -30px rgba(0,0,0,.8); }
+  .desk .bar { height:30px; display:flex; align-items:center; gap:7px; padding:0 12px; direction:ltr; }
+  .desk .bar i { width:10px; height:10px; border-radius:50%; background:#3a3846; }
+  .desk .bar span { margin-inline-start:14px; flex:1; height:18px; border-radius:9px; background:#2a2834; font:500 11px/18px 'IBM Plex Mono'; color:#9c93c9; padding:0 10px; }
+  .desk .view { aspect-ratio:1440/1000; overflow:hidden; } .desk img { width:100%; display:block; }
+  .phone { border-radius:44px; padding:10px; background:#1b1a22; box-shadow:0 0 0 2px #34323d, 0 40px 80px -30px rgba(0,0,0,.8); }
+  .phone .view { width:360px; height:1040px; border-radius:34px; overflow:hidden; background:#000; } .phone img { width:100%; display:block; }
+  .phones { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
+  /* overview */
+  table { width:100%; border-collapse:separate; border-spacing:0; margin-top:34px; font-size:18px; }
+  th, td { text-align:start; vertical-align:top; padding:16px 18px; border-bottom:1px solid var(--border); line-height:1.5; }
+  thead th { font-size:22px; font-weight:800; border-bottom:2px solid rgba(138,43,255,.5); }
+  thead th small { display:block; font-size:15px; font-weight:400; color:var(--fg-subtle); }
+  tbody th { width:230px; color:var(--brand-purple-soft); font-weight:600; font-size:16px; }
+  td { color:var(--fg-muted); }
+  .rec { border:1px solid var(--brand-purple); border-radius:14px; background:var(--bg-raised); padding:20px 24px; margin-top:30px; font-size:19px; line-height:1.55; color:var(--fg-muted); }
+  .rec b { color:var(--fg); }
+  .thumbs { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-top:30px; }
+  .thumbs .desk .view { aspect-ratio:1440/820; }
+</style>
+</head>
+<body>
+<div class="board" id="board"></div>
+<script>
+const OPTS = {
+  1: { name: "לוח מודעות", short: "פוסט קצר וקישור החוצה",
+    lede: "הכי פשוט: ראש מועדון מפרסם יוזמה, והחברים מצטרפים דרך קישור (וואטסאפ, טופס, לומה). האתר לא יודע מי הצטרף.",
+    facts: [["מי רואה", "רק חברים מחוברים. הלשונית מופיעה ליד הרצאות וסדנאות."], ["מה יש ביוזמה", "סוג, כותרת, כמה מילים, מתי ואיפה, מי מוביל, וכפתור אחד החוצה."], ["\"אני בפנים\"", "אין. הכפתור פותח קבוצה או טופס מחוץ לאתר.", "minus"], ["איך מפרסמים", "בניהול, בלשונית חדשה \"יוזמות\", עם תצוגה מקדימה של הכרטיס."]],
+    caps: [["הרשימה", "החדשה למעלה, עם תג \"חדש\" לשבוע."], ["יוזמה אחת", "הפרטים, וכפתור ההצטרפות בצד."], ["ראש מועדון מפרסם", "טופס בניהול, ומשמאל רואים איך הכרטיס ייראה."]] },
+  2: { name: "\"אני בפנים\"", short: "מצטרפים בלחיצה באתר",
+    lede: "חברים לוחצים \"אני בפנים\" ישר באתר. רואים מי עוד בפנים וכמה מקומות נשארו. המוביל מקבל רשימה עם מיילים, וראשי המועדון מפרסמים ישר מהלשונית.",
+    facts: [["מי רואה", "רק חברים מחוברים."], ["מה יש ביוזמה", "סוג, כותרת, כמה מילים, מתי ואיפה, כמה מקומות, עד מתי נרשמים, מי מוביל."], ["\"אני בפנים\"", "כן. כפתור אחד. פנים של מי שבפנים, ומספר המקומות שנשארו. אפשר לבטל."], ["איך מפרסמים", "כפתור \"יוזמה חדשה\" בלשונית, שרק ראשי המועדון רואים. טופס קצר בחלון."]],
+    caps: [["הרשימה", "סינון לפי סוג, ו\"שלי\" למה שהצטרפתי אליו."], ["יוזמה אחת, אחרי \"אני בפנים\"", "המוביל רואה גם מי בפנים, ויכול להעתיק את המיילים."], ["ראש מועדון מפרסם", "חלון מעל הלשונית (בטלפון: מגירה מלמטה)."]] },
+  3: { name: "מה בונים במועדון", short: "פתוח לכולם, מצטרפים לתפקיד",
+    lede: "גם אורחים רואים מה המועדון בונה. כל יוזמה עוברת שלבים (מגייסים, בעבודה, הושלם) ומחפשת אנשים לתפקידים. חברים בוחרים תפקיד. יוזמה שהסתיימה נשארת עם קישור לתוצאה.",
+    facts: [["מי רואה", "כולם, גם אורחים (בלי שמות של חברים). רק חברים מצטרפים."], ["מה יש ביוזמה", "שלב, סוג, כותרת, כמה מילים, תפקידים וכמה אנשים בכל אחד, מי מוביל, קישור לתוצאה."], ["\"אני בפנים\"", "כן, לפי תפקיד: \"אני על זה\" ליד פיתוח, עיצוב, כתיבה..."], ["איך מפרסמים", "בניהול, עם רשימת תפקידים, שלב, ומתג \"גם אורחים רואים\"."]],
+    caps: [["הרשימה, כמו שאורח רואה", "שלבים במקום תאריכים. הושלמו נשארים כתיק עבודות."], ["יוזמה אחת, לחבר", "בוחרים תפקיד. תפקיד מלא נראה חלש יותר."], ["ראש מועדון מפרסם", "בניהול: תפקידים, שלב, וקישור לתוצאה בסוף."]] },
+};
+const q = new URLSearchParams(location.search);
+const opt = q.get("opt");
+const B = document.getElementById("board");
+const desk = (src, url, h) => `<div class="desk"><div class="bar"><i></i><i></i><i></i><span>${url}</span></div><div class="view"${h ? ` style="aspect-ratio:1440/${h}"` : ""}><img src="${src}"></div></div>`;
+if (opt) {
+  const o = OPTS[opt], k = `o${opt}`;
+  const urls = ["tauaiclub.com/initiatives", "tauaiclub.com/initiatives/campus-agents-hackathon", opt === "2" ? "tauaiclub.com/initiatives" : "tauaiclub.com/admin/initiatives/new"];
+  if (opt === "3") urls[1] = "tauaiclub.com/initiatives/new-students-bot";
+  const names = ["list", "item", "post"];
+  B.innerHTML = `
+    <span class="eyebrow">OPTION 0${opt} / 03 · INITIATIVES</span>
+    <h1>אפשרות ${opt}: <em>${o.name}</em></h1>
+    <p class="lede">${o.lede}</p>
+    <div class="facts">${o.facts.map(([t, s, c]) => `<div class="fact ${c ?? ""}"><b>${t}</b><span>${s}</span></div>`).join("")}</div>
+    <div class="row"><div class="row-label"><span class="eyebrow">DESKTOP</span><p>מחשב</p></div>
+      ${names.map((n, i) => `<figure>${desk(`screens/${k}-${n}-desk.png`, urls[i])}<figcaption><span class="n">0${i + 1}</span><b>${o.caps[i][0]}</b><p>${o.caps[i][1]}</p></figcaption></figure>`).join("")}</div>
+    <div class="row"><div class="row-label"><span class="eyebrow">PHONE</span><p>טלפון</p></div>
+      ${names.map((n, i) => `<figure><div class="phone"><div class="view"><img src="screens/${k}-${n}-phone.png"></div></div><figcaption><span class="n">0${i + 1}</span><b>${o.caps[i][0]}</b></figcaption></figure>`).join("")}</div>`;
+} else {
+  B.innerHTML = `
+    <span class="eyebrow">INITIATIVES · 3 OPTIONS</span>
+    <h1>לשונית <em>"יוזמות"</em>: שלוש אפשרויות</h1>
+    <p class="lede">ראשי המועדון מפרסמים יוזמות, והחברים מצטרפים. כל אפשרות עונה אחרת על שלוש שאלות: מי רואה, מה יש ביוזמה, והאם מצטרפים באתר. אפשר גם לערבב, למשל אפשרות 2 עם השלבים של 3.</p>
+    <div class="thumbs">${[1, 2, 3].map((n) => `<figure>${desk(`screens/o${n}-list-desk.png`, "tauaiclub.com/initiatives", 820)}<figcaption><span class="n">0${n}</span><b>${OPTS[n].name}</b><p>${OPTS[n].short}</p></figcaption></figure>`).join("")}</div>
+    <table><thead><tr><th></th>${[1, 2, 3].map((n) => `<th>${n}. ${OPTS[n].name}<small>${OPTS[n].short}</small></th>`).join("")}</tr></thead>
+      <tbody>${[0, 1, 2, 3].map((r) => `<tr><th>${OPTS[1].facts[r][0]}</th>${[1, 2, 3].map((n) => `<td>${OPTS[n].facts[r][1]}</td>`).join("")}</tr>`).join("")}
+      <tr><th>כמה עבודה לבנות</th><td>קטן: טבלה אחת ולשונית בניהול.</td><td>בינוני: גם רשימת מצטרפים, מקומות, וטופס בלשונית לראשי המועדון.</td><td>הכי גדול: תפקידים, שלבים, ועמוד ציבורי שצריך לשמור בו על פרטיות החברים.</td></tr></tbody></table>
+    <div class="rec"><b>ההמלצה שלי: אפשרות 2.</b> היא שומרת על ההחלטה שהתוכן לחברים בלבד, ונותנת לראשי המועדון את מה שקישור החוצה לא נותן: לדעת מי בפנים, בלי לרדוף אחרי טפסים. אם תרצו להראות לאורחים מה המועדון עושה, אפשר להוסיף אחר כך את "הושלמו" מאפשרות 3.</div>`;
+}
+</script>
+</body>
+</html>
