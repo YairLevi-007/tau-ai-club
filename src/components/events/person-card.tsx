@@ -7,6 +7,8 @@ import { SpeakerLinkedIn } from "./speaker-linkedin";
  * One person in a "Meet our ..." grid (season speakers, club founders), after the club's
  * Instagram posts: ringed round photo, name, company, role in small caps, LinkedIn.
  * Public fields only. Server-rendered, no motion.
+ * `row`: the compact form for the founders (photo at the start, text beside it), so the home page
+ * doesn't show the same tall grid twice in a row.
  */
 export function PersonCard({
   locale,
@@ -16,6 +18,7 @@ export function PersonCard({
   role,
   linkedinUrl,
   testId,
+  variant = "card",
 }: {
   locale: Locale;
   name: string;
@@ -24,7 +27,28 @@ export function PersonCard({
   role: string | null;
   linkedinUrl: string | null;
   testId: string;
+  variant?: "card" | "row";
 }) {
+  if (variant === "row") {
+    return (
+      <li
+        data-testid={testId}
+        className="flex items-center gap-4 rounded-lg border border-border-accent bg-bg-raised p-4 shadow-[var(--highlight-top)]"
+      >
+        <SpeakerAvatar name={name} photoUrl={photoUrl} company={company} size={64} />
+        <div className="grid min-w-0 flex-1 gap-0.5">
+          <p className="leading-tight font-bold text-fg">{name}</p>
+          {company && (
+            <p className="text-sm text-fg-muted">
+              <bdi>{company}</bdi>
+            </p>
+          )}
+          {role && <p className={roleCapsClass(locale)}>{role}</p>}
+        </div>
+        <SpeakerLinkedIn url={linkedinUrl} name={name} className="size-11 shrink-0" />
+      </li>
+    );
+  }
   return (
     <li
       data-testid={testId}
