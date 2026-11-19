@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 19.11 | **New home page approved** (design review items 3, 4, 6, 7, 8; user: "אני אוהב את החדש"). Still open: the speakers now show twice (faces in the hero and "הכירו את המרצים" below). The designer shows options, and the user picks. | Home | `design/review/home/compare-*.jpg`, `src/app/[locale]/page.tsx` |
 | 19.11 | **The whole site looks like the personal area, not like today's lectures and workshops** (user: "חשוב אני רוצה שהעיצוב יהיה כמו האיזור האישי ולא כמו הסדנאות והרצאות"). Cards and backdrop everywhere follow /me: `raisedPanelClass` (purple-raised) and `PageBackdrop`. The flat grey cards on lectures and workshops go. Applies to design review item 2 and items 11–13. | Design, all pages | `raisedPanelClass`, `PageBackdrop` |
 | 19.11 | **Design review: build all 13 items in the designer's order** (user: "Your proposed order"): 1 title bug → 2 consistency → home 3–8 → /me 9–10 → lectures and workshops 11–13. Item 5 (a "next meetup" card for members on the home page) waits for the user's answer. **Then the user said "1 and 2 first": items 1 and 2 are done before the home items.** | Design, all pages | `design/review/REPORT.md` (agent/design `e63c4ef`) |
 | 19.11 | **tau-privacy becomes tau-security**: one read-only agent for all site security, not a new agent. It checks before every merge that touches auth, DB or API, plus a full check once a week. It never fixes; auth or builder fix. | Team | `docs/TEAM.md` |
