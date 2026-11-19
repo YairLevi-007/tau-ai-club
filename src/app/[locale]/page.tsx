@@ -7,6 +7,7 @@ import { loc } from "@/lib/event-format";
 import { cn } from "@/lib/utils";
 import { jsonLdHtml, organizationJsonLd } from "@/lib/structured-data";
 import { NextEventCard } from "@/components/events/next-event-card";
+import { MemberNextEvent } from "@/components/events/member-next-event";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
@@ -91,7 +92,10 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         </section>
 
         {!showSchedule ? (
-          faces && <HeroFaces layout="wide" speakers={speakers} locale={l} label={t("heroFacesLink", { count: speakers.length })} />
+          // Signed-in members get their Next event card here after load (review item 5); guests and the cached HTML keep the faces.
+          <MemberNextEvent>
+            {faces && <HeroFaces layout="wide" speakers={speakers} locale={l} label={t("heroFacesLink", { count: speakers.length })} />}
+          </MemberNextEvent>
         ) : season.status === "ok" ? (
           <NextEventCard event={next} now={season.now} seriesTotal={seriesTotal} />
         ) : (
