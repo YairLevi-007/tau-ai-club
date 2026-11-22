@@ -11,6 +11,7 @@ import { calendarFeedKey } from "@/lib/calendar-access";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
 import { getMemberProfile, getMyContact } from "@/lib/members/profile";
+import { getMyMatches } from "@/lib/pair/data";
 import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 import { PageBackdrop } from "@/components/site/page-backdrop";
@@ -47,10 +48,14 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
     getSeason(),
     createClient(),
   ]);
-  const [profile, contact] = supabase
-    ? await Promise.all([getMemberProfile(supabase, viewer.member.id), getMyContact(supabase)])
-    : [null, null];
-  const photos = supabase && profile ? await signPhotos(supabase, [profile.photo_url]) : new Map<string, string>();
+  const [profile, contact, pairMatches] = supabase
+    ? await Promise.all([getMemberProfile(supabase, viewer.member.id), getMyContact(supabase), getMyMatches(supabase)])
+    : [null, null, []];
+  // One signing call for my photo and my pAIr partners' photos.
+  const photos =
+    supabase && (profile || pairMatches.length)
+      ? await signPhotos(supabase, [profile?.photo_url, ...pairMatches.flatMap((m) => m.partners.map((p) => p.photo_url))])
+      : new Map<string, string>();
   const photoSrc = profile?.photo_url ? (photos.get(profile.photo_url) ?? null) : null;
   const name = profile?.full_name ?? viewer.member.fullName;
 
@@ -241,9 +246,15 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
               </li>
             ))}
           </ul>
-          {/* The meeting games (another team builds the game; this says it's coming). The design the
-              user chose on 18.11: the big card with the two seats (docs/DECISIONS.md). */}
-          <IcebreakersTeaser locale={locale} embedded />
+          {/* The meeting games (pAIr). The design the user chose on 18.11: the big card with the two
+              seats (docs/DECISIONS.md). It says "coming soon" until an admin publishes a pairing. */}
+          <IcebreakersTeaser
+            locale={locale}
+            embedded
+            matches={pairMatches}
+            me={{ name, photoSrc, bio_he: profile?.bio_he, bio_en: profile?.bio_en, faculty: profile?.faculty, program: profile?.program }}
+            photos={photos}
+          />
         </section>
       </div>
     </div>
