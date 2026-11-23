@@ -17,6 +17,7 @@ import { runProfileChecks } from "./rls-m2-profiles.mjs";
 import { runAttendanceChecks } from "./rls-m2-attendance.mjs";
 import { runContentChecks } from "./rls-m3-content.mjs";
 import { runLaunchChecks } from "./rls-launch.mjs";
+import { runInitiativeChecks } from "./rls-initiatives.mjs";
 import { runPairChecks } from "./rls-pair.mjs";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
@@ -320,6 +321,7 @@ await runProfileChecks(db, check);
 await runAttendanceChecks(db, check);
 await runContentChecks(db, check);
 await runLaunchChecks(db, check);
+await runInitiativeChecks(db, check);
 await runPairChecks(db, check);
 
 console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
