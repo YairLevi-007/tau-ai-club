@@ -43,6 +43,14 @@ export type Initiative = {
   i_joined: boolean;
 };
 
+/**
+ * Who sees the names of the people who joined. Today (DECISIONS): only the initiative's lead and
+ * admins; everyone else sees the count. Still open with the owner. To let every member see them:
+ * set this to true AND change the guard in public.initiative_people (the migration's comment
+ * says which line), which also turns on the "your name is visible to members" note by "I'm in".
+ */
+export const NAMES_VISIBLE_TO_ALL_MEMBERS = false;
+
 export type InitiativePerson = { member_id: string; full_name: string; photo_url: string | null; joined_at: string };
 
 const COLUMNS =

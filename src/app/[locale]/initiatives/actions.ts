@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getViewer } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
-import { INITIATIVE_CATEGORIES, type InitiativeCategory } from "@/lib/initiatives";
+import { formStr, isUuid, readInitiativeFields } from "@/lib/initiative-fields";
 import type { ActionState } from "@/components/admin/action-form";
 
 /**
@@ -14,11 +14,8 @@ import type { ActionState } from "@/components/admin/action-form";
  * the lead and the initiative's state). Nothing here trusts an id or a field from the form.
  */
 
-const str = (fd: FormData, k: string) => {
-  const v = fd.get(k);
-  return typeof v === "string" ? v.trim() : "";
-};
-const isId = (v: string) => /^[0-9a-f-]{36}$/i.test(v);
+const str = formStr;
+const isId = isUuid;
 
 async function memberClient() {
   const viewer = await getViewer();
@@ -33,47 +30,9 @@ function revalidateInitiatives(id?: string) {
   revalidatePath("/[locale]/admin/initiatives", "page");
 }
 
-type Fields = {
-  p_lang: "he" | "en";
-  p_proposed_kind: "club" | "member";
-  p_category: InitiativeCategory;
-  p_title: string;
-  p_summary: string | null;
-  p_when: string | null;
-  p_where: string | null;
-  p_spots: number | null;
-  p_signup_until: string | null;
-};
-
-type ErrorKey = "errorTitle" | "errorSummary" | "errorShort" | "errorSpots" | "errorDate";
-
-/** The form's fields, checked the same way the database will check them (friendlier messages first). */
-async function readFields(fd: FormData): Promise<Fields | ErrorKey> {
-  const locale = (await getLocale()) === "en" ? "en" : "he";
-  const title = str(fd, "title");
-  const summary = str(fd, "summary");
-  const when = str(fd, "when");
-  const where = str(fd, "where");
-  const spotsRaw = str(fd, "spots");
-  const until = str(fd, "signup_until");
-  const category = str(fd, "category");
-  if (!title || title.length > 120) return "errorTitle";
-  if (summary.length > 3000) return "errorSummary";
-  if (when.length > 120 || where.length > 120) return "errorShort";
-  const spots = spotsRaw ? Number(spotsRaw) : null;
-  if (spots !== null && !(Number.isInteger(spots) && spots >= 1 && spots <= 1000)) return "errorSpots";
-  if (until && !(/^\d{4}-\d{2}-\d{2}$/.test(until) && !Number.isNaN(Date.parse(until)))) return "errorDate";
-  return {
-    p_lang: locale,
-    p_proposed_kind: str(fd, "proposed_kind") === "club" ? "club" : "member",
-    p_category: (INITIATIVE_CATEGORIES as readonly string[]).includes(category) ? (category as InitiativeCategory) : "other",
-    p_title: title,
-    p_summary: summary || null,
-    p_when: when || null,
-    p_where: where || null,
-    p_spots: spots,
-    p_signup_until: until || null,
-  };
+/** The form's fields in the page's language (the database checks them again). */
+async function readFields(fd: FormData) {
+  return readInitiativeFields(fd, await getLocale());
 }
 
 /** Which message a database error maps to. */

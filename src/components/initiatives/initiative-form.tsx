@@ -17,11 +17,16 @@ export async function InitiativeForm({
   locale,
   isAdmin,
   initiative,
+  submitLabel,
+  cancelHref,
 }: {
   action: FormAction;
   locale: Locale;
   isAdmin: boolean;
   initiative?: Initiative;
+  /** The admin's edit of a published initiative: "Save" and back to the admin tab. */
+  submitLabel?: string;
+  cancelHref?: string;
 }) {
   const t = await getTranslations("initiatives");
   const i = initiative;
@@ -118,9 +123,9 @@ export async function InitiativeForm({
       </div>
       <div className="flex flex-wrap items-center gap-2 border-t border-border pt-5">
         <button type="submit" className="btn btn-primary h-11 w-full px-6 sm:w-fit" data-testid="submit">
-          {isAdmin ? t("submitAdmin") : i ? t("resend") : t("submit")}
+          {submitLabel ?? (isAdmin ? t("submitAdmin") : i ? t("resend") : t("submit"))}
         </button>
-        <Link href={{ pathname: "/initiatives", query: i ? { filter: "mine" } : {} }} className={cn(smallBtn, "w-full sm:w-fit")}>
+        <Link href={cancelHref ?? { pathname: "/initiatives", query: i ? { filter: "mine" } : {} }} className={cn(smallBtn, "w-full sm:w-fit")}>
           {t("cancel")}
         </Link>
       </div>

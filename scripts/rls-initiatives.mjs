@@ -46,6 +46,7 @@ export async function runInitiativeChecks(db, check) {
   }
   const leaMember = (await db.query("select member_id from public.member_emails where email = $1", [P.lea.email])).rows[0].member_id;
   const joMember = (await db.query("select member_id from public.member_emails where email = $1", [P.jo.email])).rows[0].member_id;
+  const empty = (r) => !r.error && (r.rows ?? []).length === 0;
   const denied = (r) => Boolean(r.error) || r.affected === 0;
   const propose = (who, title, extra = {}) =>
     as(
@@ -203,6 +204,17 @@ export async function runInitiativeChecks(db, check) {
   check(goneLead && goneLead.lead_name === null && goneLead.lead_photo === null, "initiatives: an inactive lead's name and photo aren't shown");
   check(ids(await as("admin", SEE)).includes(id1), "initiatives: an inactive lead's initiative stays for the admin to decide");
   await db.query("update public.members set status = 'active' where id in ($1, $2)", [leaMember, joMember]);
+
+  // ---- the admin tab: edit and remove a published initiative; the proposer's address -------------
+  check(!denied(await as("admin", "update public.initiatives set title_he = 'האקתון (מעודכן)' where id = $1", [id1])), "initiatives: an admin edits a published initiative");
+  check(denied(await as("lea", "update public.initiatives set title_he = 'שלי' where id = $1", [id1])), "initiatives: the lead can't edit it once it's published");
+  check(denied(await as("jo", "update public.initiatives set title_he = 'x' where id = $1", [id1])), "initiatives: another member can't edit it");
+  check(denied(await as("jo", "delete from public.initiatives where id = $1", [idF])), "initiatives: a member can't remove an initiative");
+  const leadMail = await as("admin", "select e.email from public.member_emails e where e.member_id = $1 and e.is_primary", [leaMember]);
+  check(leadMail.rows?.[0]?.email === P.lea.email, "initiatives: an admin can read the proposer's address (for the answer email)");
+  check(empty(await as("jo", "select email from public.member_emails where member_id = $1", [leaMember])), "initiatives: a member can't read another member's address");
+  check(!denied(await as("admin", "delete from public.initiatives where id = $1", [idF])), "initiatives: an admin removes an initiative");
+  check((await db.query("select count(*)::int as n from public.initiative_members where initiative_id = $1", [idF])).rows[0].n === 0, "initiatives: removing it removes its sign-ups too");
 
   // ---- clean up (later checks and the fixture export don't expect these rows) --------------------
   await db.exec("delete from public.initiatives");

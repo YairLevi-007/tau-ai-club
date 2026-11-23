@@ -384,6 +384,9 @@ as $$
 declare
   v_me uuid := public.assert_member();
 begin
+  -- Names for the lead and admins only (DECISIONS; still open with the owner). To show them to every
+  -- member instead, change `i.lead_id = v_me` below to `(i.lead_id = v_me or i.status = 'published')`
+  -- and set NAMES_VISIBLE_TO_ALL_MEMBERS in src/lib/initiatives.ts (security review, "what else changes").
   if not public.is_admin() and not exists (
     select 1 from public.initiatives i where i.id = p_id and i.lead_id = v_me
   ) then

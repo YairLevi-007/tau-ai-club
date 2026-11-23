@@ -4,7 +4,7 @@ import { CalendarDays, Check, Clock, MapPin } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { loc } from "@/lib/event-format";
-import { signupOpen, type Initiative, type InitiativeStatus } from "@/lib/initiatives";
+import { NAMES_VISIBLE_TO_ALL_MEMBERS, signupOpen, type Initiative, type InitiativeStatus } from "@/lib/initiatives";
 import { ActionForm } from "@/components/admin/action-form";
 import { raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { BidiText } from "@/components/events/bidi-text";
@@ -124,6 +124,7 @@ export async function JoinControl({ initiative, viewerId, today, wide = false }:
       <button type="submit" className={cn("btn btn-primary h-11 px-6", wide && "w-full")} data-testid="join">
         {t("imIn")}
       </button>
+      {NAMES_VISIBLE_TO_ALL_MEMBERS && <p className="basis-full text-xs text-fg-subtle">{t("namesVisibleNote")}</p>}
     </ActionForm>
   );
 }

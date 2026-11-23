@@ -385,7 +385,8 @@
     "flyerLinked": "Already on the site",
     "csvImportTitle": "Import from CSV",
     "csvImportBody": "Columns: email, full_name, role (member or admin). An email already on the list is updated, a new one is added. One bad row stops the whole import.",
-    "pairTab": "1:1 chats"
+    "pairTab": "1:1 chats",
+    "initiativesTab": "Initiatives"
   },
   "speakerForm": {
     "eyebrow": "Contact details",
@@ -762,7 +763,8 @@
     "errorClosed": "Sign-up has closed.",
     "errorGeneric": "Something went wrong. Try again.",
     "leadGone": "The lead is no longer a member",
-    "errorTooManyToday": "You've already sent 5 proposals today. You can send more tomorrow."
+    "errorTooManyToday": "You've already sent 5 proposals today. You can send more tomorrow.",
+    "namesVisibleNote": "Members will see that you joined (name and photo, no email)."
   },
   "pair": {
     "adminTitle": "1:1 intro chats (pAIr)",
@@ -874,5 +876,77 @@
     "confirmThanks": "Thanks! We let the club team know the chat happened 🎉",
     "confirmFailed": "Couldn't save. Please try again in a moment.",
     "earlier": "{n, plural, one {One earlier meetup} other {# earlier meetups}}"
+  },
+  "initiativeEmail": {
+    "eyebrow": "INITIATIVES",
+    "subject": {
+      "published": "Your initiative is published",
+      "published_club": "Your initiative is published as a club initiative",
+      "returned": "Your initiative came back with a note",
+      "rejected": "An answer on your initiative"
+    },
+    "heading": {
+      "published": "Your initiative is published",
+      "published_club": "Your initiative is now a club initiative",
+      "returned": "Your initiative came back with a note",
+      "rejected": "Your initiative wasn't approved this time"
+    },
+    "body": {
+      "published": "An admin approved it, and every member can see it and sign up now. You lead it.",
+      "published_club": "An admin approved it and made it the club's: it shows under \"The club is asking\". You still lead it.",
+      "returned": "An admin looked it over and asked for a small change. You can edit it and send it again.",
+      "rejected": "Thanks for proposing it. You can see the decision under \"Mine\" on the site."
+    },
+    "noteLabel": "From the admin:",
+    "cta": {
+      "published": "See the initiative",
+      "published_club": "See the initiative",
+      "returned": "Edit and send again",
+      "rejected": "My proposals"
+    }
+  },
+  "initiativesAdmin": {
+    "title": "Initiatives",
+    "intro": "An admin's initiative goes up at once, as a club initiative. A member's waits here for approval.",
+    "newClub": "New club initiative",
+    "tabsLabel": "Status",
+    "tabPending": "Waiting for approval",
+    "tabPublished": "Published",
+    "tabReturned": "Returned",
+    "tabRejected": "Not approved",
+    "emptyPending": "Nothing waiting.",
+    "emptyPublished": "No initiative published yet.",
+    "emptyReturned": "No proposals returned.",
+    "emptyRejected": "No proposals turned down.",
+    "clubSwitch": "This is a club initiative",
+    "clubSwitchOnHint": "It shows under \"The club is asking\". The proposer still leads it.",
+    "clubSwitchOffHint": "It shows under \"Member initiatives\".",
+    "askedClub": "Proposed as: a club initiative",
+    "askedMember": "Proposed as: a personal initiative",
+    "reasonLabel": "Why it's the club's (optional, shown on its page)",
+    "approve": "Approve and publish",
+    "approveClub": "Approve as a club initiative",
+    "returnWithNote": "Return with a note",
+    "noteLabel": "What should change?",
+    "noteHint": "The proposer gets the note by email and on the site, and can edit it and send it again.",
+    "sendBack": "Send back with the note",
+    "reject": "Reject",
+    "rejectNoteLabel": "Note (optional)",
+    "rejectConfirm": "Reject this proposal? The proposer will be told.",
+    "rejectSend": "Reject the proposal",
+    "doneMailed": "Saved, and the proposer got an email.",
+    "doneNoMail": "Saved. No email was sent (the site's email isn't set up yet); the proposer sees the answer on the site.",
+    "doneMailFailed": "Saved, but the email didn't go out. The proposer sees the answer on the site.",
+    "edit": "Edit",
+    "editTitle": "Edit initiative",
+    "editIntro": "Changes show to every member at once.",
+    "save": "Save",
+    "saved": "Saved.",
+    "remove": "Remove",
+    "removeConfirm": "Remove this initiative? It disappears for every member, with everyone who joined. This can't be undone.",
+    "noteSent": "The note that was sent:",
+    "view": "Open the initiative",
+    "errorNote": "Write what should change.",
+    "errorStale": "This proposal was already answered. Refresh the page."
   }
 }

@@ -9,7 +9,7 @@ import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
-import { getInitiative, getInitiativePeople, israelToday } from "@/lib/initiatives";
+import { NAMES_VISIBLE_TO_ALL_MEMBERS, getInitiative, getInitiativePeople, israelToday } from "@/lib/initiatives";
 import { loc } from "@/lib/event-format";
 import {
   CategoryTag,
@@ -55,7 +55,7 @@ export default async function InitiativePage({ params }: PageProps<"/[locale]/in
   const t = await getTranslations("initiatives");
   const me = viewer.member.id;
   const isLead = initiative.lead_id === me;
-  const seesNames = isLead || viewer.member.role === "admin";
+  const seesNames = isLead || viewer.member.role === "admin" || NAMES_VISIBLE_TO_ALL_MEMBERS;
   const people = seesNames && initiative.status === "published" ? await getInitiativePeople(supabase, id) : null;
   const photos = await signPhotos(supabase, [initiative.lead_photo, ...(people ?? []).map((p) => p.photo_url)]);
   const photoOf = (url: string | null) => (url ? (photos.get(url) ?? null) : null);
