@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Rubik, Silkscreen } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans_Hebrew, Silkscreen } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -12,10 +12,12 @@ import { Suspense } from "react";
 import { SiteFooter } from "@/components/site/site-footer";
 import "../globals.css";
 
-const rubik = Rubik({
+// The site's one sans, Hebrew and Latin (DECISIONS 23.11, motion + fonts option 1). Self-hosted by
+// next/font with a size-adjusted fallback, so the swap doesn't shift the layout. No 800: bold is 700.
+const plexSans = IBM_Plex_Sans_Hebrew({
   subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-rubik",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
   display: "swap",
 });
 const silkscreen = Silkscreen({
@@ -108,7 +110,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html
       lang={locale}
       dir={localeDir[locale as Locale]}
-      className={`dark ${rubik.variable} ${silkscreen.variable} ${plexMono.variable} h-full`}
+      className={`dark ${plexSans.variable} ${silkscreen.variable} ${plexMono.variable} h-full`}
       // The intro script below may add data-intro-seen before hydration.
       suppressHydrationWarning
     >

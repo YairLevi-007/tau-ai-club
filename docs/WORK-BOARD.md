@@ -8,6 +8,8 @@ to "Done (last 2 weeks)".
 
 | Task | Agent | Files claimed | Branch | Status |
 |---|---|---|---|---|
+| Build motion + fonts option 1 "דיוק" with option 3's opening film (DECISIONS 23.11): IBM Plex Sans Hebrew via next/font, hero reveal + grid draw-in, cards rise on scroll, border light on hover, home hero canvas film with pause; reduced motion static; next-event card untouched | tau-designer | `src/app/[locale]/layout.tsx`, `src/app/globals.css`, `src/components/home/**` hero/film, card classes in `src/components/{events,site,home}` (visual only); no auth/DB/pAIr/Initiatives | agent/design | Ready to merge 23.11 (run-all green) |
+| UI/UX: motion and fonts, ~3 directions as pictures of home and /me (phone + desktop, Hebrew first), current colours; nothing built until the owner picks | tau-designer | `design/motion/**` (design only, no `src/`) | agent/design | Started 23.11 |
 | "Initiatives" (יוזמות) tab: 2–3 options as pictures in the /me look, Hebrew RTL, phone + desktop (header tab, list, one initiative, how a club head posts). Choices shown inside: who sees it, what an initiative holds, "I'm in" | tau-designer | `design/initiatives/**` (design only, no `src/`) | agent/design | Started 19.11 |
 | Club-list leak (privacy H1): code live. Next: a failure signal in the logs (security M1), then the user turns on CAPTCHA in Supabase (dev, then prod), then tau-security checks it live | tau-auth | `src/app/api/auth/otp/route.ts`, `src/lib/auth/otp.ts` | agent/auth | Started 19.11 |
 

@@ -1,6 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
-/** "Members area" eyebrow: Silkscreen in English, Rubik in Hebrew (Silkscreen is Latin only). */
+/** "Members area" eyebrow: Silkscreen in English, the sans in Hebrew (Silkscreen is Latin only). */
 export async function MembersEyebrow() {
   const [t, locale] = await Promise.all([getTranslations("profile"), getLocale()]);
   return (

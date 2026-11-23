@@ -7,7 +7,7 @@ import { SpeakerAvatar, roleCapsClass } from "@/components/events/flyer-bits";
 import { raisedPanelClass } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 
-/** Eyebrow: Silkscreen is Latin only, so Hebrew gets Rubik. */
+/** Eyebrow: Silkscreen is Latin only, so Hebrew gets the sans. */
 export async function Eyebrow({ he, en }: { he: string; en: string }) {
   const locale = await getLocale();
   return locale === "he" ? (

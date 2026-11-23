@@ -28,7 +28,7 @@ export function SectionHeading({
       id={id}
       className={cn(
         "max-w-[22ch] text-balance text-fg",
-        en ? "font-pixel tracking-[0.02em] uppercase" : "font-extrabold tracking-[-0.01em]",
+        en ? "font-pixel tracking-[0.02em] uppercase" : "" /* weight and tracking: the site-wide heading rule (globals.css) */,
         size === "lg"
           ? en
             ? "text-[clamp(2rem,6vw,3.5rem)]"
