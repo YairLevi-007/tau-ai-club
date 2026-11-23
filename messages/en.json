@@ -859,6 +859,8 @@
     "matrixCaption": "Who met who: members against members",
     "matrixCell": "{a} and {b}: {n, plural, one {met once} other {met # times}}",
     "matrixCellNot": "{a} and {b}: haven't met yet",
+    "metTitle": "Already met",
+    "metNobody": "Hasn't met anyone yet",
     "notMetTitle": "Haven't met yet",
     "metEveryone": "Has met everyone 🎉",
     "oneOnOne": "1:1 chat",

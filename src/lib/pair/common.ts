@@ -1,5 +1,5 @@
 // What two (or three) members have in common, for the pAIr conversation cards. Ported one to
-// one from the pAIr app: it compares the free text of each profile (bio, program, faculty),
+// one from the pAIr app (plus degree/university filler words, 23.11): it compares the free text of each profile (bio, program, faculty),
 // ignores filler words, strips Hebrew one-letter prefixes (ו/ה/ב/ל/מ/ש/כ) and plural/construct
 // suffixes, and knows a few synonyms. Pure: no I/O, runs on the server or in the browser.
 //
@@ -19,13 +19,12 @@ const STOP = new Set(
     "בונה בונים בונות עובד עובדת עובדים מחפש מחפשת רוצה רוצים חושב חושבת מנסה " +
     "מתעניין מתעניינת מתעניינים תחום תחומי עניין כמו או וגם אבל כל הרבה קצת בעיקר עושה עושים לעשות נהנה נהנית " +
     "סטודנט סטודנטית סטודנטים שנה שנת לומד לומדת לומדים כרגע היום עכשיו מאוהב חובב חובבת אחד אחת דברים דבר " +
-    // Degree and campus words: nearly everyone has them, so they say nothing about a person (QA: "תואר").
-    "תואר תארים ראשון ראשונה שני שנייה שלישי שלישית דוקטורט דוקטורנט דוקטורנטית מאסטר מוסמך בוגר בוגרת " +
-    "אוניברסיטה אוניברסיטת תל אביב פקולטה פקולטת חוג מסלול מדעי מדעים לימודי לימודים " +
+    // Degree and university words: almost every member has them in "program"/"faculty", so on
+    // their own they say nothing ("in common: תואר").
+    "תואר תארים ראשון ראשונה שני שנייה שניה שלישי שלישית דוקטורט מוסמך מוסמכת בוגר בוגרת תוכנית תכנית מסלול חוג " +
+    "פקולטה פקולטת אוניברסיטה אוניברסיטת אונ תל אביב " +
     "and the i im love like loves a an of to in my me is am at for with on " +
-    "degree degrees ba bsc ma msc phd mba bachelor bachelors master masters undergrad undergraduate graduate grad " +
-    "student students year years first second third university uni tau tel aviv faculty school program programme " +
-    "department studies study science sciences"
+    "degree ba bsc ma msc phd llb mba bachelor bachelors master masters program faculty university tau tel aviv year"
   ).split(/\s+/),
 );
 
@@ -45,6 +44,9 @@ const SYN = [
   ["צילום", "photography"],
 ];
 const PREFIX = "והבלמשכ";
+// Words that mean something only inside a longer phrase ("מדעי המחשב", "computer science"):
+// never shown on their own.
+const LONE = new Set(["מדע", "science"]);
 
 function stem(w: string) {
   if (w.length >= 5 && /(ים|ות)$/.test(w)) return w.slice(0, -2);
@@ -145,7 +147,8 @@ export function commonInterests(people: (PairProfileText | null | undefined)[]):
   const flush = () => {
     if (cur.length) {
       const label = cur.map((t) => t.show).join(" ");
-      if (cur.length > 1 || label.length > 2) push(label, cur.map((t) => t.id).join(" "));
+      const lone = cur.length === 1 && (label.length <= 2 || [...wordKeys(cur[0].id)].some((k) => LONE.has(stem(k))));
+      if (!lone) push(label, cur.map((t) => t.id).join(" "));
     }
     cur = [];
   };

@@ -62,9 +62,10 @@ export function ConfirmMeet({
   return (
     <div className="grid gap-1.5" data-testid="pair-confirm">
       {at ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-border-accent bg-brand-purple/10 px-3.5 py-2.5" data-testid="pair-confirmed">
-          <span className="inline-flex items-center gap-1.5 font-semibold text-fg">
-            <Check aria-hidden className="size-4 text-brand-purple-soft" />
+        // Once confirmed, the big button gives way to one quiet line (DECISIONS 23.11).
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm" data-testid="pair-confirmed">
+          <span className="inline-flex items-center gap-1.5 font-medium text-brand-purple-soft">
+            <Check aria-hidden className="size-4" />
             {labels.confirmed}
           </span>
           {shownTime && (
@@ -72,13 +73,19 @@ export function ConfirmMeet({
               {shownTime}
             </bdi>
           )}
-          <button type="button" className={cn(smallBtn, "ms-auto h-9")} disabled={pending} onClick={() => run(false)} data-testid="pair-undo">
+          <button
+            type="button"
+            className="inline-flex min-h-11 items-center px-1 text-fg-muted underline underline-offset-4 hover:text-fg disabled:opacity-60"
+            disabled={pending}
+            onClick={() => run(false)}
+            data-testid="pair-undo"
+          >
             {labels.undo}
           </button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <button type="button" className="btn btn-primary h-11 px-4" disabled={pending} onClick={() => run(true)}>
+          <button type="button" className="btn btn-primary h-11 px-4" disabled={pending} aria-busy={pending} onClick={() => run(true)}>
             <Check aria-hidden />
             {labels.confirm}
           </button>

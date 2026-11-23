@@ -53,6 +53,32 @@ export default async function AdminPairMatrixPage({ params }: PageProps<"/[local
         <p className="text-fg-muted">{t("matrixEmpty")}</p>
       ) : (
         <>
+          {/* Phones: one line per member instead of a grid that scrolls sideways (DECISIONS 23.11). */}
+          <section aria-labelledby="pair-met" className={cn(panelClass, "grid gap-4 p-5 sm:hidden")} data-testid="pair-matrix-list">
+            <h2 id="pair-met" className={panelTitle}>
+              {t("metTitle")}
+            </h2>
+            <ul className="grid gap-3">
+              {act.map((p) => {
+                const met = act.filter((o) => o.id !== p.id && count(p.id, o.id));
+                return (
+                  <li key={p.id} className="text-sm">
+                    <b className="font-semibold text-fg">{p.full_name}</b>{" "}
+                    <bdi className="font-mono text-fg-subtle">({met.length})</bdi>
+                    <br />
+                    {met.length ? (
+                      <span className="text-fg-muted">
+                        {met.map((o) => (count(p.id, o.id) > 1 ? `${o.full_name} ×${count(p.id, o.id)}` : o.full_name)).join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-fg-subtle">{t("metNobody")}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
           <PairMatrix
             people={act}
             count={count}
