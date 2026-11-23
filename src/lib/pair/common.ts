@@ -19,7 +19,13 @@ const STOP = new Set(
     "בונה בונים בונות עובד עובדת עובדים מחפש מחפשת רוצה רוצים חושב חושבת מנסה " +
     "מתעניין מתעניינת מתעניינים תחום תחומי עניין כמו או וגם אבל כל הרבה קצת בעיקר עושה עושים לעשות נהנה נהנית " +
     "סטודנט סטודנטית סטודנטים שנה שנת לומד לומדת לומדים כרגע היום עכשיו מאוהב חובב חובבת אחד אחת דברים דבר " +
-    "and the i im love like loves a an of to in my me is am at for with on"
+    // Degree and campus words: nearly everyone has them, so they say nothing about a person (QA: "תואר").
+    "תואר תארים ראשון ראשונה שני שנייה שלישי שלישית דוקטורט דוקטורנט דוקטורנטית מאסטר מוסמך בוגר בוגרת " +
+    "אוניברסיטה אוניברסיטת תל אביב פקולטה פקולטת חוג מסלול מדעי מדעים לימודי לימודים " +
+    "and the i im love like loves a an of to in my me is am at for with on " +
+    "degree degrees ba bsc ma msc phd mba bachelor bachelors master masters undergrad undergraduate graduate grad " +
+    "student students year years first second third university uni tau tel aviv faculty school program programme " +
+    "department studies study science sciences"
   ).split(/\s+/),
 );
 
