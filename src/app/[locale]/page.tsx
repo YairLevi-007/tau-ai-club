@@ -15,6 +15,7 @@ import { ClubFounders } from "@/components/events/club-founders";
 import { ClubAbout } from "@/components/home/club-about";
 import { HeroFaces, seasonSpeakers } from "@/components/home/hero-faces";
 import { PageBackdrop } from "@/components/site/page-backdrop";
+import { HeroFilm, HeroFilmToggle } from "@/components/home/hero-film";
 import { authEnabled } from "@/lib/supabase/config";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
@@ -58,23 +59,26 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
     <div className="relative isolate">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(orgJsonLd)} />
       <PageBackdrop />
+      <HeroFilm />
       {/* Before the hero paints: mark a member's browser, so their layout is there from the first paint (no jump). */}
       {!showSchedule && <script dangerouslySetInnerHTML={{ __html: MEMBER_HINT_SCRIPT }} />}
 
       <div className={cn(
-          "mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",
+          "relative mx-auto grid max-w-site gap-7 px-4 pt-6 sm:px-8 lg:items-end lg:gap-14 lg:pt-16",
           (showSchedule || faces) && "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]",
         )}>
+        <HeroFilmToggle pauseLabel={t("filmPause")} playLabel={t("filmPlay")} />
         <section aria-labelledby="hero-heading">
           <h1
             id="hero-heading"
             className={cn(
-              "text-[clamp(2.6rem,11vw,5.25rem)] leading-[1.02] font-extrabold text-balance text-fg",
-              l === "en" ? "tracking-[-0.025em]" : "tracking-[-0.01em]",
+              "text-[clamp(2.6rem,11vw,5.25rem)] leading-[1.02] font-semibold text-balance text-fg",
+              l === "en" ? "tracking-[-0.035em]" : "tracking-[-0.03em]",
             )}
           >
-            <span className="intro block [--i:1]">{t("heroLine1")}</span>
-            <span className="intro block text-brand-purple-soft [--i:2]">{t("heroLine2")}</span>
+            {/* Each line rises out of its own mask on the first view (globals.css, .intro-line). */}
+            <span className="intro-line [--i:1]"><span>{t("heroLine1")}</span></span>
+            <span className="intro-line text-brand-purple-soft [--i:2]"><span>{t("heroLine2")}</span></span>
           </h1>
           {tagline && (
             <p className="intro mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-pretty text-fg-muted [--i:3] lg:text-[1.1875rem]">

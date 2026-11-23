@@ -58,8 +58,8 @@
   --color-ring: var(--brand-purple);
 
   /* Type */
-  --font-sans: var(--font-rubik), system-ui, sans-serif;
-  --font-heading: var(--font-rubik), system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-heading: var(--font-plex-sans), system-ui, sans-serif;
   --font-pixel: var(--font-silkscreen), ui-monospace, monospace;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
@@ -140,7 +140,7 @@
     text-transform: uppercase;
     color: var(--brand-purple-soft);
   }
-  /* Hebrew eyebrow: Rubik 500, small, no letter-spacing. */
+  /* Hebrew eyebrow: the sans at 500, small, no letter-spacing. */
   .eyebrow-he {
     font-weight: 500;
     font-size: 0.8125rem;
@@ -271,6 +271,99 @@
 @keyframes intro-fade {
   from {
     opacity: 0.01;
+  }
+}
+
+/*
+ * Motion + fonts option 1 "דיוק" (DECISIONS 23.11, design/motion/).
+ *
+ * Hero headline: each line rises out of its own mask. The mask is the line box plus a little
+ * room for Hebrew descenders (padding, pulled back with a negative margin, so layout is unchanged).
+ * The line starts 45% down and fully opaque: part of it is visible at first paint, so LCP isn't
+ * pushed back (QA audit S1).
+ */
+.intro-line {
+  display: block;
+  overflow: clip;
+  padding-block: 0.06em 0.12em;
+  margin-block: -0.06em -0.12em;
+}
+.intro-line > span {
+  display: inline-block;
+}
+/* The hero grid draws in from the top on the first view. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-intro-seen]) .intro-line > span {
+    animation: intro-line-rise 700ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 110ms + 40ms);
+  }
+  html:not([data-intro-seen]) .hero-grid {
+    animation: grid-draw 1100ms var(--ease-out) both;
+  }
+}
+@keyframes intro-line-rise {
+  from {
+    transform: translateY(45%);
+  }
+}
+@keyframes grid-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/*
+ * Cards: a thin light runs once along the border on hover (mouse only). Static pages under reduced
+ * motion: no light at all. Never on the Next event card.
+ */
+@property --card-light-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 150deg;
+}
+@utility card-light {
+  position: relative;
+  isolation: isolate;
+  /* The light is a conic gradient in a transparent border, with the card's own fill over the middle
+     (padding-box). It sits under the card's content (z-index -1 inside the isolated card). */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border: 1.5px solid transparent;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--bg-raised) 0 0) padding-box,
+      conic-gradient(
+          from var(--card-light-a),
+          transparent 0 50%,
+          var(--brand-purple) 66%,
+          var(--brand-lilac) 78%,
+          var(--fg) 82%,
+          transparent 90%
+        )
+        border-box;
+    opacity: 0;
+    transition: opacity var(--dur-ui) var(--ease-out);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    &:hover::after {
+      opacity: 1;
+      animation: card-light 1.4s var(--ease-out) both;
+    }
+  }
+}
+@keyframes card-light {
+  from {
+    --card-light-a: 60deg;
+  }
+  to {
+    --card-light-a: 260deg;
   }
 }
 

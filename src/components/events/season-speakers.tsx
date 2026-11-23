@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import type { Locale } from "@/i18n/routing";
 import type { ClubEvent, Speaker } from "@/lib/data/types";
 import { loc } from "@/lib/event-format";
@@ -19,6 +20,7 @@ export async function SeasonSpeakers({ events, locale }: { events: ClubEvent[]; 
 
   return (
     <section aria-labelledby="season-speakers-heading" data-testid="season-speakers" className="relative mx-auto max-w-site px-4 pt-12 sm:px-8 lg:pt-20">
+      <RevealOnScroll />
       <div className="relative isolate px-0 py-8 sm:px-8 sm:py-12">
         {/* The post's frame: logo grid fading out, corner brackets. Decorative. */}
         <div aria-hidden className="hero-grid absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(70%_60%_at_50%_40%,var(--bg),transparent)]" />

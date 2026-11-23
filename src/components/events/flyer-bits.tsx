@@ -12,7 +12,7 @@ import { companyLogo } from "@/lib/company-logos";
  * cluster and the corner brackets. Server-safe; no motion.
  */
 
-/** "■ COHORT 02 / SESSION 1/3". Silkscreen caps in English; Rubik in Hebrew (no Hebrew pixel font). */
+/** "■ COHORT 02 / SESSION 1/3". Silkscreen caps in English; the sans in Hebrew (no Hebrew pixel font). */
 export function FlyerChip({ locale, children, className, id }: { locale: Locale; children: React.ReactNode; className?: string; id?: string }) {
   return (
     <p
@@ -130,7 +130,7 @@ export function SpeakerAvatar({
   );
 }
 
-/** Role in the posts' small caps: mono caps in English, Rubik 500 in Hebrew. Accent text colour. */
+/** Role in the posts' small caps: mono caps in English, the sans at 500 in Hebrew. Accent text colour. */
 export function roleCapsClass(locale: Locale) {
   return locale === "en"
     ? "font-mono text-[0.6875rem] leading-snug font-semibold tracking-[0.12em] text-brand-purple-soft uppercase"

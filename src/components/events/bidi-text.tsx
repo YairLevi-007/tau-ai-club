@@ -27,18 +27,40 @@ export function BidiText({
 }) {
   const segments = bidiSegments(text, context);
   if (!marks?.length && segments.length === 1 && !segments[0].ltr) return text;
-  let offset = 0;
-  return segments.map((s, i) => {
-    const content = styled(s.text, offset, marks);
-    offset += s.text.length;
-    return s.ltr ? (
+  // Offsets of each segment in the whole text.
+  const starts = segments.map((_, i) => segments.slice(0, i).reduce((n, s) => n + s.text.length, 0));
+  const out: ReactNode[] = [];
+  const glued = new Set<number>();
+  segments.forEach((s, i) => {
+    const offset = starts[i];
+    if (!s.ltr) {
+      // An English run ending in punctuation ("Corporate,") must not open a line: in a Hebrew line
+      // its comma would then be the first glyph. So the Hebrew word before it is kept on its line
+      // (no-wrap around "word + space + run"). No characters are added.
+      const next = segments[i + 1];
+      const tail = next?.ltr && /[.,:;!?]$/.test(next.text) ? /\S+\s+$/.exec(s.text) : null;
+      if (!tail) {
+        out.push(<Fragment key={i}>{styled(s.text, offset, marks)}</Fragment>);
+        return;
+      }
+      out.push(<Fragment key={i}>{styled(s.text.slice(0, tail.index), offset, marks)}</Fragment>);
+      out.push(
+        <span key={`${i}+`} className="whitespace-nowrap">
+          {styled(s.text.slice(tail.index), offset + tail.index, marks)}
+          <bdi dir="ltr">{styled(next.text, starts[i + 1], marks)}</bdi>
+        </span>,
+      );
+      glued.add(i + 1);
+      return;
+    }
+    if (glued.has(i)) return;
+    out.push(
       <bdi key={i} dir="ltr">
-        {content}
-      </bdi>
-    ) : (
-      <Fragment key={i}>{content}</Fragment>
+        {styled(s.text, offset, marks)}
+      </bdi>,
     );
   });
+  return out;
 }
 
 /** Cuts one segment (starting at `offset` in the whole text) at the marks' edges and wraps the marked parts. */
