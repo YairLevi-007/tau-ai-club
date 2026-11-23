@@ -56,6 +56,17 @@ export async function runPairChecks(db, check) {
     check(denied(await open(who, future)), `[${who}] cannot open a pAIr round`);
   }
   check(denied(await open("admin", "00000000-0000-4000-8000-000000000999")), "opening a round rejects an unknown event");
+  // N1: a draft (unpublished) meetup can't get a round, even from an admin, so its title and date
+  // never reach matched members.
+  const draft = (
+    await db.query(
+      `insert into public.events (slug, cohort_id, title_he, title_en, starts_at, ends_at, status)
+       values ('pair-draft', $1, 'טיוטה', 'Draft', now() + interval '5 days', now() + interval '5 days 2 hours', 'draft') returning id`,
+      [cohort],
+    )
+  ).rows[0].id;
+  check(denied(await open("admin", draft)), "opening a round rejects an unpublished (draft) event");
+  check((await db.query("select count(*)::int as n from public.pair_rounds where event_id = $1", [draft])).rows[0].n === 0, "no round row exists for the draft event");
 
   // ---- 2. opening fills in who registered on Luma ----------------------------
   const round = one(await open("admin", future));
@@ -120,6 +131,12 @@ export async function runPairChecks(db, check) {
   check(denied(await as("admin", "update public.pair_rounds set status = 'draft', published_at = null")), "even an admin cannot write a pAIr table directly");
 
   // ---- 7. a published round is frozen -----------------------------------------
+  // N1, the other way in: if the meetup is unpublished after the round went out, members stop seeing it.
+  await db.query("update public.events set status = 'draft' where id = $1", [future]);
+  check(JSON.stringify(one(await matches("alice")) ?? []) === "[]", "[alice] sees no match once the meetup is unpublished");
+  await db.query("update public.events set status = 'published' where id = $1", [future]);
+  check((one(await matches("alice")) ?? []).length > 0, "[alice] sees her match again once the meetup is published");
+
   check(denied(await setPeople("admin", [alice, bob])), "who is coming can't change once published");
   check(denied(await save("admin", [[bob, carol]])), "conversations can't change once published");
 

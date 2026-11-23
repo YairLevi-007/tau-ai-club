@@ -103,7 +103,9 @@ declare
   v_round uuid;
 begin
   perform public.assert_admin();
-  if not exists (select 1 from public.events e where e.id = p_event_id) then
+  -- Only a published meetup gets a round: matched members see its title and date, so a draft
+  -- event must never reach them this way (security review N1). Same error as a missing event.
+  if not exists (select 1 from public.events e where e.id = p_event_id and e.status = 'published') then
     raise exception 'unknown event' using errcode = '22023';
   end if;
   select r.id into v_round from public.pair_rounds r where r.event_id = p_event_id;
@@ -354,7 +356,7 @@ as $$
     ) as item
     from public.pair_group_members gm
     join public.pair_rounds r on r.id = gm.round_id and r.status = 'published'
-    join public.events e on e.id = r.event_id
+    join public.events e on e.id = r.event_id and e.status = 'published' -- unpublished later: hidden again
     left join public.pair_confirms c on c.round_id = gm.round_id and c.member_id = gm.member_id
     where public.is_member() and gm.member_id = public.current_member_id()
   ) x
