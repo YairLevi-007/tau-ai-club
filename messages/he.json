@@ -753,6 +753,8 @@
     "matrixCaption": "מי פגש את מי: חברים מול חברים",
     "matrixCell": "{a} ו{b}: {n, plural, one {נפגשו פעם אחת} other {נפגשו # פעמים}}",
     "matrixCellNot": "{a} ו{b}: עוד לא נפגשו",
+    "metTitle": "כבר נפגשו",
+    "metNobody": "עוד לא פגש/ה אף אחד",
     "notMetTitle": "עוד לא נפגשו",
     "metEveryone": "הכיר/ה את כולם 🎉",
     "oneOnOne": "שיחת 1:1",
