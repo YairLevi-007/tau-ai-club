@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Motion and fonts options</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=Karantina:wght@700&family=Assistant:wght@400;600&family=Frank+Ruhl+Libre:wght@700;900&family=Rubik:wght@400;500;700&family=Silkscreen&display=swap">
+<style>
+  :root { --bg:#0B0A1F; --raised:#13112e; --border:#2a2650; --fg:#f4f2ff; --muted:#b8b3d9; --subtle:#8a84b3; --purple:#8A2BFF; --soft:#b57bff; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--fg); font: 400 18px/1.55 Rubik, sans-serif; width: 1600px; padding: 64px 72px 72px; }
+  .eyebrow { font: 400 12px/1 Silkscreen, monospace; letter-spacing: .22em; color: var(--soft); direction: ltr; display: inline-block; }
+  h1 { font-size: 52px; line-height: 1.08; font-weight: 700; margin: 14px 0 12px; letter-spacing: -.01em; }
+  h1 em { font-style: normal; color: var(--soft); }
+  .lede { color: var(--muted); max-width: 70ch; font-size: 20px; }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 28px 0 34px; }
+  .fact { background: var(--raised); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .fact b { display: block; font-size: 13px; color: var(--soft); font-weight: 500; margin-bottom: 6px; }
+  .fact span { font-size: 16px; color: var(--fg); }
+  .spec { border: 1px solid var(--border); border-radius: 16px; padding: 22px 26px; margin-bottom: 34px; display: flex; gap: 40px; align-items: baseline; background: linear-gradient(180deg, #15123a, var(--bg)); }
+  .spec .big { font-size: 74px; line-height: 1; }
+  .spec .small { color: var(--muted); font-size: 18px; }
+  .row { display: flex; gap: 22px; align-items: flex-start; margin-bottom: 30px; }
+  figure { margin: 0; }
+  figcaption { font-size: 15px; color: var(--muted); margin-top: 10px; }
+  figcaption b { color: var(--fg); font-weight: 500; }
+  .desk img { display: block; width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+  .phone { flex: none; width: 300px; }
+  .phone .scr { width: 300px; height: 650px; border-radius: 34px; border: 8px solid #1d1a3d; overflow: hidden; background: var(--bg); }
+  .phone img { display: block; width: 100%; }
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .strip figure img { width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }
+  .strip figcaption { direction: rtl; font-size: 14px; }
+  h2 { font-size: 26px; font-weight: 600; margin: 8px 0 16px; }
+  .note { color: var(--subtle); font-size: 15px; margin-top: 6px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 22px; }
+  .tag { display: inline-flex; gap: 8px; align-items: center; font-size: 15px; font-weight: 500; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); margin-bottom: 10px; }
+  .tag.p { border-color: var(--purple); color: var(--fg); background: #2a0f5c; }
+</style>
+</head>
+<body>
+<main id="B"></main>
+<script>
+const q = new URLSearchParams(location.search);
+const B = document.getElementById("B");
+const O = {
+  1: { key: "d1", name: "דיוק", en: "OPTION 01 · PRECISION", font: "'IBM Plex Sans Hebrew'", fw: 600,
+       lede: "שקט ומדויק. רק מחליפים את הגופן, ומוסיפים תנועה עדינה שמרגישה כמו מכשיר מדויק: הכותרת עולה מתוך מסכה, קווי הרשת נמתחים, כרטיסים עולים 10px כשגוללים אליהם, ואור דק רץ על מסגרת הכרטיס במעבר עכבר.",
+       facts: [["גופן", "IBM Plex Sans Hebrew לכל האתר (עברית ואנגלית באותה משפחה). Silkscreen ו-Plex Mono נשארים."], ["מה זז", "כניסה של 0.9 שנ׳ בפתיחה, כרטיסים בגלילה, אור על מסגרת במעבר עכבר."], ["משקל", "בלי וידאו. רק הגופן (כ-60KB) וכמה שורות קוד."], ["תנועה מופחתת", "הכל סטטי. כרטיס המפגש הבא לא זז אף פעם."]],
+       spec: "בונים עם AI, ביחד.", frames: [[3, "0.1 שנ׳"], [7, "0.3 שנ׳"], [11, "0.5 שנ׳"], [23, "0.9 שנ׳, סוף"]], extra: ["d1-hover-desk.png", "במעבר עכבר: אור דק רץ על מסגרת הכרטיס"] },
+  2: { key: "d2", name: "סיפור בגלילה", en: "OPTION 02 · SCROLL STORY", font: "'Karantina'", fw: 700,
+       lede: "כמו סיפור: כותרות ענק צרות, וכל חלק בעמוד הוא פרק ממוספר (01 המועדון, 02 המרצים, 03 המייסדים). כשגוללים, ריבועי הפיקסל מתאספים לסמל של המועדון, המספר הגדול עולה, ופס התקדמות מראה איפה אתם.",
+       facts: [["גופן", "Karantina לכותרות (עברית צרה וגבוהה), Assistant לטקסט."], ["מה זז", "הכל קשור לגלילה, לא לזמן. פס פרקים בצד (בטלפון: למטה)."], ["משקל", "בלי וידאו. CSS של גלילה (animation-timeline), בלי ספרייה."], ["תנועה מופחתת", "הסמל כבר מורכב, המספרים במקום, הפס נשאר כמפה."]],
+       spec: "בונים עם AI, ביחד.", frames: [[0, "למעלה"], [4, "גלילה קצרה"], [7, "הסמל מתאסף"], [14, "פרק 01"]], extra: ["d2-chapter-desk.png", "פרק 01: מספר גדול, כותרת נחשפת, פס פרקים בצד"] },
+  3: { key: "d3", name: "קולנועי", en: "OPTION 03 · CINEMATIC", font: "'Frank Ruhl Libre'", fw: 900,
+       lede: "פתיחה כמו סרט: מאחורי הכותרת רץ וידאו בלולאה, פסי אור סגולים על רצפת רשת ופיקסלים שצפים. כאן זה ציור קוד קטן; אפשר להחליף אותו בצילום אמיתי מהמפגשים. גופן כותרות עם סריף, שמרגיש פחות \"AI\" ויותר מגזין.",
+       facts: [["גופן", "Frank Ruhl Libre לכותרות (סריף עברי). Rubik נשאר לטקסט."], ["מה זז", "וידאו בלולאה של 8 שנ׳ בפתיחה, עם כפתור עצירה. האזור האישי בלי וידאו."], ["משקל", "כמו כאן: קוד של 3KB. צילום אמיתי: עד כ-1.2MB, ותמונה לפני שהוא נטען."], ["תנועה מופחתת", "תמונה אחת קבועה. גם במצב חיסכון בנתונים."]],
+       spec: "בונים עם AI, ביחד.", frames: [[0, "0 שנ׳"], [10, "2 שנ׳"], [20, "4 שנ׳"], [30, "6 שנ׳"]], extra: null },
+};
+const phone = (src, cap, top = 0) => `<figure class="phone"><div class="scr"><img src="screens/${src}" style="margin-top:-${top}px"></div><figcaption>${cap}</figcaption></figure>`;
+const desk = (src, cap, w) => `<figure class="desk" style="width:${w}px"><img src="screens/${src}"><figcaption>${cap}</figcaption></figure>`;
+const v = q.get("view"), n = q.get("opt");
+if (n) {
+  const o = O[n];
+  B.innerHTML = `
+  <span class="eyebrow">${o.en}</span>
+  <h1>אפשרות ${n}: <em>${o.name}</em></h1>
+  <p class="lede">${o.lede}</p>
+  <div class="facts">${o.facts.map(([t, s]) => `<div class="fact"><b>${t}</b><span>${s}</span></div>`).join("")}</div>
+  <div class="spec"><span class="big" style="font-family:${o.font};font-weight:${o.fw}">${o.spec}</span><span class="small" style="font-family:${o.font}">Cohort 02 · אל תחכו לסוף התואר · 2026–27</span></div>
+  <div class="row">${desk(`${o.key}-hero-desk.png`, "<b>דף הבית, מחשב.</b> הרגע אחרי שהפתיחה נגמרה.", 1110)}${phone(`${o.key}-hero-phone.png`, "<b>דף הבית, טלפון</b>")}</div>
+  <h2>איך זה זז</h2>
+  <div class="strip">${o.frames.map(([i, c]) => `<figure><img src="screens/frames/${o.key}-desk/${String(i).padStart(2, "0")}.png"><figcaption>${c}</figcaption></figure>`).join("")}</div>
+  <p class="note">הסרטון עצמו: video/${o.key}-desk.webp ו-video/${o.key}-phone.webp</p>
+  <div class="row" style="margin-top:30px">${o.extra ? desk(o.extra[0], o.extra[1], 760) : desk(`${o.key}-home-desk.png`, "<b>המשך הדף:</b> כותרות בסריף, כל השאר כמו היום", 760)}${phone(`${o.key}-me-phone.png`, "<b>האזור האישי.</b> רק הגופן מתחלף")}${phone(`${o.key}-home-phone.png`, "<b>דף הבית, טלפון, המשך</b>", 900)}</div>`;
+} else {
+  B.innerHTML = `
+  <span class="eyebrow">UI / UX · MOTION + FONTS · 3 OPTIONS</span>
+  <h1>שלוש דרכים לתת לאתר <em>תנועה</em> וגופן משלו</h1>
+  <p class="lede">אותם צבעים, אותו תוכן, אותם עמודים. כל אפשרות מחליפה את הגופן ומוסיפה סוג אחר של תנועה. הכל מצולם מהאתר האמיתי. בוחרים אחת (או משלבים), ורק אז בונים.</p>
+  <div class="grid2" style="margin-top:34px">
+    ${[["before", "היום", "Rubik, כניסה עדינה בלבד"], ["d1", "1 · דיוק", "IBM Plex Sans Hebrew · תנועה עדינה · בלי וידאו"], ["d2", "2 · סיפור בגלילה", "Karantina + Assistant · הכל זז עם הגלילה"], ["d3", "3 · קולנועי", "Frank Ruhl Libre · וידאו בלולאה בפתיחה"]]
+      .map(([k, t, s]) => `<figure class="desk"><span class="tag ${k === "before" ? "" : "p"}">${t}</span><img src="screens/${k}-hero-desk.png"><figcaption>${s}</figcaption></figure>`).join("")}
+  </div>
+  <h2 style="margin-top:34px">בטלפון</h2>
+  <div class="row" style="justify-content:space-between">${[["before", "היום"], ["d1", "1 · דיוק"], ["d2", "2 · סיפור בגלילה"], ["d3", "3 · קולנועי"]].map(([k, t]) => phone(`${k}-hero-phone.png`, `<b>${t}</b>`)).join("")}</div>
+  <h2>האזור האישי</h2>
+  <div class="row" style="justify-content:space-between">${[["before", "היום"], ["d1", "1 · דיוק"], ["d2", "2 · סיפור בגלילה"], ["d3", "3 · קולנועי"]].map(([k, t]) => phone(`${k}-me-phone.png`, `<b>${t}</b>`)).join("")}</div>`;
+}
+</script>
+</body>
+</html>
