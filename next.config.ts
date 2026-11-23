@@ -32,6 +32,13 @@ const nextConfig: NextConfig = {
   // proven on the classic model (`revalidate` + setRequestLocale). See CLAUDE.md.
   cacheComponents: false,
   poweredByHeader: false,
+  // Live bug 23.11: after the IBM Plex merge, tauaiclub.com kept serving a CSS file from
+  // Vercel's shared `/_next/static/immutable/*` namespace whose Tailwind part was the old
+  // Rubik build, even after a redeploy without cache and a CDN purge (files that already
+  // exist there by name are never uploaded again). Opting out serves each deployment's own
+  // CSS/JS (with `?dpl=`), and the salt gives every file a new name once.
+  supportsImmutableAssets: false,
+  outputHashSalt: "2026-11-23",
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
@@ -46,6 +53,9 @@ const nextConfig: NextConfig = {
   experimental: {
     // Profile photos (up to 2 MB) go through a Server Action; the default limit is 1 MB.
     serverActions: { bodySizeLimit: "3mb" },
+    // Same bug: build from scratch each time, so a restored Turbopack cache can't hand the
+    // Tailwind loader an old globals.css. Costs a little build time.
+    turbopackFileSystemCacheForBuild: false,
   },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
