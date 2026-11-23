@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 23.11 | **No other languages: the site stays Hebrew and English only.** German and French from feat/home-pixel-pass are not taken (user: "לא נוסיף את השפות האחרות"). | i18n | `src/i18n/routing.ts` |
 | 23.11 | **Pixel pass from Sean Regev's feat/home-pixel-pass, approved** (user: "Yes, build it"): purple pixel icons above the home cards (calendar, laptop, people) in place of 01/02/03; three pixel squares closing each section title (mirrored in Hebrew); a pixel trail behind the mouse (mouse only, never touch, off under reduced motion, normal cursors kept). Sean's big hero mosaic is left out (the film stays). Credit Sean. | Home | `pixel-pass/` mock (notes folder) |
 | 23.11 | **Initiatives: every member sees the names of who joined an initiative** (user, changing an earlier "Lead and admins only" the same day: "כולם יוכלו לראות את השמות של מי שהצטרף ליוזמה"). Members only, never guests; the join button says the name will be shown to club members. | Initiatives | `initiative_people` RPC, initiative pages |
 | 23.11 | **Headings: every h1–h4 (Hebrew and English, all pages) takes the look of the new English hero heading** (user: "אני אוהב את הכותרת באנגלית. תעשה הכל ככה"). **The English pixel section headings ("DON'T WAIT FOR GRADUATION", "MEET OUR SPEAKERS") stay in the pixel font** (user, after seeing both: "השילוב כאן הוא יותר טוב"). | Design, all pages | `globals.css`, `SectionHeading` (agent/design eeb6378) |
