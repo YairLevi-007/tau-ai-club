@@ -704,7 +704,7 @@
     "cancelIn": "Cancel",
     "leadLabel": "Led by",
     "whoIsIn": "Who's in",
-    "whoIsInHint": "Only you and the admins see these names. No emails.",
+    "whoIsInHint": "Every club member sees who's in. Name and photo only, no email.",
     "noneYet": "Nobody yet. You could be the first.",
     "whyClub": "Why it's a club initiative:",
     "allInitiatives": "All initiatives",
@@ -764,7 +764,7 @@
     "errorGeneric": "Something went wrong. Try again.",
     "leadGone": "The lead is no longer a member",
     "errorTooManyToday": "You've already sent 5 proposals today. You can send more tomorrow.",
-    "namesVisibleNote": "Members will see that you joined (name and photo, no email)."
+    "namesVisibleNote": "Club members will see that you joined (name and photo, no email)."
   },
   "pair": {
     "adminTitle": "1:1 intro chats (pAIr)",

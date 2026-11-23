@@ -44,12 +44,13 @@ export type Initiative = {
 };
 
 /**
- * Who sees the names of the people who joined. Today (DECISIONS): only the initiative's lead and
- * admins; everyone else sees the count. Still open with the owner. To let every member see them:
- * set this to true AND change the guard in public.initiative_people (the migration's comment
- * says which line), which also turns on the "your name is visible to members" note by "I'm in".
+ * Every member sees the names of who joined a published initiative (DECISIONS 23.11, the owner:
+ * "כולם יוכלו לראות את השמות של מי שהצטרף ליוזמה"). Names and photos only, never emails. The
+ * database enforces it (public.initiative_people); this flag drives the page: the "who's in" list
+ * for everyone, and the "members will see that you joined" note by "I'm in". To go back to "the
+ * lead and admins only", set it to false and narrow the guard in initiative_people.
  */
-export const NAMES_VISIBLE_TO_ALL_MEMBERS = false;
+export const NAMES_VISIBLE_TO_ALL_MEMBERS = true;
 
 export type InitiativePerson = { member_id: string; full_name: string; photo_url: string | null; joined_at: string };
 
@@ -85,7 +86,7 @@ export async function getInitiative(supabase: SupabaseClient, id: string): Promi
   return all?.find((i) => i.id === id) ?? null;
 }
 
-/** Who's in, by name: only for the initiative's lead and admins (the RPC refuses anyone else). */
+/** Who's in, by name: for any member on a published initiative (the RPC refuses guests and outsiders). */
 export async function getInitiativePeople(supabase: SupabaseClient, id: string): Promise<InitiativePerson[] | null> {
   if (!isId(id)) return null;
   const { data, error } = await supabase.rpc("initiative_people", { p_id: id });

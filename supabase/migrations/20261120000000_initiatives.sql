@@ -372,8 +372,10 @@ begin
 end;
 $$;
 
--- Who's in, by name: for the initiative's lead and for admins only. Never emails or contact data.
--- Active members only (a member who was made inactive doesn't show).
+-- Who's in, by name (DECISIONS 23.11, the owner: every member sees the names of who joined).
+-- Callers: any active signed-in member (assert_member refuses guests, anon and outsiders), for a
+-- published initiative; the lead also for their own in any state; admins for any. Names and photos
+-- only: never an email, phone or other contact data. Inactive members don't show.
 create or replace function public.initiative_people(p_id uuid)
 returns table (member_id uuid, full_name text, photo_url text, joined_at timestamptz)
 language plpgsql
@@ -384,13 +386,11 @@ as $$
 declare
   v_me uuid := public.assert_member();
 begin
-  -- Names for the lead and admins only (DECISIONS; still open with the owner). To show them to every
-  -- member instead, change `i.lead_id = v_me` below to `(i.lead_id = v_me or i.status = 'published')`
-  -- and set NAMES_VISIBLE_TO_ALL_MEMBERS in src/lib/initiatives.ts (security review, "what else changes").
+  -- An unpublished proposal stays private to its lead and the admins (same error as a missing id).
   if not public.is_admin() and not exists (
-    select 1 from public.initiatives i where i.id = p_id and i.lead_id = v_me
+    select 1 from public.initiatives i where i.id = p_id and (i.status = 'published' or i.lead_id = v_me)
   ) then
-    raise exception 'only the lead and admins see who is in' using errcode = '42501';
+    raise exception 'no such initiative' using errcode = '42501';
   end if;
   return query
     select j.member_id, m.full_name, p.photo_url, j.joined_at

@@ -8,7 +8,7 @@
 //   * a member's proposal is invisible to other members until an admin publishes it;
 //   * members write only through the RPCs (no direct insert/update/delete);
 //   * who joined: each member sees only their own joins; names only for the lead and admins,
-//     never an email; everyone else gets counts; inactive members never show by name;
+//     never an email; every active member sees the names on a published initiative (DECISIONS 23.11); inactive members never show by name;
 //   * the review flow (return with a note, edit and resend, publish as the club's, reject),
 //     spots, sign-up closing, the lead can't join, the 5-waiting spam guard.
 
@@ -141,14 +141,27 @@ export async function runInitiativeChecks(db, check) {
   check(Boolean((await as("jo", "select public.join_initiative($1)", [id1])).error) === false, "initiatives: a member joins the published member initiative");
   check(Boolean((await as("lea", "select public.join_initiative($1)", [id1])).error), "initiatives: the lead can't join their own initiative");
 
-  // ---- who joined: own rows only; names for the lead and admins; never an email --------------
+  // ---- who joined: own rows only in the table; names for every member (RPC); never an email ----
   const mine = await as("jo", "select initiative_id, member_id from public.initiative_members");
   check(!mine.error && mine.rows.length > 0 && mine.rows.every((r) => r.member_id === joMember), "initiatives: a member sees only their own joins in the table");
   const leadPeople = await as("lea", "select * from public.initiative_people($1)", [id1]);
   check(!leadPeople.error && leadPeople.rows.length === 1 && leadPeople.rows[0].full_name === "Jo Joiner", `initiatives: the lead sees the joiners' names (${leadPeople.error ?? JSON.stringify(leadPeople.rows.map((r) => r.full_name))})`);
   check(leadPeople.rows?.every((r) => Object.keys(r).sort().join() === "full_name,joined_at,member_id,photo_url") && !JSON.stringify(leadPeople.rows).includes("@"), "initiatives: the people list holds names and photos only, no email");
-  check(Boolean((await as("jo", "select * from public.initiative_people($1)", [id1])).error), "initiatives: a member who isn't the lead can't list who's in");
-  check(Boolean((await as("lea", "select * from public.initiative_people($1)", [idA])).error), "initiatives: a joiner can't list who else is in");
+  // DECISIONS 23.11: every active member sees the names on a published initiative; guests,
+  // anon, outsiders and spoofed sessions get nothing; names and photos only.
+  const joPeople = await as("jo", "select * from public.initiative_people($1)", [id1]);
+  check(!joPeople.error && joPeople.rows.length === 1 && joPeople.rows[0].full_name === "Jo Joiner", "initiatives: a member who isn't the lead sees who's in on a published initiative");
+  const leaPeopleA = await as("lea", "select * from public.initiative_people($1)", [idA]);
+  check(!leaPeopleA.error && leaPeopleA.rows.length === 2, "initiatives: a joiner sees who else is in");
+  check(
+    [joPeople, leaPeopleA].every((r) => r.rows?.every((x) => Object.keys(x).sort().join() === "full_name,joined_at,member_id,photo_url")) &&
+      !/@|email|phone/i.test(JSON.stringify([joPeople.rows, leaPeopleA.rows])),
+    "initiatives: what members see is names and photos only (no email or phone)",
+  );
+  for (const who of ["guest", "outsider", "spoofed"]) {
+    const r = await as(who, "select * from public.initiative_people($1)", [id1]);
+    check(Boolean(r.error) && !r.rows, `initiatives: ${who} can't list who's in`);
+  }
   const adminPeople = await as("admin", "select * from public.initiative_people($1)", [idA]);
   check(!adminPeople.error && adminPeople.rows.length === 2, "initiatives: admins see who's in on any initiative");
 
@@ -161,6 +174,8 @@ export async function runInitiativeChecks(db, check) {
   check(!cards2.rows?.some((r) => r.initiative_id === idPending), "initiatives: cards don't include someone else's pending proposal");
   check(cards2.rows?.every((r) => !Object.keys(r).some((k) => /email|phone/.test(k))), "initiatives: cards carry no contact fields");
   check((await as("lea", "select * from public.initiative_cards()")).rows?.some((r) => r.initiative_id === idPending), "initiatives: the lead's own pending proposal is in their cards");
+  check(Boolean((await as("jo", "select * from public.initiative_people($1)", [idPending])).error), "initiatives: a member can't list who's in on someone else's unpublished proposal");
+  check(!(await as("lea", "select * from public.initiative_people($1)", [idPending])).error, "initiatives: the lead can list it on their own unpublished proposal");
 
   // ---- leave ---------------------------------------------------------------------------------------
   check(!(await as("jo", "select public.leave_initiative($1)", [id1])).error, "initiatives: a member cancels 'I'm in'");
