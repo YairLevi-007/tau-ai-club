@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FileText } from "lucide-react";
+import { FileText, MonitorPlay } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { ActionForm } from "@/components/admin/action-form";
 import { dangerBtn, hintClass, inputClass, labelClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
@@ -9,7 +10,7 @@ import { deleteEventFile, setFileStatus, uploadEventFile } from "@/app/[locale]/
 import type { EventFile } from "@/lib/content/sections";
 import { cn } from "@/lib/utils";
 
-/** The event's PDFs in the private bucket: upload, publish/unpublish, delete. */
+/** The event's files in the private bucket (PDFs and interactive HTML lessons): upload, publish/unpublish, delete. */
 export function FilesPanel({ eventId, files }: { eventId: string; files: Required<EventFile>[] }) {
   const t = useTranslations("content");
   return (
@@ -26,18 +27,28 @@ export function FilesPanel({ eventId, files }: { eventId: string; files: Require
       ) : (
         <ul className="grid gap-2">
           {files.map((f) => (
-            <li key={f.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
+            <li key={f.id} data-testid="event-file" data-kind={f.kind} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
               <span className="flex min-w-0 items-center gap-2">
-                <FileText aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                {f.kind === "lesson" ? (
+                  <MonitorPlay aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                ) : (
+                  <FileText aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                )}
                 <span className="grid min-w-0">
                   <span className="truncate text-fg">{f.title_he}</span>
                   <bdi dir="ltr" className="truncate font-mono text-xs text-fg-subtle">
                     {f.path}
                   </bdi>
                 </span>
+                <Tag>{t(f.kind === "lesson" ? "fileKindLesson" : "fileKindPdf")}</Tag>
                 <Tag tone={f.status === "published" ? "next" : "neutral"}>{t(f.status === "published" ? "statusPublished" : "statusDraft")}</Tag>
               </span>
               <span className="flex flex-wrap gap-2">
+                {f.kind === "lesson" && f.status === "published" && (
+                  <Link href={`/lessons/${f.id}`} className={smallBtn} data-testid="lesson-preview">
+                    {t("filePreview")}
+                  </Link>
+                )}
                 <ActionForm action={setFileStatus}>
                   <input type="hidden" name="id" value={f.id} />
                   <input type="hidden" name="event_id" value={eventId} />
@@ -71,7 +82,7 @@ export function FilesPanel({ eventId, files }: { eventId: string; files: Require
         </label>
         <label className={cn(labelClass, "sm:col-span-2")}>
           {t("fileChoose")}
-          <FilePicker name="file" accept="application/pdf,.pdf" required />
+          <FilePicker name="file" accept="application/pdf,.pdf,text/html,.html,.htm" required />
         </label>
         <button type="submit" className="btn btn-primary h-10 w-fit px-4 text-sm">
           {t("fileUpload")}

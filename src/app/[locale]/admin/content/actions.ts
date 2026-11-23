@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { adminClient, getViewer } from "@/lib/auth/viewer";
 import { revalidatePublicContent, str } from "@/lib/admin/content";
 import { CONTENT_SECTIONS, type ContentSection } from "@/lib/content/sections";
+import { readLessonUpload } from "@/lib/content/lesson";
 import type { ActionState } from "@/components/admin/action-form";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -54,7 +55,11 @@ export async function saveSection(_: ActionState, fd: FormData): Promise<ActionS
   return { ok: true, message: t("saved") };
 }
 
-/** Upload a PDF to the private `event-files` bucket and list it for members (published). */
+/**
+ * Upload a PDF, or an interactive HTML lesson, to the private `event-files` bucket and list it for
+ * members (published). A lesson is stored as text/plain, so Storage never serves it as a page;
+ * members open it through /api/lessons/<id>, inside a sandbox (src/lib/content/lesson.ts).
+ */
 export async function uploadEventFile(_: ActionState, fd: FormData): Promise<ActionState> {
   const supabase = await adminClient();
   const t = await getTranslations("content");
@@ -64,21 +69,32 @@ export async function uploadEventFile(_: ActionState, fd: FormData): Promise<Act
   if (!UUID.test(eventId) || !(file instanceof File) || file.size === 0) return { ok: false, message: t("fileErrorType") };
   if (file.size > MAX_FILE) return { ok: false, message: t("fileErrorSize") };
   const bytes = new Uint8Array(await file.arrayBuffer());
-  // A real PDF starts with "%PDF-", whatever the browser says the type is.
-  if (!/\.pdf$/i.test(file.name) || String.fromCharCode(...bytes.slice(0, 5)) !== "%PDF-") return { ok: false, message: t("fileErrorType") };
+  let ext: "pdf" | "html";
+  let body: Uint8Array = bytes;
+  if (/\.pdf$/i.test(file.name)) {
+    // A real PDF starts with "%PDF-", whatever the browser says the type is.
+    if (String.fromCharCode(...bytes.slice(0, 5)) !== "%PDF-") return { ok: false, message: t("fileErrorType") };
+    ext = "pdf";
+  } else {
+    const lesson = readLessonUpload(file.name, bytes);
+    if (!lesson.ok) return { ok: false, message: t(lesson.reason === "size" ? "fileErrorSize" : "fileErrorType") };
+    ext = "html";
+    body = new TextEncoder().encode(lesson.html);
+  }
 
   const { data: event } = await supabase.from("events").select("slug").eq("id", eventId).maybeSingle();
   if (!event) return { ok: false, message: t("errorFailed") };
   const base =
     file.name
-      .replace(/\.pdf$/i, "")
+      .replace(/\.(pdf|html?)$/i, "")
       .normalize("NFKD")
       .replace(/[^A-Za-z0-9._-]+/g, "-")
       .replace(/^[-._]+|[-._]+$/g, "")
-      .slice(0, 80) || "file";
-  const path = `${event.slug}/${base}.pdf`;
+      .slice(0, 80) || (ext === "html" ? "lesson" : "file");
+  const path = `${event.slug}/${base}.${ext}`;
 
-  const up = await supabase.storage.from("event-files").upload(path, bytes, { contentType: "application/pdf", upsert: true });
+  const contentType = ext === "pdf" ? "application/pdf" : "text/plain";
+  const up = await supabase.storage.from("event-files").upload(path, body, { contentType, upsert: true });
   if (up.error) {
     console.error("[content] upload failed", up.error.message);
     return { ok: false, message: t("errorFailed") };

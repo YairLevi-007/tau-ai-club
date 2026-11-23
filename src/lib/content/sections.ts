@@ -27,7 +27,7 @@ export type ContentRow = {
   updated_at?: string;
 };
 
-export type EventFile = { id: string; title_he: string; title_en: string; path?: string; status?: ContentStatus };
+export type EventFile = { id: string; title_he: string; title_en: string; kind?: "pdf" | "lesson"; path?: string; status?: ContentStatus };
 
 /** The text to show for a locale, and whether it's the Hebrew text standing in for English. */
 export function bodyFor(row: Pick<ContentRow, "body_he" | "body_en">, locale: string): { text: string; lang: "he" | "en"; fallback: boolean } {

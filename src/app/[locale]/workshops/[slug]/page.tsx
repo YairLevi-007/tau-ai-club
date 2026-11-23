@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { raisedPanelClass } from "@/components/admin/styles";
+import { FileLink } from "@/components/content/file-link";
 import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { requireMember } from "@/lib/auth/viewer";
@@ -18,7 +19,6 @@ import { MembersSoon, SpeakerList } from "@/components/content/content-bits";
 import { authEnabled } from "@/lib/supabase/config";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { Download } from "lucide-react";
 import { BidiText } from "@/components/events/bidi-text";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/workshops/[slug]">): Promise<Metadata> {
@@ -120,10 +120,10 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
             <ul className="mt-4 grid gap-2">
               {content.files.map((f) => (
                 <li key={f.id}>
-                  <a href={`/api/files/${f.id}`} className="btn btn-ghost w-full justify-start sm:w-fit" data-testid="file-download">
-                    <Download aria-hidden className="size-4" />
-                    {t("download", { title: l === "en" ? f.title_en : f.title_he })}
-                  </a>
+                  <FileLink
+                    file={f}
+                    labels={{ download: t("download", { title: l === "en" ? f.title_en : f.title_he }), openLesson: t("openLesson", { title: l === "en" ? f.title_en : f.title_he }) }}
+                  />
                 </li>
               ))}
             </ul>
