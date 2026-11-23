@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import type { Locale } from "@/i18n/routing";
 import type { TeamMember } from "@/lib/data/types";
 import { loc } from "@/lib/event-format";
@@ -16,6 +17,7 @@ export async function ClubFounders({ team, locale }: { team: TeamMember[]; local
 
   return (
     <section aria-labelledby="club-founders-heading" data-testid="club-founders" className="relative mx-auto max-w-site px-4 pt-14 pb-20 sm:px-8 lg:pt-20 lg:pb-28">
+      <RevealOnScroll />
       {/* Smaller than the speakers on purpose, and in rows instead of the same tall cards, so the
           page doesn't repeat the same grid twice in a row (design review 19.11, item 7). */}
       <SectionHeading id="club-founders-heading" locale={locale} line1={t("foundersLine1")} line2={t("foundersLine2")} size="md" />

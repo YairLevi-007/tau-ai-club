@@ -33,7 +33,8 @@ export function PersonCard({
     return (
       <li
         data-testid={testId}
-        className="flex items-center gap-4 rounded-lg border border-border-accent bg-bg-raised p-4 shadow-[var(--highlight-top)]"
+        data-reveal
+        className="card-light relative flex items-center gap-4 rounded-lg border border-border-accent bg-bg-raised p-4 shadow-[var(--highlight-top)]"
       >
         <SpeakerAvatar name={name} photoUrl={photoUrl} company={company} size={64} />
         <div className="grid min-w-0 flex-1 gap-0.5">
@@ -52,7 +53,8 @@ export function PersonCard({
   return (
     <li
       data-testid={testId}
-      className="relative flex w-[calc(50%-0.375rem)] flex-col items-center rounded-lg border border-border-accent bg-bg-raised px-3 pt-6 pb-4 text-center shadow-[var(--highlight-top)] lg:w-[calc(25%-0.75rem)]"
+      data-reveal
+      className="card-light relative flex w-[calc(50%-0.375rem)] flex-col items-center rounded-lg border border-border-accent bg-bg-raised px-3 pt-6 pb-4 text-center shadow-[var(--highlight-top)] lg:w-[calc(25%-0.75rem)]"
     >
       <span aria-hidden className="absolute -top-px inset-x-[14%] h-[3px] rounded-b-[3px] bg-brand-purple" />
       <SpeakerAvatar name={name} photoUrl={photoUrl} company={company} size={88} />

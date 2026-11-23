@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { RevealOnScroll } from "@/components/motion/reveal-on-scroll";
 import type { Locale } from "@/i18n/routing";
 import { FlyerChip } from "@/components/events/flyer-bits";
 import { SectionHeading } from "./section-heading";
@@ -15,6 +16,7 @@ export async function ClubAbout({ locale }: { locale: Locale }) {
   const cards = [1, 2, 3] as const;
   return (
     <section aria-labelledby="club-about-heading" data-testid="club-about" className="mx-auto max-w-site px-4 pt-20 sm:px-8 lg:pt-28">
+      <RevealOnScroll />
       <FlyerChip locale={locale}>{t("aboutChip")}</FlyerChip>
       <SectionHeading id="club-about-heading" locale={locale} line1={t("aboutLine1")} line2={t("aboutLine2")} className="mt-4" />
       {/* The post's tagline, in English on both locales (Silkscreen is Latin only). One line on a
@@ -34,7 +36,8 @@ export async function ClubAbout({ locale }: { locale: Locale }) {
         {cards.map((n) => (
           <li
             key={n}
-            className="flex gap-4 px-4 py-4 md:block md:rounded-lg md:border md:border-brand-purple/40 md:bg-bg-raised md:p-5 md:shadow-[var(--highlight-top)]"
+            data-reveal
+            className="relative flex gap-4 px-4 py-4 md:card-light md:block md:rounded-lg md:border md:border-brand-purple/40 md:bg-bg-raised md:p-5 md:shadow-[var(--highlight-top)]"
           >
             <span aria-hidden className="mt-1.5 shrink-0 font-pixel text-[0.6875rem] tracking-[0.2em] text-brand-purple-soft">
               {`0${n}`}

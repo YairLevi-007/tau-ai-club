@@ -58,8 +58,8 @@
   --color-ring: var(--brand-purple);
 
   /* Type */
-  --font-sans: var(--font-rubik), system-ui, sans-serif;
-  --font-heading: var(--font-rubik), system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-heading: var(--font-plex-sans), system-ui, sans-serif;
   --font-pixel: var(--font-silkscreen), ui-monospace, monospace;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
@@ -140,7 +140,7 @@
     text-transform: uppercase;
     color: var(--brand-purple-soft);
   }
-  /* Hebrew eyebrow: Rubik 500, small, no letter-spacing. */
+  /* Hebrew eyebrow: the sans at 500, small, no letter-spacing. */
   .eyebrow-he {
     font-weight: 500;
     font-size: 0.8125rem;
@@ -274,6 +274,99 @@
   }
 }
 
+/*
+ * Motion + fonts option 1 "דיוק" (DECISIONS 23.11, design/motion/).
+ *
+ * Hero headline: each line rises out of its own mask. The mask is the line box plus a little
+ * room for Hebrew descenders (padding, pulled back with a negative margin, so layout is unchanged).
+ * The line starts 45% down and fully opaque: part of it is visible at first paint, so LCP isn't
+ * pushed back (QA audit S1).
+ */
+.intro-line {
+  display: block;
+  overflow: clip;
+  padding-block: 0.06em 0.12em;
+  margin-block: -0.06em -0.12em;
+}
+.intro-line > span {
+  display: inline-block;
+}
+/* The hero grid draws in from the top on the first view. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-intro-seen]) .intro-line > span {
+    animation: intro-line-rise 700ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 110ms + 40ms);
+  }
+  html:not([data-intro-seen]) .hero-grid {
+    animation: grid-draw 1100ms var(--ease-out) both;
+  }
+}
+@keyframes intro-line-rise {
+  from {
+    transform: translateY(45%);
+  }
+}
+@keyframes grid-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/*
+ * Cards: a thin light runs once along the border on hover (mouse only). Static pages under reduced
+ * motion: no light at all. Never on the Next event card.
+ */
+@property --card-light-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 150deg;
+}
+@utility card-light {
+  position: relative;
+  isolation: isolate;
+  /* The light is a conic gradient in a transparent border, with the card's own fill over the middle
+     (padding-box). It sits under the card's content (z-index -1 inside the isolated card). */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border: 1.5px solid transparent;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--bg-raised) 0 0) padding-box,
+      conic-gradient(
+          from var(--card-light-a),
+          transparent 0 50%,
+          var(--brand-purple) 66%,
+          var(--brand-lilac) 78%,
+          var(--fg) 82%,
+          transparent 90%
+        )
+        border-box;
+    opacity: 0;
+    transition: opacity var(--dur-ui) var(--ease-out);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    &:hover::after {
+      opacity: 1;
+      animation: card-light 1.4s var(--ease-out) both;
+    }
+  }
+}
+@keyframes card-light {
+  from {
+    --card-light-a: 60deg;
+  }
+  to {
+    --card-light-a: 260deg;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -283,6 +376,32 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * Headings: one look across the site, set by the English home hero in IBM Plex (owner, 23.11:
+ * "do everything like this"). Unlayered on purpose, so it wins over the older per-heading weight
+ * utilities (font-bold / font-extrabold) without touching every page. The pixel and mono faces
+ * (English section titles, small labels) keep their own look.
+ * Hebrew in Plex reads heavier at the same weight, so big Hebrew headings use 500 to match the
+ * English 600; small ones stay at 600 to keep their place above the body text.
+ */
+:is(h1, h2, h3, h4):not(.font-pixel, .font-mono) {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+h1:not(.font-pixel, .font-mono) {
+  letter-spacing: -0.035em;
+}
+h2:not(.font-pixel, .font-mono) {
+  letter-spacing: -0.03em;
+}
+:lang(he) :is(h1, h2):not(.font-pixel, .font-mono) {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+:lang(he) :is(h3, h4):not(.font-pixel, .font-mono) {
+  letter-spacing: -0.01em;
 }
 
 /* Audit N9: a printed page shows everything, even what hasn't been scrolled into view. */
