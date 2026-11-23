@@ -72,8 +72,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           <h1
             id="hero-heading"
             className={cn(
-              "text-[clamp(2.6rem,11vw,5.25rem)] leading-[1.02] font-semibold text-balance text-fg",
-              l === "en" ? "tracking-[-0.035em]" : "tracking-[-0.03em]",
+              // Weight and tracking come from the site-wide heading rule (globals.css).
+              "text-[clamp(2.6rem,11vw,5.25rem)] leading-[1.02] text-balance text-fg",
             )}
           >
             {/* Each line rises out of its own mask on the first view (globals.css, .intro-line). */}

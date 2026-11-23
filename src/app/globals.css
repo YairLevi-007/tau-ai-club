@@ -378,6 +378,32 @@
   }
 }
 
+/*
+ * Headings: one look across the site, set by the English home hero in IBM Plex (owner, 23.11:
+ * "do everything like this"). Unlayered on purpose, so it wins over the older per-heading weight
+ * utilities (font-bold / font-extrabold) without touching every page. The pixel and mono faces
+ * (English section titles, small labels) keep their own look.
+ * Hebrew in Plex reads heavier at the same weight, so big Hebrew headings use 500 to match the
+ * English 600; small ones stay at 600 to keep their place above the body text.
+ */
+:is(h1, h2, h3, h4):not(.font-pixel, .font-mono) {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+h1:not(.font-pixel, .font-mono) {
+  letter-spacing: -0.035em;
+}
+h2:not(.font-pixel, .font-mono) {
+  letter-spacing: -0.03em;
+}
+:lang(he) :is(h1, h2):not(.font-pixel, .font-mono) {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+:lang(he) :is(h3, h4):not(.font-pixel, .font-mono) {
+  letter-spacing: -0.01em;
+}
+
 /* Audit N9: a printed page shows everything, even what hasn't been scrolled into view. */
 @media print {
   [data-reveal] {
