@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Download, LockKeyhole } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { MembersContent } from "@/app/api/events/[slug]/content/route";
+import { FileLink } from "@/components/content/file-link";
 import { bodyFor, type ContentSection } from "@/lib/content/sections";
 import { SectionBlock } from "./section-block";
 
@@ -90,11 +91,8 @@ export function MembersContent({ slug, order, path }: { slug: string; order: rea
               const title = locale === "en" ? f.title_en : f.title_he;
               return (
                 <li key={f.id}>
-                  {/* A plain link: the route answers with a short-lived signed URL. */}
-                  <a href={`/api/files/${f.id}`} className="btn btn-ghost w-full justify-start sm:w-fit" data-testid="file-download">
-                    <Download aria-hidden className="size-4" />
-                    {t("download", { title })}
-                  </a>
+                  {/* A PDF is a plain link (the route answers with a short-lived signed URL); a lesson opens on the site. */}
+                  <FileLink file={f} labels={{ download: t("download", { title }), openLesson: t("openLesson", { title }) }} />
                 </li>
               );
             })}

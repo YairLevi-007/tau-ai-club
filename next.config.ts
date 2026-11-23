@@ -40,7 +40,9 @@ const nextConfig: NextConfig = {
   supportsImmutableAssets: false,
   outputHashSalt: "2026-11-23",
   async headers() {
-    return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+    // Every path except /api/lessons/*: that route sends its own, stricter headers (a CSP
+    // sandbox, and X-Frame-Options SAMEORIGIN so the site's lesson page can frame it).
+    return [{ source: "/((?!api/lessons/).*)", headers: SECURITY_HEADERS }];
   },
   turbopack: {
     rules: {

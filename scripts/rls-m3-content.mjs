@@ -141,4 +141,35 @@ export async function runContentChecks(db, check) {
   await db.query("update public.event_files set status = 'draft' where path = $1", [pdf]);
   check((await objects("alice")).rows?.length === 0, "member: an unpublished file can't be downloaded any more");
   await db.query("update public.event_files set status = 'published' where path = $1", [pdf]);
+
+  // ---- interactive HTML lessons (20261124000000_event_lessons.sql) ----------------
+  const lesson = "cohort-02-opening/how-ai-agents-work.html";
+  const addLesson = await as("admin", "insert into public.event_files (event_id, path, title_he, title_en, status) values ($1, $2, 'שיעור', 'Lesson', 'draft') returning kind", [opener, lesson]);
+  check(!addLesson.error && addLesson.rows?.[0]?.kind === "lesson", "admin: can add an HTML lesson; its kind is 'lesson'");
+  check((await db.query("select kind from public.event_files where path = $1", [pdf])).rows[0]?.kind === "pdf", "a PDF's kind is 'pdf'");
+  for (const p of ["cohort-02-opening/x.js", "cohort-02-opening/x.htm", "cohort-02-opening/x.svg", "cohort-02-opening/x.html.js", "../x.html"]) {
+    const r = await as("admin", "insert into public.event_files (event_id, path, title_he, title_en) values ($1, $2, 'x', 'x')", [opener, p]);
+    check(Boolean(r.error), `event_files.path refuses ${p} (only .pdf and .html)`);
+  }
+  check(Boolean((await as("admin", "update public.event_files set kind = 'pdf' where path = $1", [lesson])).error), "kind can't be set by hand (generated from the path)");
+  for (const who of ["alice", "outsider"]) {
+    check(
+      denied(await as(who, "insert into public.event_files (event_id, path, title_he, title_en, status) values ($1, 'cohort-02-opening/evil.html', 'x', 'x', 'published')", [opener])),
+      `${who}: cannot add lessons`,
+    );
+  }
+  await db.query("insert into storage.objects (bucket_id, name) values ('event-files', $1)", [lesson]);
+  const lessonFor = (who) => as(who, "select name from storage.objects where bucket_id = 'event-files' and name = $1", [lesson]);
+  check((await lessonFor("alice")).rows?.length === 0, "member: a draft lesson can't be read");
+  check((await as("alice", "select id from public.event_files where path = $1", [lesson])).rows?.length === 0, "member: a draft lesson isn't listed");
+  await db.query("update public.event_files set status = 'published' where path = $1", [lesson]);
+  check((await lessonFor("alice")).rows?.length === 1, "member: a published lesson can be read");
+  check((await lessonFor("outsider")).rows?.length === 0, "outsider: cannot read a published lesson");
+  const gl = await lessonFor("guest");
+  check(Boolean(gl.error) || gl.rows?.length === 0, "guest: cannot read a published lesson");
+  check(Boolean((await as("guest", "select id from public.event_files where kind = 'lesson'")).error), "guest: no access to the lesson rows");
+  const mimes = (await db.query("select allowed_mime_types from storage.buckets where id = 'event-files'")).rows[0]?.allowed_mime_types ?? [];
+  check(mimes.includes("text/plain") && !mimes.includes("text/html"), "the bucket stores lessons as text/plain, never text/html");
+  await db.query("delete from public.event_files where path = $1", [lesson]);
+  await db.query("delete from storage.objects where name = $1", [lesson]);
 }
