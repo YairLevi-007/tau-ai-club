@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPairAdminData } from "@/lib/pair/data";
 import { history, pairKey } from "@/lib/pair/match";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { PairMatrix } from "@/components/pair/pair-matrix";
 import { panelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +34,6 @@ export default async function AdminPairMatrixPage({ params }: PageProps<"/[local
   const act = [...(data?.persons.values() ?? [])].sort((a, b) => collator.compare(a.full_name, b.full_name));
   const hist = history(data?.rounds ?? []);
   const count = (a: string, b: string) => hist.counts.get(pairKey(a, b)) ?? 0;
-  const first = (n: string) => n.split(/\s+/)[0];
   const Back = locale === "he" ? ArrowRight : ArrowLeft;
 
   return (
@@ -53,44 +53,15 @@ export default async function AdminPairMatrixPage({ params }: PageProps<"/[local
         <p className="text-fg-muted">{t("matrixEmpty")}</p>
       ) : (
         <>
-          <div className={cn(panelClass, "overflow-x-auto overscroll-x-contain")}>
-            <table className="border-separate border-spacing-0 text-sm" data-testid="pair-matrix">
-              <caption className="sr-only">{t("matrixCaption")}</caption>
-              <thead>
-                <tr>
-                  <td className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))]" />
-                  {act.map((p) => (
-                    <th key={p.id} scope="col" title={p.full_name} className="border-b border-border px-2 py-2.5 text-xs font-medium whitespace-nowrap text-fg-subtle">
-                      {first(p.full_name)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {act.map((r) => (
-                  <tr key={r.id}>
-                    <th
-                      scope="row"
-                      className="sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))] px-3 py-2 text-start font-medium whitespace-nowrap text-fg"
-                    >
-                      {r.full_name}
-                    </th>
-                    {act.map((c) => {
-                      if (r.id === c.id) return <td key={c.id} className="border-b border-border bg-bg-deep" aria-hidden />;
-                      const k = count(r.id, c.id);
-                      const label = k ? t("matrixCell", { a: r.full_name, b: c.full_name, n: k }) : t("matrixCellNot", { a: r.full_name, b: c.full_name });
-                      return (
-                        <td key={c.id} title={label} className={cn("border-b border-border px-2 py-2 text-center font-mono", k > 1 ? "bg-brand-purple text-on-purple" : k ? "bg-brand-purple/25 text-fg" : "")}>
-                          <span aria-hidden>{k > 1 ? k : k ? "✓" : ""}</span>
-                          <span className="sr-only">{label}</span>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PairMatrix
+            people={act}
+            count={count}
+            labels={{
+              caption: t("matrixCaption"),
+              cell: (a, b, n) => t("matrixCell", { a, b, n }),
+              cellNot: (a, b) => t("matrixCellNot", { a, b }),
+            }}
+          />
 
           <section aria-labelledby="pair-not-met" className={cn(panelClass, "grid gap-4 p-5 sm:p-6")}>
             <h2 id="pair-not-met" className={panelTitle}>

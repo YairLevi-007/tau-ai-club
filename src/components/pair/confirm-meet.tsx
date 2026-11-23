@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Check } from "lucide-react";
 import { confirmMyPair } from "@/app/[locale]/me/pair-actions";
 import { smallBtn } from "@/components/admin/styles";
+import { confirmedAfter } from "@/lib/pair/confirm-state";
 import { TIME_ZONE, type Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -38,8 +39,9 @@ export function ConfirmMeet({
         setMsg(labels.failed);
         return;
       }
-      setAt(res.at);
-      setShownTime(res.at ? new Intl.DateTimeFormat(locale, { timeZone: TIME_ZONE, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(res.at)) : null);
+      const next = confirmedAfter(on, res.at);
+      setAt(next);
+      setShownTime(next ? new Intl.DateTimeFormat(locale, { timeZone: TIME_ZONE, day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(next)) : null);
       setMsg(on ? labels.thanks : "");
     });
 
@@ -60,7 +62,7 @@ export function ConfirmMeet({
   return (
     <div className="grid gap-1.5" data-testid="pair-confirm">
       {at ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-border-accent bg-brand-purple/10 px-3.5 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-border-accent bg-brand-purple/10 px-3.5 py-2.5" data-testid="pair-confirmed">
           <span className="inline-flex items-center gap-1.5 font-semibold text-fg">
             <Check aria-hidden className="size-4 text-brand-purple-soft" />
             {labels.confirmed}
@@ -70,7 +72,7 @@ export function ConfirmMeet({
               {shownTime}
             </bdi>
           )}
-          <button type="button" className={cn(smallBtn, "ms-auto h-9")} disabled={pending} onClick={() => run(false)}>
+          <button type="button" className={cn(smallBtn, "ms-auto h-9")} disabled={pending} onClick={() => run(false)} data-testid="pair-undo">
             {labels.undo}
           </button>
         </div>
