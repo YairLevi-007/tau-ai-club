@@ -2,9 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Check } from "lucide-react";
-import { MemberAvatar } from "@/components/members/member-avatar";
-import { smallBtn } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
+import { MemberAvatar, smallBtn, cn } from "@/components/pair/site-ui";
 
 export type PickerPerson = { id: string; name: string; photoSrc: string | null; luma: boolean; checked: boolean };
 

@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import type { Locale } from "@/i18n/routing";
-import { requireAdmin } from "@/lib/auth/viewer";
-import { createClient } from "@/lib/supabase/server";
+import { Link } from "@/components/pair/site-nav";
+import { type Locale, AdminHeader, panelClass, panelTitle, cn } from "@/components/pair/site-ui";
+import { requireAdmin, createClient } from "@/lib/pair/site";
 import { getPairAdminData } from "@/lib/pair/data";
 import { history, pairKey } from "@/lib/pair/match";
-import { AdminHeader } from "@/components/admin/admin-header";
 import { PairMatrix } from "@/components/pair/pair-matrix";
-import { panelClass, panelTitle } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/pair/matrix">): Promise<Metadata> {
   const { locale } = await params;

@@ -1,21 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ChevronLeft, ChevronRight, Grid3x3 } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { TIME_ZONE, type Locale } from "@/i18n/routing";
-import { requireAdmin } from "@/lib/auth/viewer";
-import { createClient } from "@/lib/supabase/server";
-import { currentCohort } from "@/lib/attendance/data";
-import { formatShortDate, loc } from "@/lib/event-format";
+import { Link } from "@/components/pair/site-nav";
+import { TIME_ZONE, type Locale, formatShortDate, loc, AdminHeader, hintClass, panelClass, panelTitle, smallBtn, BidiText, MemberAvatar, cn } from "@/components/pair/site-ui";
+import { requireAdmin, createClient, currentCohort, signPhotos } from "@/lib/pair/site";
 import { getPairAdminData, getSeasonEvents } from "@/lib/pair/data";
 import { groupState, history, pairKey } from "@/lib/pair/match";
-import { AdminHeader } from "@/components/admin/admin-header";
-import { hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
-import { BidiText } from "@/components/events/bidi-text";
-import { MemberAvatar } from "@/components/members/member-avatar";
 import { PairChip } from "@/components/pair/pair-bits";
-import { signPhotos } from "@/lib/members/photos";
-import { cn } from "@/lib/utils";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/pair">): Promise<Metadata> {
   const { locale } = await params;

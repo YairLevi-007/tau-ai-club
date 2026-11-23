@@ -2,11 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { Check } from "lucide-react";
-import { confirmMyPair } from "@/app/[locale]/me/pair-actions";
-import { smallBtn } from "@/components/admin/styles";
+import { confirmMyPair } from "@/lib/pair/me-actions";
+import { smallBtn, TIME_ZONE, type Locale, cn } from "@/components/pair/site-ui";
 import { confirmedAfter } from "@/lib/pair/confirm-state";
-import { TIME_ZONE, type Locale } from "@/i18n/routing";
-import { cn } from "@/lib/utils";
 
 /**
  * pAIr's "✓ the meeting happened" bar. After pressing: "you confirmed" + the time + undo.

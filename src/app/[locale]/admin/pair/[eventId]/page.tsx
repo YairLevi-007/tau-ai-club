@@ -2,25 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Check, Megaphone, Shuffle, Sparkles, TriangleAlert, Undo2, X } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { TIME_ZONE, type Locale } from "@/i18n/routing";
-import { requireAdmin } from "@/lib/auth/viewer";
-import { createClient } from "@/lib/supabase/server";
-import { formatShortDate, loc } from "@/lib/event-format";
-import { signPhotos } from "@/lib/members/photos";
+import { Link } from "@/components/pair/site-nav";
+import { TIME_ZONE, type Locale, formatShortDate, loc, ActionForm, AdminHeader, dangerBtn, hintClass, panelClass, panelTitle, smallBtn, BidiText, MemberAvatar, ProfileSubline, cn } from "@/components/pair/site-ui";
+import { requireAdmin, createClient, signPhotos } from "@/lib/pair/site";
 import { getPairAdminData, UUID, type PairEvent, type PairPerson } from "@/lib/pair/data";
 import { groupState, history, pairKey, repeatCount } from "@/lib/pair/match";
 import { groupCommon } from "@/lib/pair/common";
-import { ActionForm } from "@/components/admin/action-form";
-import { AdminHeader } from "@/components/admin/admin-header";
-import { dangerBtn, hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
-import { BidiText } from "@/components/events/bidi-text";
-import { MemberAvatar } from "@/components/members/member-avatar";
-import { ProfileSubline } from "@/components/members/profile-subline";
 import { CommonChips, GroupStateChip, PairChip, PairNum } from "@/components/pair/pair-bits";
 import { PeoplePicker } from "@/components/pair/people-picker";
 import { CopyTextButton } from "@/components/pair/copy-text-button";
-import { cn } from "@/lib/utils";
 import { deleteRound, generateGroups, markGroup, openRound, publishRound, savePeople } from "../actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/pair/[eventId]">): Promise<Metadata> {

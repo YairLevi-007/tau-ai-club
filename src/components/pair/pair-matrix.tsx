@@ -1,5 +1,4 @@
-import { panelClass } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
+import { panelClass, cn } from "@/components/pair/site-ui";
 
 type Person = { id: string; full_name: string };
 

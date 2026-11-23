@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { ClipboardCopy } from "lucide-react";
-import { hintClass, inputClass, smallBtn } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
+import { hintClass, inputClass, smallBtn, cn } from "@/components/pair/site-ui";
 
 /** pAIr's "copy for WhatsApp": copies the list; if the browser refuses, shows it to copy by hand. */
 export function CopyTextButton({ text, labels }: { text: string; labels: { copy: string; copied: string; manual: string } }) {
