@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 23.11 | Yair Levi owns pAIr. His PRs and ideas are the source for pAIr; the team only integrates them with the rest of the site (his version wins on conflict). PR #3 is adopted in full. | pAIr | PR #2, #3 |
 | 23.11 | Ido Shalom (lecture summaries) is a full admin so he can upload summaries himself. | Access | `public.members.role` |
 | 23.11 | Admins can upload an interactive HTML lesson (quiz) per event next to the PDF summary. Members only, isolated from the site's origin, security review before merge. | Content | |
 | 23.11 | Yair Levi (pAIr owner) is a full admin so he can run pAIr rounds. Temporary: a pAIr-only role may replace it later. | Access | `public.members.role` |
