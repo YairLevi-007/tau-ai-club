@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import type { Locale } from "@/i18n/routing";
-import { requireAdmin } from "@/lib/auth/viewer";
-import { createClient } from "@/lib/supabase/server";
+import { Link } from "@/components/pair/site-nav";
+import { type Locale, AdminHeader, panelClass, panelTitle, cn } from "@/components/pair/site-ui";
+import { requireAdmin, createClient } from "@/lib/pair/site";
 import { getPairAdminData } from "@/lib/pair/data";
 import { history, pairKey } from "@/lib/pair/match";
-import { AdminHeader } from "@/components/admin/admin-header";
 import { PairMatrix } from "@/components/pair/pair-matrix";
-import { panelClass, panelTitle } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/pair/matrix">): Promise<Metadata> {
   const { locale } = await params;
@@ -53,6 +49,32 @@ export default async function AdminPairMatrixPage({ params }: PageProps<"/[local
         <p className="text-fg-muted">{t("matrixEmpty")}</p>
       ) : (
         <>
+          {/* Phones: one line per member instead of a grid that scrolls sideways (DECISIONS 23.11). */}
+          <section aria-labelledby="pair-met" className={cn(panelClass, "grid gap-4 p-5 sm:hidden")} data-testid="pair-matrix-list">
+            <h2 id="pair-met" className={panelTitle}>
+              {t("metTitle")}
+            </h2>
+            <ul className="grid gap-3">
+              {act.map((p) => {
+                const met = act.filter((o) => o.id !== p.id && count(p.id, o.id));
+                return (
+                  <li key={p.id} className="text-sm">
+                    <b className="font-semibold text-fg">{p.full_name}</b>{" "}
+                    <bdi className="font-mono text-fg-subtle">({met.length})</bdi>
+                    <br />
+                    {met.length ? (
+                      <span className="text-fg-muted">
+                        {met.map((o) => (count(p.id, o.id) > 1 ? `${o.full_name} ×${count(p.id, o.id)}` : o.full_name)).join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-fg-subtle">{t("metNobody")}</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
           <PairMatrix
             people={act}
             count={count}

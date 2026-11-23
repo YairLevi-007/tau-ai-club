@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getViewer } from "@/lib/auth/viewer";
-import { createClient } from "@/lib/supabase/server";
+import { getViewer, createClient } from "@/lib/pair/site";
 import { UUID } from "@/lib/pair/data";
 
 export type ConfirmResult = { ok: true; at: string | null } | { ok: false };

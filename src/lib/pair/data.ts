@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { ProfileLinks } from "@/lib/members/profile";
+import type { ProfileLinks } from "@/lib/pair/site";
 import type { PairMark, PairRound } from "./match";
 
 // pAIr reads. Admins read the tables directly (RLS: admins only); a member gets only their own

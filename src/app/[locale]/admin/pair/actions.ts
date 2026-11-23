@@ -2,12 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
-import { adminClient } from "@/lib/auth/viewer";
-import { str } from "@/lib/admin/content";
+import { redirect } from "@/components/pair/site-nav";
+import type { ActionState } from "@/components/pair/site-ui";
+import { adminClient, str } from "@/lib/pair/site";
 import { getPairAdminData, UUID } from "@/lib/pair/data";
 import { history, makeGroups } from "@/lib/pair/match";
-import type { ActionState } from "@/components/admin/action-form";
 
 const refresh = () => revalidatePath("/[locale]/admin/pair", "layout");
 

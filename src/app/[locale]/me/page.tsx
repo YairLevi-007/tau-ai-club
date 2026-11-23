@@ -15,7 +15,7 @@ import { getMyMatches } from "@/lib/pair/data";
 import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
 import { PageBackdrop } from "@/components/site/page-backdrop";
-import { IcebreakersTeaser } from "@/components/events/icebreakers-teaser";
+import { IcebreakersTeaser } from "@/components/pair/icebreakers-teaser";
 import { ProfileEditor } from "@/components/members/profile-editor";
 import { MyAttendance } from "@/components/members/my-attendance";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";

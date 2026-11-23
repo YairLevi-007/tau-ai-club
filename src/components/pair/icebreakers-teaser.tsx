@@ -1,18 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { Lightbulb } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { TIME_ZONE, type Locale } from "@/i18n/routing";
-import { formatShortDate, loc } from "@/lib/event-format";
+import { Link } from "@/components/pair/site-nav";
+import { TIME_ZONE, type Locale, formatShortDate, loc, cn, BidiText, MemberAvatar, ProfileSubline, LinkedInIcon, FlyerChip } from "@/components/pair/site-ui";
 import { commonInterests, type PairProfileText } from "@/lib/pair/common";
 import type { MyMatch } from "@/lib/pair/data";
-import { cn } from "@/lib/utils";
-import { BidiText } from "@/components/events/bidi-text";
-import { MemberAvatar } from "@/components/members/member-avatar";
-import { ProfileSubline } from "@/components/members/profile-subline";
 import { CommonChips } from "@/components/pair/pair-bits";
 import { ConfirmMeet } from "@/components/pair/confirm-meet";
-import { LinkedInIcon } from "@/components/site/linkedin-icon";
-import { FlyerChip } from "./flyer-bits";
 
 /**
  * The meeting games card in /me (DECISIONS 18.11: the big card with the two seats, title

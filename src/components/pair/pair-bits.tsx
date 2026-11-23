@@ -1,6 +1,6 @@
 import { Check, Clock, X } from "lucide-react";
 import type { GroupState } from "@/lib/pair/match";
-import { cn } from "@/lib/utils";
+import { cn } from "@/components/pair/site-ui";
 
 /**
  * A small rounded label. Tone carries meaning in words too (never colour alone). The site has no

@@ -1,13 +1,13 @@
-import { panelClass } from "@/components/admin/styles";
-import { cn } from "@/lib/utils";
+import { panelClass, cn } from "@/components/pair/site-ui";
 
 type Person = { id: string; full_name: string };
 
 /**
- * pAIr's who-met-whom grid (✓ met once, a number for more). On a phone the grid scrolls inside
- * its own box, never the page. The box is `relative` on purpose: each cell's screen-reader label is
- * `sr-only` (position: absolute), and without a positioned ancestor inside the box those labels were
- * placed against the page and pushed it 170px sideways at 390px (QA, pAIr PR 2, a6).
+ * pAIr's who-met-whom grid (✓ met once, a number for more), from `sm` up; phones get Yair's
+ * one-line-per-member list instead (matrix/page.tsx, PR 3). Where the grid shows and is wider than
+ * the screen, it scrolls inside its own box, never the page. The box is `relative` on purpose: each
+ * cell's screen-reader label is `sr-only` (position: absolute), and without a positioned ancestor
+ * inside the box those labels were placed against the page and pushed it sideways (QA, pAIr PR 2, a6).
  */
 export function PairMatrix({
   people,
@@ -21,7 +21,7 @@ export function PairMatrix({
   const first = (n: string) => n.split(/\s+/)[0];
   const stickyCell = "sticky start-0 z-10 border-b border-border bg-bg [background-image:linear-gradient(var(--surface),var(--surface))]";
   return (
-    <div className={cn(panelClass, "relative max-w-full overflow-x-auto overscroll-x-contain")} data-testid="pair-matrix-scroll">
+    <div className={cn(panelClass, "relative hidden max-w-full overflow-x-auto overscroll-x-contain sm:block")} data-testid="pair-matrix-scroll">
       <table className="border-separate border-spacing-0 text-sm" data-testid="pair-matrix">
         <caption className="sr-only">{labels.caption}</caption>
         <thead>
