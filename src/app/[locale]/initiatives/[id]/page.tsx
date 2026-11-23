@@ -98,8 +98,9 @@ export default async function InitiativePage({ params }: PageProps<"/[locale]/in
             {reason && (
               <p className={cn(raisedPanelClass, "flex gap-3 px-4 py-3 text-fg-muted")} data-testid="club-reason">
                 <Sparkles aria-hidden className="mt-1 size-4 shrink-0 text-brand-purple-soft" />
-                <span>
-                  <span className="font-semibold text-fg">{t("whyClub")}</span> {reason}
+                <span className="grid gap-1">
+                  <span className="font-semibold text-fg">{t("whyClub")}</span>
+                  <span>{reason}</span>
                 </span>
               </p>
             )}

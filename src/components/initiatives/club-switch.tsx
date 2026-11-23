@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { hintClass, inputClass, labelClass } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ export function ClubSwitch({
           <span className="flex flex-wrap items-center gap-2 font-semibold text-fg">
             {on && (
               <span className="tag gap-1.5 border-brand-purple font-semibold text-fg">
-                <Image src="/brand/logo-mark.png" alt="" width={520} height={322} className="h-3 w-auto [image-rendering:pixelated]" />
+                <Sparkles aria-hidden className="size-3.5 text-brand-purple-soft" />
                 {labels.badge}
               </span>
             )}

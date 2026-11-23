@@ -91,7 +91,8 @@ export async function joinInitiative(_: ActionState, fd: FormData): Promise<Acti
   const { error } = await supabase.rpc("join_initiative", { p_id: id });
   if (error) return { ok: false, message: t(dbErrorKey(error.message)) };
   revalidateInitiatives(id);
-  return { ok: true, message: t("youreIn") };
+  // The control itself switches to "You're in", so no status line (it showed the word twice: QA m6).
+  return { ok: true, message: "" };
 }
 
 export async function leaveInitiative(_: ActionState, fd: FormData): Promise<ActionState> {
