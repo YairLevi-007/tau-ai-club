@@ -63,7 +63,9 @@ export default async function InitiativesPage({ params, searchParams }: PageProp
   const photoOf = (i: Initiative) => (i.lead_photo ? (photos.get(i.lead_photo) ?? null) : null);
 
   const filterLabel: Record<Filter, string> = { all: t("filterAll"), club: t("filterClub"), member: t("filterMember"), mine: t("filterMine") };
-  const listClass = "grid gap-4 md:grid-cols-2";
+  // Two columns from md; a card left alone on its row (a single club initiative, or the last of an
+  // odd number) takes the whole row, so half the row isn't empty (QA m1).
+  const listClass = "grid gap-4 md:grid-cols-2 md:[&>li:last-child:nth-child(odd)]:col-span-2";
   const cards = (list: Initiative[]) => (
     <ul className={listClass}>
       {list.map((i) => (

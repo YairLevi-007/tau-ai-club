@@ -1,6 +1,5 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { CalendarDays, Check, Clock, MapPin } from "lucide-react";
+import { CalendarDays, Check, Clock, MapPin, Sparkles } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { loc } from "@/lib/event-format";
@@ -21,13 +20,13 @@ export function shortDay(day: string, thisYear: number) {
 /** A club initiative's card: the purple frame and glow, as in design/initiatives/kinds.png. */
 export const clubCardClass = "border-brand-purple shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)]";
 
-/** "יוזמת המועדון" (with the logo) or the plain grey "יוזמה של חבר". */
+/** "יוזמת המועדון" (purple frame, sparkle icon: the 12px logo read as noise, QA) or the plain grey "יוזמה של חבר". */
 export async function KindBadge({ kind }: { kind: Initiative["kind"] }) {
   const t = await getTranslations("initiatives");
   if (kind === "club") {
     return (
       <span className="tag gap-1.5 border-brand-purple font-semibold text-fg" data-testid="kind-club">
-        <Image src="/brand/logo-mark.png" alt="" width={520} height={322} className="h-3 w-auto [image-rendering:pixelated]" />
+        <Sparkles aria-hidden className="size-3.5 text-brand-purple-soft" />
         {t("kindClub")}
       </span>
     );
