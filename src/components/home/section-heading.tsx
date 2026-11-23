@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * A home-page section title in two parts, "אל תחכו · לסוף התואר.", with the second part in purple
- * and the brand's pixel square after it in Hebrew. One balanced line where it fits, two on a phone.
+ * closed by three pixel blocks climbing toward the reading end (Sean Regev's pixel pass, DECISIONS 23.11). One balanced line where it fits, two on a phone.
  * The leading comes after the size on purpose: cn() (tailwind-merge) drops a leading-* that sits
  * before a text-[size], which left these titles at the body's 1.7 line height.
  */
@@ -23,6 +23,9 @@ export function SectionHeading({
   className?: string;
 }) {
   const en = locale === "en";
+  const cut = line2.lastIndexOf(" ") + 1;
+  const head = line2.slice(0, cut);
+  const tail = line2.slice(cut);
   return (
     <h2
       id={id}
@@ -42,9 +45,24 @@ export function SectionHeading({
     >
       {line1}{" "}
       <span className="text-brand-purple">
-        {line2}
-        {!en && <span aria-hidden className="ms-[0.22em] inline-block size-[0.26em] bg-brand-purple align-[0.06em]" />}
+        {head}
+        {/* The last word and the steps never part at a line break. */}
+        <span className="whitespace-nowrap">
+          {tail}
+          <Steps />
+        </span>
       </span>
     </h2>
+  );
+}
+
+/** Three blocks climbing toward the reading end; mirrored in RTL. Decorative, tokens only. */
+function Steps() {
+  return (
+    <svg aria-hidden viewBox="0 0 30 30" className="ms-[0.22em] inline-block size-[0.5em] align-baseline rtl:-scale-x-100">
+      <rect x="0" y="20" width="9" height="9" fill="var(--logo-block)" />
+      <rect x="10" y="10" width="9" height="9" fill="var(--brand-purple-deeper)" />
+      <rect x="20" y="0" width="9" height="9" fill="var(--brand-purple)" />
+    </svg>
   );
 }

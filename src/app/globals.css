@@ -445,3 +445,23 @@ h2:not(.font-pixel, .font-mono) {
 @media (prefers-reduced-motion: reduce) {
   [data-active] > .nav-progress-bar { animation: none; width: 100%; }
 }
+
+/* The pixel trail behind the mouse (pixel-trail.tsx, home only, mouse only). Above the content but
+   ignores clicks, so the real pointer and every cursor under it stay as they are. */
+.pixel-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+.pixel-trail > i {
+  position: absolute;
+  top: 0;
+  left: 0; /* physical on purpose: placed by clientX, which is the same in RTL */
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  will-change: transform, opacity;
+}
