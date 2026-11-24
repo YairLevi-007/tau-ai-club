@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 24.11 | **Lectures and workshops together under "שיעורים".** One nav item replaces the two; its page shows lectures on one side and the Claude Code workshops on the other (stacked on phone). Existing lecture/workshop URLs keep working. | Nav | |
 | 24.11 | **Event content = files only.** The admin event editor leads with uploading files (PDF summary, HTML lesson); the text sections (summary, key commands, exercises, etc.) are hidden from the editor, and empty ones no longer show as "בקרוב" on lecture/workshop pages. Existing text data is kept, not deleted (user: "רק שיהיה לו אופציה להעלות מסמכים"). | Content | `/admin/content/<id>` |
 | 23.11 | Yair Levi owns pAIr. His PRs and ideas are the source for pAIr; the team only integrates them with the rest of the site (his version wins on conflict). PR #3 is adopted in full. | pAIr | PR #2, #3 |
 | 23.11 | Ido Shalom (lecture summaries) is a full admin so he can upload summaries himself. | Access | `public.members.role` |
