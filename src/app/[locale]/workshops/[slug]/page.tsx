@@ -15,7 +15,8 @@ import { getEventContent } from "@/lib/content/data";
 import { WORKSHOP_SECTIONS, bodyFor, hasBody } from "@/lib/content/sections";
 import { formatEventDate, formatTimeRange, isoAttr, loc } from "@/lib/event-format";
 import { Tag } from "@/components/events/event-bits";
-import { MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { AdminEditBar, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { contentEditPath } from "@/lib/content/admin-edit";
 import { authEnabled } from "@/lib/supabase/config";
 import { SectionBlock } from "@/components/content/section-block";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
@@ -36,7 +37,7 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
   const l = lc as Locale;
   setRequestLocale(l);
   const authOn = authEnabled();
-  if (authOn) await requireMember(`/workshops/${slug}`);
+  const viewer = authOn ? await requireMember(`/workshops/${slug}`) : null;
 
   const event = await getEventBySlug(slug);
   if (!event || event.kind !== "workshop") notFound();
@@ -47,6 +48,7 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
   const hebrewOnly = { label: t("hebrewOnly"), hint: t("hebrewOnlyHint") };
   const rows = WORKSHOP_SECTIONS.map((section) => ({ section, row: content?.sections.find((s) => s.section === section) }));
   const filled = rows.filter((r): r is { section: (typeof WORKSHOP_SECTIONS)[number]; row: NonNullable<typeof r.row> } => !!r.row && hasBody(r.row));
+  const editHref = contentEditPath(viewer, event.id);
   const empty = rows.filter((r) => !r.row || !hasBody(r.row)).map((r) => r.section);
 
   return (
@@ -83,6 +85,8 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
             </p>
           </div>
         </header>
+
+        {editHref && <AdminEditBar href={editHref} note={t("adminEditNote")} label={t("editOnPage")} />}
 
         {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
 

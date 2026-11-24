@@ -15,7 +15,8 @@ import { markdownToText } from "@/lib/content/markdown";
 import { formatEventDate, formatTimeRange, isoAttr, loc, speakerNames } from "@/lib/event-format";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { Tag } from "@/components/events/event-bits";
-import { Eyebrow, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { AdminEditBar, Eyebrow, MembersOnlyMark, MembersSoon, SpeakerList } from "@/components/content/content-bits";
+import { contentEditPath } from "@/lib/content/admin-edit";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
 import { SectionBlock } from "@/components/content/section-block";
@@ -74,7 +75,7 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
   setRequestLocale(locale);
   const l = locale as Locale;
   // Members area on: members only (guests log in and come back here).
-  if (authEnabled()) await requireMember(`/lectures/${slug}`);
+  const viewer = authEnabled() ? await requireMember(`/lectures/${slug}`) : null;
   const event = await getLecture(slug);
   if (!event) notFound();
   const [t, te, sections] = await Promise.all([getTranslations("content"), getTranslations("event"), getPublicSections()]);
@@ -82,6 +83,7 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
   const title = loc(event, "title", l) ?? slug;
   const blurb = sections[slug]?.blurb;
   const Back = l === "he" ? ArrowRight : ArrowLeft;
+  const editHref = contentEditPath(viewer, event.id);
   const membersOrder = LECTURE_SECTIONS.filter((s) => s !== "blurb");
 
   return (
@@ -117,6 +119,8 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
             </p>
           </div>
         </header>
+
+        {editHref && <AdminEditBar href={editHref} note={t("adminEditNote")} label={t("editOnPage")} />}
 
         {blurb ? (
           <SectionBlock

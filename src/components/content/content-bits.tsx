@@ -1,5 +1,6 @@
 import { getLocale } from "next-intl/server";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Pencil, ShieldCheck } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { loc } from "@/lib/event-format";
 import type { Locale } from "@/i18n/routing";
 import type { EventState, SeasonEvent } from "@/lib/data/types";
@@ -95,6 +96,29 @@ export function MembersSoon({ title, body }: { title: string; body: string }) {
         {title}
       </p>
       <p className="max-w-[60ch] text-fg-muted">{body}</p>
+    </div>
+  );
+}
+
+/**
+ * Admins only: the way from a lecture or workshop page to where its content and files are edited.
+ * The page renders it only when contentEditPath() (server-side viewer) gave a path, so members
+ * and guests never get it. Phone first: the button goes full width under the note.
+ */
+export function AdminEditBar({ href, note, label }: { href: string; note: string; label: string }) {
+  return (
+    <div
+      className="flex flex-col gap-3 rounded-lg border border-dashed border-border-accent bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+      data-testid="admin-edit-bar"
+    >
+      <p className="flex items-center gap-2 text-sm text-fg-muted">
+        <ShieldCheck aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+        {note}
+      </p>
+      <Link href={href} className="btn btn-primary h-11 w-full px-4 sm:w-fit" data-testid="admin-edit-link">
+        <Pencil aria-hidden />
+        {label}
+      </Link>
     </div>
   );
 }
