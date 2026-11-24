@@ -49,7 +49,7 @@ test("en: sections in page order; Hebrew-only parts are marked and set right-to-
   await expect(goals.locator("ol li")).toHaveText(["Define", "Compare"]);
 
   await expect(content.getByTestId("file-download")).toHaveAttribute("href", `/api/files/${FILE_ID}`);
-  await expect(content.getByTestId("file-download")).toHaveText("Download Lecture summary (PDF, Hebrew)");
+  await expect(content.getByTestId("file-download")).toHaveAccessibleName("Download Lecture summary (PDF, Hebrew)");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath("members-en.png"), fullPage: true });
 });
@@ -59,7 +59,7 @@ test("he: no Hebrew-only notes; the PDF link is in Hebrew", async ({ page }, inf
   const content = page.getByTestId("members-content");
   await expect(content.getByTestId("section-summary").getByRole("heading", { level: 2 })).toHaveText("סיכום");
   await expect(content.getByTestId("hebrew-only")).toHaveCount(0);
-  await expect(content.getByTestId("file-download")).toHaveText("הורדת סיכום ההרצאה (PDF)");
+  await expect(content.getByTestId("file-download")).toHaveAccessibleName("הורדת סיכום ההרצאה (PDF)");
   await expect(page.getByTestId("members-locked")).toHaveCount(0);
   await page.screenshot({ path: info.outputPath("members-he.png"), fullPage: true });
 });
