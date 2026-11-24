@@ -16,14 +16,12 @@ const isMember = () => /(?:^|;\s*)tau_member=1(?:;|$)/.test(document.cookie);
 const useMemberHint = () => useSyncExternalStore(subscribe, isMember, () => false);
 
 export function MemberSectionLinks({
-  lectures,
-  workshops,
+  lessons,
   initiatives,
   className,
   linkClassName,
 }: {
-  lectures: string;
-  workshops: string;
+  lessons: string;
   initiatives: string;
   className: string;
   linkClassName: string;
@@ -33,13 +31,8 @@ export function MemberSectionLinks({
   return (
     <ul className={className} data-testid="member-section-links">
       <li>
-        <Link href="/lectures" className={linkClassName}>
-          {lectures}
-        </Link>
-      </li>
-      <li>
-        <Link href="/workshops" className={linkClassName}>
-          {workshops}
+        <Link href="/learn" className={linkClassName}>
+          {lessons}
         </Link>
       </li>
       <li>

@@ -56,11 +56,11 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
       <PageBackdrop />
       <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="workshop-page">
         <Link
-          href="/workshops"
+          href="/learn#workshops"
           className="inline-flex min-h-11 w-fit items-center gap-2 rounded-sm text-sm text-fg-subtle transition-colors duration-150 hover:text-fg"
         >
           <Back aria-hidden className="size-4" />
-          {t("backToWorkshops")}
+          {t("backToLessons")}
         </Link>
 
         <header className="grid gap-5">

@@ -540,6 +540,13 @@
   },
   "content": {
     "navLabel": "Sections",
+    "navLessons": "Lessons",
+    "lessonsTitle": "Lessons",
+    "lessonsBody": "Talks from people building with AI, and hands-on Zero to Hero workshops with Claude Code. Members get each session's summaries and lessons.",
+    "lessonsLectures": "Lectures",
+    "lessonsWorkshops": "Claude Code workshops",
+    "backToLessons": "All lessons",
+    "openWorkshop": "Open the workshop",
     "navLectures": "Lectures",
     "navWorkshops": "Workshops",
     "navMembersOnly": "members only",

@@ -69,7 +69,7 @@ test("no members-only text on any public page, feed or endpoint", async ({ reque
   test.setTimeout(180_000);
   const xml = await (await request.get("/sitemap.xml")).text();
   const fromSitemap = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
-  expect(fromSitemap).toContain("/lectures");
+  expect(fromSitemap).toContain("/learn");
   expect(fromSitemap.some((p) => /^\/en\/lectures\/[a-z0-9-]+$/.test(p))).toBe(true);
 
   const extra = ["/workshops", "/workshops/zero-to-hero-1", "/login", "/admin", "/profile", "/me", "/api/calendar/cohort-02-opening", "/speaker/" + "a".repeat(64), "/calendar.ics", "/calendar-en.ics"];
@@ -99,7 +99,7 @@ for (const L of [
       if (/\/api\/(events\/[^/]+\/content|files|auth)/.test(r.url())) fetched.push(r.url());
     });
 
-    for (const p of ["/lectures/cohort-02-opening", "/workshops", "/workshops/zero-to-hero-1"]) {
+    for (const p of ["/lectures/cohort-02-opening", "/learn", "/workshops/zero-to-hero-1"]) {
       const res = await page.goto(`${L.prefix}${p}`);
       expect(res?.status(), p).toBe(200);
       expect(new URL(page.url()).pathname, p).toBe(`${L.prefix}${p}`);
@@ -110,8 +110,9 @@ for (const L of [
       await expect(page.getByTestId("members-content")).toHaveCount(0);
       await expect(page.locator('a[href*="/login"], a[href*="/api/auth/"]')).toHaveCount(0);
     }
-    // The workshop list still lists the season's workshops.
+    // "שיעורים / Lessons" (24.11) still lists the season's workshops; the old list URL lands there.
     await page.goto(`${L.prefix}/workshops`);
+    expect(new URL(page.url()).pathname).toBe(`${L.prefix}/learn`);
     await expect(page.getByTestId("workshop-card")).toHaveCount(3);
     // The lecture keeps its public blurb.
     await page.goto(`${L.prefix}/lectures/cohort-02-opening`);

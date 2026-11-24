@@ -19,14 +19,15 @@ test("the members-only phrases really are in the members-only seed", () => {
 
 test.describe("lectures (members only once the members area is on)", () => {
   test("guests are sent to log in, and come back to the page", async ({ page }) => {
+    // The old list lands on "שיעורים" (/learn, 24.11), which is members only too.
     await page.goto("/lectures");
-    await expect(page).toHaveURL(/\/login\?next=%2Flectures$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Flearn(#lectures)?$/);
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
     await expect(page.getByTestId("email-form")).toBeVisible();
     await page.goto(`/en/lectures/${LECTURE}`);
     await expect(page).toHaveURL(/\/en\/login\?next=%2Flectures%2Fcohort-02-opening$/);
     await expect(page.getByTestId("lecture-page")).toHaveCount(0);
-    await expect(page.getByTestId("lectures-page")).toHaveCount(0);
+    await expect(page.getByTestId("lessons-page")).toHaveCount(0);
   });
 
   test("unknown lectures still redirect a guest (no slug probing)", async ({ request }) => {
@@ -38,7 +39,7 @@ test.describe("lectures (members only once the members area is on)", () => {
   });
 
   test("no members-only text in the redirects, the RSC payload or the sitemap", async ({ request }) => {
-    for (const p of [`/lectures/${LECTURE}`, `/en/lectures/${LECTURE}`, "/lectures", "/en/lectures", "/sitemap.xml"]) {
+    for (const p of [`/lectures/${LECTURE}`, `/en/lectures/${LECTURE}`, "/lectures", "/en/lectures", "/learn", "/en/learn", "/sitemap.xml"]) {
       for (const headers of [{}, { RSC: "1" }] as Record<string, string>[]) {
         const res = await request.get(p, { headers });
         expect(res.status(), p).toBeLessThan(500);
@@ -70,15 +71,16 @@ test.describe("lectures (members only once the members area is on)", () => {
     const xml = await (await request.get("/sitemap.xml")).text();
     expect(xml).not.toContain("/lectures");
     expect(xml).not.toContain("/workshops");
+    expect(xml).not.toContain("/learn");
     // Meetup pages are members only for now (docs/DECISIONS.md).
     expect(xml).not.toContain("/events/");
   });
 
-  test("the public nav doesn't show Lectures or Workshops to guests", async ({ page }) => {
+  test("the public nav doesn't show Lessons (or the old Lectures/Workshops) to guests", async ({ page }) => {
     for (const p of ["/", "/en", `/en/events/${LECTURE}`]) {
       await page.goto(p);
       await expect(page.getByTestId("nav-login").first()).toBeVisible();
-      await expect(page.locator('header a[href$="/lectures"], header a[href$="/workshops"]'), p).toHaveCount(0);
+      await expect(page.locator('header a[href$="/learn"], header a[href$="/lectures"], header a[href$="/workshops"]'), p).toHaveCount(0);
     }
   });
 
@@ -89,13 +91,13 @@ test.describe("lectures (members only once the members area is on)", () => {
     await expect(page.getByTestId("nav-my-area")).toBeVisible();
     await expect(page.getByTestId("member-section-links").locator("visible=true").first()).toBeVisible();
     await page.getByTestId("member-section-links").locator("visible=true").first().getByRole("link").first().click();
-    await expect(page).toHaveURL(/\/en\/login\?next=%2Flectures$/);
+    await expect(page).toHaveURL(/\/en\/login\?next=%2Flearn$/);
   });
 
   test("layout: no horizontal scroll, axe clean on the login page", async ({ page }) => {
     // Check the settled page: the card's text eases in (opacity), which axe reads as low contrast mid-fade.
     await page.emulateMedia({ reducedMotion: "reduce" });
-    for (const p of ["/lectures", "/en/lectures"]) {
+    for (const p of ["/learn", "/en/learn"]) {
       await page.goto(p);
       await page.getByTestId("email-form").waitFor();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), p).toBe(true);
@@ -109,7 +111,7 @@ test.describe("lectures (members only once the members area is on)", () => {
 test.describe("workshops (members only)", () => {
   test("guests are sent to sign in, and come back to the page", async ({ page }) => {
     await page.goto("/workshops");
-    await expect(page).toHaveURL(/\/login\?next=%2Fworkshops$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Flearn(#workshops)?$/);
     await page.goto("/en/workshops/zero-to-hero-1");
     await expect(page).toHaveURL(/\/en\/login\?next=%2Fworkshops%2Fzero-to-hero-1$/);
     await expect(page.getByTestId("workshop-page")).toHaveCount(0);
@@ -130,11 +132,13 @@ test.describe("header", () => {
     await expect(page.getByRole("link", { name: "Member log in" }).locator("visible=true")).toHaveCount(1);
     await expect(page.getByRole("link", { name: "Lectures", exact: true })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /^Workshops/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Lessons", exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.goto("/");
     await expect(page.getByRole("link", { name: "כניסה לחברים" }).locator("visible=true")).toHaveCount(1);
     await expect(page.getByRole("link", { name: "הרצאות" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /סדנאות/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "שיעורים" })).toHaveCount(0);
   });
 });
 

@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
  *   - the comma never starts a line (a Hebrew reader meets the right edge first);
  *   - the rendered text equals the stored title (display only, no characters added);
  *   - English pages carry no <bdi> in their headings.
- * Runs in the launch setup (auth off), where /lectures and /workshops are the public previews.
+ * Runs in the launch setup (auth off), where /learn ("שיעורים": lectures and workshops, 24.11) is the public preview.
  */
 
 type Row = { title: string; word: string; sameLine: boolean; gluedAfterWord: boolean; gluedBeforeWord: boolean; leadsLine: boolean };
@@ -58,7 +58,7 @@ test.describe("Hebrew pages: commas in mixed titles", () => {
   // Layout is measured at explicit widths below, so one project is enough.
   test.skip(({ isMobile }) => isMobile, "measured at explicit widths in the desktop project");
 
-  for (const path of ["/lectures", "/workshops"]) {
+  for (const path of ["/learn"]) {
     test(`${path}: comma placement at ${WIDTHS.join(", ")}px`, async ({ page }) => {
       const found = new Set<string>();
       for (const width of WIDTHS) {
@@ -84,7 +84,7 @@ test.describe("Hebrew pages: commas in mixed titles", () => {
     const stored = new Set<string>();
     const fx = (await import("../../src/lib/data/fixtures.json", { with: { type: "json" } })).default as { events: { title_he: string; title_en: string }[] };
     for (const e of fx.events) [e.title_he, e.title_en].forEach((t) => stored.add(t));
-    for (const path of ["/lectures", "/workshops"]) {
+    for (const path of ["/learn"]) {
       await page.goto(path);
         await page.evaluate(() => document.fonts.ready);
       const rows = await page.evaluate(measure);
@@ -93,7 +93,7 @@ test.describe("Hebrew pages: commas in mixed titles", () => {
   });
 
   test("English pages carry no <bdi> in headings", async ({ page }) => {
-    for (const path of ["/en/lectures", "/en/workshops"]) {
+    for (const path of ["/en/learn"]) {
       await page.goto(path);
         await page.evaluate(() => document.fonts.ready);
       expect(await page.locator("h1 bdi, h2 bdi, h3 bdi").count(), `${path}: English titles must not be wrapped`).toBe(0);

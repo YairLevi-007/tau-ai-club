@@ -540,6 +540,13 @@
   },
   "content": {
     "navLabel": "מדורים",
+    "navLessons": "שיעורים",
+    "lessonsTitle": "שיעורים",
+    "lessonsBody": "הרצאות של אנשים שבונים עם AI, וסדנאות Zero to Hero מעשיות עם Claude Code. לחברי המועדון: הסיכומים והשיעורים של כל מפגש.",
+    "lessonsLectures": "הרצאות",
+    "lessonsWorkshops": "סדנאות Claude Code",
+    "backToLessons": "כל השיעורים",
+    "openWorkshop": "לעמוד הסדנה",
     "navLectures": "הרצאות",
     "navWorkshops": "סדנאות",
     "navMembersOnly": "לחברי המועדון",
