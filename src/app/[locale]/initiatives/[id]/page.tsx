@@ -25,7 +25,6 @@ import {
 import { hintClass, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { BidiText } from "@/components/events/bidi-text";
 import { MemberAvatar } from "@/components/members/member-avatar";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/initiatives/[id]">): Promise<Metadata> {
@@ -70,7 +69,6 @@ export default async function InitiativePage({ params }: PageProps<"/[locale]/in
 
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-8 px-4 pt-10 pb-20 sm:px-8 lg:pt-14">
         <Link href="/initiatives" className="inline-flex w-fit items-center gap-1 rounded-sm text-fg-muted hover:text-fg">
           <Back aria-hidden className="size-4" />

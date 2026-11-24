@@ -1,11 +1,12 @@
 /**
- * The home page's backdrop: logo grid + the one glow + a few pixel blocks. Decorative, static.
- * Used on the home page and in the personal area (/me, /profile), which the user wants in the
- * same colours (docs/DECISIONS.md). The parent needs `relative isolate`.
+ * The site background: the home page's logo grid + the one glow + a few pixel blocks. Decorative,
+ * static. The one background for every page, public, members and admin (user and manager, 25.11),
+ * so it's rendered once, in the locale layout, behind the header and the page; pages don't add
+ * their own. The parent (the layout's wrapper) is `relative isolate`.
  */
 export function PageBackdrop() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[46rem] overflow-hidden">
+    <div aria-hidden data-testid="site-backdrop" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[46rem] overflow-hidden">
       <div className="hero-grid absolute inset-0" />
       <div className="hero-glow absolute inset-0" />
       <i className="absolute hidden lg:block start-[6%] top-[11rem] size-7 bg-logo-indigo" />

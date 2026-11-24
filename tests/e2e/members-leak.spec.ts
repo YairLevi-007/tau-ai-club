@@ -114,6 +114,10 @@ for (const L of [
     await page.goto(`${L.prefix}/workshops`);
     expect(new URL(page.url()).pathname).toBe(`${L.prefix}/learn`);
     await expect(page.getByTestId("workshop-card")).toHaveCount(3);
+    // ...on its own tab on a phone (25.11): workshops showing, lectures hidden. Desktop shows both.
+    await expect(page.getByTestId("tab-workshops")).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByTestId("workshop-card").first()).toBeVisible();
+    if (test.info().project.name !== "desktop") await expect(page.getByTestId("lessons-lectures")).toBeHidden();
     // The lecture keeps its public blurb.
     await page.goto(`${L.prefix}/lectures/cohort-02-opening`);
     await expect(page.locator('[data-testid="lecture-page"]')).toContainText(L.prefix ? "Shay Yahal" : "שי יהל");

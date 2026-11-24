@@ -30,6 +30,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/[locale]/a
         <AdminTabs
           label={t("navLabel")}
           tabs={[
+            { href: "/admin", label: t("overviewTab"), exact: true },
             { href: "/admin/events", label: t("eventsTab") },
             { href: "/admin/venues", label: t("venuesTab") },
             { href: "/admin/speaker-profiles", label: t("speakerProfilesTab") },

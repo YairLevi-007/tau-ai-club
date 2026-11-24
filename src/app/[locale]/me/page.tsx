@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CalendarPlus, ChevronLeft, ChevronRight, Presentation, Wrench } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { TIME_ZONE, type Locale } from "@/i18n/routing";
 import { requireMember } from "@/lib/auth/viewer";
@@ -14,11 +14,11 @@ import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { getMyMatches } from "@/lib/pair/data";
 import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { IcebreakersTeaser } from "@/components/pair/icebreakers-teaser";
 import { ProfileEditor } from "@/components/members/profile-editor";
 import { MyAttendance } from "@/components/members/my-attendance";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
+import { PixelIcon } from "@/components/home/pixel-icon";
 import { cn } from "@/lib/utils";
 import { BidiText } from "@/components/events/bidi-text";
 
@@ -41,10 +41,11 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   const locale = lc as Locale;
   setRequestLocale(locale);
   const viewer = await requireMember("/me");
-  const [t, tc, te, season, supabase] = await Promise.all([
+  const [t, tc, te, td, season, supabase] = await Promise.all([
     getTranslations("me"),
     getTranslations("content"),
     getTranslations("event"),
+    getTranslations("directory"),
     getSeason(),
     createClient(),
   ]);
@@ -135,7 +136,6 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   // a meetup day), 3. the season dial, 4. upcoming meetups + calendar, 5. lectures, workshops, games.
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="me">
         <div className="grid gap-6">
           <header className="grid gap-2">
@@ -176,7 +176,8 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
         )}
 
         <section aria-labelledby="upcoming-heading" className={cn(raisedPanelClass, "grid gap-4 p-5 sm:p-6")} data-testid="me-upcoming">
-          <h2 id="upcoming-heading" className={panelTitle}>
+          <h2 id="upcoming-heading" className={cn(panelTitle, "flex items-center gap-2.5")}>
+            <PixelIcon glyph="week" className="h-5 w-auto shrink-0" />
             {dialSlug ? t("laterTitle") : t("upcomingTitle")}
           </h2>
           {later.length === 0 ? (
@@ -219,13 +220,14 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
           <h2 id="sections-heading" className={panelTitle}>
             {t("sectionsTitle")}
           </h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-3 md:grid-cols-3">
             {(
               [
-                ["/learn#lectures", tc("navLectures"), t("lecturesHint"), Presentation],
-                ["/learn#workshops", tc("navWorkshops"), t("workshopsHint"), Wrench],
+                ["/learn#lectures", tc("navLectures"), t("lecturesHint"), "lecture"],
+                ["/learn#workshops", tc("navWorkshops"), t("workshopsHint"), "build"],
+                ["/members", td("nav"), t("membersHint"), "people"],
               ] as const
-            ).map(([href, label, hint, Icon]) => (
+            ).map(([href, label, hint, glyph]) => (
               <li key={href}>
                 <Link
                   href={href}
@@ -234,8 +236,9 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
                     "group flex h-full items-center gap-4 p-4 transition-colors duration-150 hover:border-border-accent hover:bg-surface-hover",
                   )}
                 >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-md border border-border-accent bg-brand-purple-deeper text-fg [&_svg]:size-5">
-                    <Icon aria-hidden />
+                  {/* The home page's pixel glyphs (DECISIONS 25.11), on the dark tile. */}
+                  <span className="grid size-12 shrink-0 place-items-center rounded-md border border-border bg-bg-deep" data-testid="me-tile-icon" data-glyph={glyph}>
+                    <PixelIcon glyph={glyph} className="h-7 w-auto" />
                   </span>
                   <span className="grid min-w-0 flex-1 gap-0.5">
                     <span className="font-semibold text-fg">{label}</span>

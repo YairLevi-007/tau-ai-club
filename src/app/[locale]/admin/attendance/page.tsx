@@ -5,12 +5,13 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
-import { currentCohort, getSeasonAttendance } from "@/lib/attendance/data";
+import { currentCohort, getSeasonAttendance, getSeasonUploads } from "@/lib/attendance/data";
 import { formatShortDate, loc } from "@/lib/event-format";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { hintClass, panelClass, smallBtn } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 import { AttendanceMark, RateBar } from "@/components/admin/attendance/attendance-mark";
+import { SessionUploadsList } from "@/components/admin/attendance/session-uploads";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/attendance">): Promise<Metadata> {
   const { locale } = await params;
@@ -30,11 +31,14 @@ export default async function AdminAttendancePage({ params }: PageProps<"/[local
   const t = await getTranslations("attendance");
   const supabase = await createClient();
   const cohort = supabase ? await currentCohort(supabase) : null;
-  const season = supabase && cohort ? await getSeasonAttendance(supabase, cohort.id) : null;
+  const [season, uploads] = supabase && cohort ? await Promise.all([getSeasonAttendance(supabase, cohort.id), getSeasonUploads(supabase, cohort.id)]) : [null, null];
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
-      <AdminHeader title={t("seasonTitle")} body={t("seasonBody")} alert={season?.error ? t("errorLoad") : null} />
+      <AdminHeader title={t("seasonTitle")} body={t("seasonBody")} alert={season?.error || uploads?.error ? t("errorLoad") : null} />
+
+      {/* Two Luma uploads per session: before (who registered) and after (who came). DECISIONS 25.11. */}
+      {uploads && <SessionUploadsList sessions={uploads.sessions} />}
 
       {cohort && season && (
         <div className="flex flex-wrap items-center gap-3">

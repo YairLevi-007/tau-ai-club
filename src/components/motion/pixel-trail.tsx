@@ -3,9 +3,10 @@
 import { useEffect } from "react";
 
 /**
- * A short trail of pixel squares behind the mouse on the home page (pixel pass, DECISIONS 23.11;
- * the effect is Sean Regev's, from feat/home-pixel-pass). Each time the pointer enters a new
- * 14px cell, one square lights up there and fades out in about half a second.
+ * A short trail of pixel squares behind the mouse, on every page: it's mounted once, in the locale
+ * layout (25.11; first on the home page in the pixel pass, DECISIONS 23.11; the effect is Sean
+ * Regev's, from feat/home-pixel-pass). Each time the pointer enters a new 14px cell, one square
+ * lights up there and fades out in about half a second.
  *
  * - Mouse only: it starts only where the main pointer can hover finely, and it ignores pen and
  *   touch events, so phones and tablets never run it.

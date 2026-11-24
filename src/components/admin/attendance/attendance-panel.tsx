@@ -3,19 +3,24 @@ import { UsersRound } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getEventAttendance } from "@/lib/attendance/data";
+import { getEventAttendance, uploadPhase, uploadTimes } from "@/lib/attendance/data";
+import { getNow } from "@/lib/events";
 import { formatShortDate } from "@/lib/event-format";
 import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { cn } from "@/lib/utils";
 import { AttendanceImport } from "./attendance-import";
 import { AttendanceTag } from "./attendance-mark";
+import { UploadSteps } from "./upload-steps";
 
 type Client = SupabaseClient;
 
 /** "Attendance from Luma" on an event's admin page: the numbers, who came, and the CSV upload. */
-export async function AttendancePanel({ supabase, eventId }: { supabase: Client; eventId: string }) {
+export async function AttendancePanel({ supabase, eventId, endsAt }: { supabase: Client; eventId: string; endsAt: string }) {
   const [t, locale] = await Promise.all([getTranslations("attendance"), getLocale() as Promise<Locale>]);
   const { info, members } = await getEventAttendance(supabase, eventId);
+  // The session's two uploads (DECISIONS 25.11): which one it's waiting for, and when each was done.
+  const phase = uploadPhase({ ends_at: endsAt }, getNow().toISOString());
+  const times = uploadTimes(info, { ends_at: endsAt });
   const n = (s: string) => members.filter((m) => m.status === s).length;
   const time = (iso: string) =>
     new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
@@ -29,6 +34,8 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
         </h2>
         <p className={hintClass}>{t("body")}</p>
       </div>
+
+      <UploadSteps before={times.before} after={times.after} phase={phase} endsAt={endsAt} />
 
       {info ? (
         <div className="grid gap-3">
@@ -84,7 +91,7 @@ export async function AttendancePanel({ supabase, eventId }: { supabase: Client;
       )}
 
       <div className="border-t border-border pt-4">
-        <AttendanceImport eventId={eventId} />
+        <AttendanceImport eventId={eventId} phase={phase} />
       </div>
     </section>
   );

@@ -13,7 +13,6 @@ import { raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 
 // Members only: no member's name goes into the title or any metadata.
@@ -43,7 +42,6 @@ export default async function MemberPage({ params }: PageProps<"/[locale]/member
 
   return (
     <div className="relative isolate">
-    <PageBackdrop />
     <article className="mx-auto max-w-4xl px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="member-profile">
       <MembersEyebrow />
       <header className="mt-3 flex flex-col gap-5 rounded-lg border border-border-accent bg-bg-raised p-6 shadow-[var(--shadow-featured)] [background-image:var(--card-featured-bg)] sm:flex-row sm:items-center sm:gap-7 sm:p-8">

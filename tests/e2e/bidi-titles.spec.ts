@@ -18,6 +18,8 @@ type Row = { title: string; word: string; sameLine: boolean; gluedAfterWord: boo
 const measure = () => {
   const rows: Row[] = [];
   for (const h of document.querySelectorAll("h1, h2, h3")) {
+    // Only what's on screen: the Lessons tab that isn't selected (25.11) is hidden, and has no layout to measure.
+    if (!h.getClientRects().length) continue;
     const text = h.textContent ?? "";
     const chars: { ch: string; l: number; r: number; t: number }[] = [];
     const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
@@ -58,7 +60,8 @@ test.describe("Hebrew pages: commas in mixed titles", () => {
   // Layout is measured at explicit widths below, so one project is enough.
   test.skip(({ isMobile }) => isMobile, "measured at explicit widths in the desktop project");
 
-  for (const path of ["/learn"]) {
+  // Both tabs of "שיעורים" (25.11): lectures (the default) and workshops.
+  for (const path of ["/learn", "/learn#workshops"]) {
     test(`${path}: comma placement at ${WIDTHS.join(", ")}px`, async ({ page }) => {
       const found = new Set<string>();
       for (const width of WIDTHS) {
@@ -84,7 +87,7 @@ test.describe("Hebrew pages: commas in mixed titles", () => {
     const stored = new Set<string>();
     const fx = (await import("../../src/lib/data/fixtures.json", { with: { type: "json" } })).default as { events: { title_he: string; title_en: string }[] };
     for (const e of fx.events) [e.title_he, e.title_en].forEach((t) => stored.add(t));
-    for (const path of ["/learn"]) {
+    for (const path of ["/learn", "/learn#workshops"]) {
       await page.goto(path);
         await page.evaluate(() => document.fonts.ready);
       const rows = await page.evaluate(measure);

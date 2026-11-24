@@ -75,7 +75,7 @@ test("a forged unsigned JWT cannot make the endpoint reveal contacts", async ({ 
   const r = await get(request, "/api/events/zero-to-hero-1/speaker-contacts", { cookie: `sb-127-auth-token=${session}` });
   expect(r.status()).toBeLessThan(500);
   expect(await r.json()).toEqual({ contacts: {} });
-  // Follow the redirects by hand (a guest may be forwarded more than once: /profile -> /me -> login, /admin -> /admin/members -> login).
+  // Follow the redirects by hand (a guest may be forwarded more than once: /profile -> /me -> login, /admin -> login).
   // Every path must end at login / members-only or a 404, never on a page with content.
   for (const p of ["/admin/members", "/en/profile"]) {
     let url = p;

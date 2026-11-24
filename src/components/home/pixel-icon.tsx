@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /*
- * Pixel glyphs (9 rows) for the "about" cards, drawn on the logo's grid. Drawn by Sean Regev on
+ * Pixel glyphs (9 rows) for the "about" cards and the members' area, drawn on the logo's grid. Drawn by Sean Regev on
  * feat/home-pixel-pass (18.11); brought over in the pixel pass (DECISIONS 23.11). "#" is a lit pixel
  * (brand purple), "+" a dim one (logo block). Decorative: each sits next to its written title.
  */
@@ -41,6 +41,30 @@ const GLYPHS = {
     "+++#####+++",
     "+++#####+++",
     "...........",
+  ],
+  // A slide on a stand, one bar lit: the lectures (members' area, DECISIONS 25.11).
+  lecture: [
+    "#########",
+    "#.......#",
+    "#.....#.#",
+    "#.+...#.#",
+    "#.+.+.#.#",
+    "#########",
+    "....+....",
+    "...+.+...",
+    "..+...+..",
+  ],
+  // A ticket with a tick (its tail dim): my attendance (members' area, DECISIONS 25.11).
+  check: [
+    ".........",
+    "#########",
+    "#.......#",
+    "#.....#.#",
+    "#+...#..#",
+    "#.+.#...#",
+    "#..#....#",
+    "#########",
+    ".........",
   ],
 } as const;
 

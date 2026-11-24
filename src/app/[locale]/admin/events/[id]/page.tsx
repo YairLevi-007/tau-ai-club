@@ -340,7 +340,7 @@ export default async function AdminEventPage({ params, searchParams }: PageProps
 
       {ev && <SpeakerContactsPanel rows={lineupContacts} locale={locale} />}
 
-      {ev && <AttendancePanel supabase={supabase} eventId={ev.id} />}
+      {ev && <AttendancePanel supabase={supabase} eventId={ev.id} endsAt={ev.ends_at} />}
 
       {ev && (
         <ActionForm action={deleteEvent} confirmText={t("deleteEventConfirm", { name: loc(ev, "title", locale) ?? ev.slug })} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 p-4 sm:p-5">

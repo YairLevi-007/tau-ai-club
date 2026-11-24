@@ -6,7 +6,6 @@ import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { raisedPanelClass } from "@/components/admin/styles";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { getEventBySlug, getSeason } from "@/lib/events";
 import { getPublicSections } from "@/lib/content/data";
@@ -88,7 +87,6 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
 
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="lecture-page" data-state={event.state}>
         <Link
           href="/learn#lectures"

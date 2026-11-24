@@ -101,6 +101,33 @@ export async function runAttendanceChecks(db, check) {
   const fut = (await run("admin", future, [{ email: "bob@club.test", going: true }], true)).rows?.[0]?.out;
   check(byId(fut, bob)?.status === "registered", "before the event ends, going-but-not-checked-in stays 'registered'");
 
+  // ---- 19b. two uploads per session: before / after (DECISIONS 25.11) -------------
+  const phases = async (id) => (await db.query("select before_imported_at, after_imported_at from public.attendance_imports where event_id = $1", [id])).rows[0];
+  const pp = await phases(past);
+  check(Boolean(pp?.after_imported_at) && !pp.before_imported_at, "an upload after the session ends is stamped 'after' only");
+  const pf = await phases(future);
+  check(Boolean(pf?.before_imported_at) && !pf.after_imported_at, "an upload before the session ends is stamped 'before' only");
+  // The same session, before and then after it ends.
+  const both = await mkEvent("att-both", "now() + interval '1 day'");
+  await run("admin", both, [{ email: "bob@club.test", going: true }], true);
+  const b1 = await phases(both);
+  check(Boolean(b1?.before_imported_at) && !b1.after_imported_at, "before the session: the 'before' upload is recorded");
+  await db.query("update public.events set starts_at = now() - interval '3 hours', ends_at = now() - interval '1 hour' where id = $1", [both]);
+  await run("admin", both, [{ email: "bob@club.test", going: true, checked_in: true }], true);
+  const b2 = await phases(both);
+  check(
+    Boolean(b2?.after_imported_at) && b2.before_imported_at?.getTime() === b1.before_imported_at.getTime(),
+    "after the session: the 'after' upload is recorded and the 'before' time is kept",
+  );
+  check(
+    (await db.query("select status from public.attendance where event_id = $1", [both])).rows.every((r) => r.status === "checked_in"),
+    "the after upload still replaces the session's attendance (logic unchanged)",
+  );
+  const forge = await as("admin", "update public.attendance_imports set before_imported_at = now() where event_id = $1", [both]);
+  check(denied(forge) || forge.affected === 0, "even an admin cannot write the upload times directly");
+  check(denied(await as("admin", "select public.attendance_imports_phase()")), "the trigger function cannot be called directly");
+  await db.query("delete from public.events where id = $1", [both]);
+
   // ---- 20. who reads what ------------------------------------------------------
   const read = (who) => as(who, "select member_id, event_id from public.attendance");
   const a = await read("alice");

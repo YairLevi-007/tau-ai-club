@@ -6,7 +6,6 @@ import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { raisedPanelClass } from "@/components/admin/styles";
 import { FileLink } from "@/components/content/file-link";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -53,7 +52,6 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
 
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <article className="mx-auto grid max-w-4xl gap-10 px-4 pt-6 pb-20 sm:px-8 lg:pt-12" data-testid="workshop-page">
         <Link
           href="/learn#workshops"

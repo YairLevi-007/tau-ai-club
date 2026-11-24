@@ -152,13 +152,13 @@ export default async function EventPage({ params }: PageProps<"/[locale]/events/
 
   return (
     <div className="relative isolate">
-      {/* Backdrop: the logo grid; the glow and the flyer's pixel staircase only while the meetup is still ahead. Decorative, static. */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[34rem] overflow-hidden">
-        <div className="hero-grid absolute inset-0" />
-        {!past && <div className="hero-glow absolute inset-0" />}
-        {!past && <PixelCluster className="absolute end-0 top-[4.5rem] w-[clamp(7.5rem,24vw,15.5rem)] rtl:-scale-x-100" />}
-        <i className="absolute hidden lg:block start-[5%] top-[18rem] size-7 bg-logo-indigo" />
-      </div>
+      {/* The site background comes from the layout (25.11). Only the flyer's pixel staircase stays
+          here, while the meetup is still ahead: it belongs to this event, not to the background. */}
+      {!past && (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[34rem] overflow-hidden">
+          <PixelCluster className="absolute end-0 top-[4.5rem] w-[clamp(7.5rem,24vw,15.5rem)] rtl:-scale-x-100" />
+        </div>
+      )}
 
       {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />}
       <article data-testid="event-page" data-state={event.state} className="mx-auto max-w-site px-4 pt-6 sm:px-8 lg:pt-12">

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * On a phone the row is wider than the screen, so (round 2, item 9) a fade at the end edge shows
  * there's more, and the current tab is scrolled into view on load.
  */
-export function AdminTabs({ label, tabs }: { label: string; tabs: { href: string; label: string }[] }) {
+export function AdminTabs({ label, tabs }: { label: string; tabs: { href: string; label: string; /** Current only on this exact path (the admin home). */ exact?: boolean }[] }) {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -23,7 +23,7 @@ export function AdminTabs({ label, tabs }: { label: string; tabs: { href: string
       <nav ref={navRef} aria-label={label} className="overflow-x-auto px-4 [scrollbar-width:none] sm:px-0">
         <ul className="flex min-w-max gap-1 border-b border-border pe-8 sm:pe-0">
           {tabs.map((tab) => {
-            const current = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+            const current = pathname === tab.href || (!tab.exact && pathname.startsWith(`${tab.href}/`));
             return (
               <li key={tab.href}>
                 <Link

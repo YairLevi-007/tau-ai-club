@@ -8,6 +8,7 @@ import { hintClass, raisedPanelClass, panelTitle } from "@/components/admin/styl
 import { cn } from "@/lib/utils";
 import { AttendanceMark } from "@/components/admin/attendance/attendance-mark";
 import { BidiText } from "@/components/events/bidi-text";
+import { PixelIcon } from "@/components/home/pixel-icon";
 
 /**
  * "My attendance" on /profile: the meetups this member was checked in at this season (from the
@@ -21,7 +22,8 @@ export async function MyAttendance({ supabase, memberId }: { supabase: SupabaseC
 
   return (
     <section aria-labelledby="attendance-heading" className={cn(raisedPanelClass, "grid gap-3 p-5 sm:p-6")} data-testid="my-attendance">
-      <h2 id="attendance-heading" className={panelTitle}>
+      <h2 id="attendance-heading" className={cn(panelTitle, "flex items-center gap-2.5")}>
+        <PixelIcon glyph="check" className="h-5 w-auto shrink-0" />
         {t("attendanceTitle")}
       </h2>
       <div className="flex items-center gap-4">
