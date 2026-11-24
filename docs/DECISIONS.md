@@ -13,6 +13,9 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 25.11 | **Two Luma uploads per session.** Before the session: upload who registered (feeds the pAIr get-to-know game). After the session: upload again who actually came (attendance tracking). The admin attendance page gets a clear place for each, per session. | Attendance | `src/app/[locale]/admin/attendance/` |
+| 25.11 | **Lessons page = two tabs at the top: Lectures | Workshops.** One shows at a time, each with its own material; no single long list. | Lessons | `src/app/[locale]/learn/` |
+| 25.11 | **Admins get a visible way into their own area.** An admin-only entry in the site header/menu, and an admin home page with the tracking at a glance (members, attendance per session, what needs attention). Only admins see it. | Admin | `src/app/[locale]/admin/` |
 | 24.11 | **Luma events stay Private (unlisted).** No automatic Luma sync (the public iCal feed would need Public events, which shows them to anyone on Luma). No Luma button for now either (user: no copy-paste each time); luma_url left empty, the session 3 link was removed. | Luma | `events.luma_url` |
 | 24.11 | **Attendance import also takes the Luma attendee PDF** the club gets from its Instinct automation (columns: #, name, email, status Checked In / Going / Not Going, date, other sessions), next to Luma's CSV. Free path only; no Luma API / Luma Plus for now. Same privacy rule: only email + going + check-in leave the file. | Attendance | `src/lib/attendance/` |
 | 24.11 | **Lectures and workshops together under "שיעורים".** One nav item replaces the two; its page shows lectures on one side and the Claude Code workshops on the other (stacked on phone). Existing lecture/workshop URLs keep working. | Nav | |
