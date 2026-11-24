@@ -16,7 +16,6 @@ import { ActionForm } from "@/components/admin/action-form";
 import { dangerBtn, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { BidiText } from "@/components/events/bidi-text";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { withdrawInitiative } from "./actions";
 
@@ -86,7 +85,6 @@ export default async function InitiativesPage({ params, searchParams }: PageProp
 
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14">
         <header className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end">
           <div className="grid gap-3">

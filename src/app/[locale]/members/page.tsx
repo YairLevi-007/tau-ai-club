@@ -12,7 +12,6 @@ import { MemberAvatar } from "@/components/members/member-avatar";
 import { ProfileSubline } from "@/components/members/profile-subline";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
 import { PixelIcon } from "@/components/home/pixel-icon";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 
 // Members only: no member's name goes into the title or any metadata.
@@ -42,7 +41,6 @@ export default async function MembersPage({ params }: PageProps<"/[locale]/membe
 
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-6 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="members-directory">
         <header className="grid gap-3">
           <MembersEyebrow />

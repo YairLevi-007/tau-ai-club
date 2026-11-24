@@ -9,7 +9,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getInitiative } from "@/lib/initiatives";
 import { InitiativeForm } from "@/components/initiatives/initiative-form";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { updateInitiative } from "../../actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/initiatives/[id]/edit">): Promise<Metadata> {
@@ -37,7 +36,6 @@ export default async function EditInitiativePage({ params }: PageProps<"/[locale
   const t = await getTranslations("initiatives");
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-3xl gap-8 px-4 pt-10 pb-20 sm:px-8 lg:pt-14">
         <header className="grid gap-3">
           <MembersEyebrow />

@@ -81,13 +81,6 @@ export function AuthPanel({
 }) {
   return (
     <div className="relative isolate">
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-[38rem] overflow-hidden">
-        <div className="hero-grid absolute inset-0" />
-        <div className="hero-glow absolute inset-0" />
-        <i className="absolute end-[10%] top-[9rem] size-3.5 bg-brand-purple" />
-        <i className="absolute hidden lg:block start-[8%] top-[16rem] size-7 bg-logo-indigo" />
-        <i className="absolute hidden lg:block start-[calc(8%+1.75rem)] top-[17.75rem] size-3.5 bg-logo-block" />
-      </div>
 
       <section
         data-testid={testId}

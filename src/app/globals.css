@@ -446,7 +446,7 @@ h2:not(.font-pixel, .font-mono) {
   [data-active] > .nav-progress-bar { animation: none; width: 100%; }
 }
 
-/* The pixel trail behind the mouse (pixel-trail.tsx, home only, mouse only). Above the content but
+/* The pixel trail behind the mouse (pixel-trail.tsx, every page, mouse only). Above the content but
    ignores clicks, so the real pointer and every cursor under it stay as they are. */
 .pixel-trail {
   position: fixed;

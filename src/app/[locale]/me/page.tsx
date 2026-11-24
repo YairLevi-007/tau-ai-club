@@ -14,7 +14,6 @@ import { getMemberProfile, getMyContact } from "@/lib/members/profile";
 import { getMyMatches } from "@/lib/pair/data";
 import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { IcebreakersTeaser } from "@/components/pair/icebreakers-teaser";
 import { ProfileEditor } from "@/components/members/profile-editor";
 import { MyAttendance } from "@/components/members/my-attendance";
@@ -137,7 +136,6 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
   // a meetup day), 3. the season dial, 4. upcoming meetups + calendar, 5. lectures, workshops, games.
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="me">
         <div className="grid gap-6">
           <header className="grid gap-2">

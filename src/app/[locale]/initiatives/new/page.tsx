@@ -7,7 +7,6 @@ import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
 import { InitiativeForm } from "@/components/initiatives/initiative-form";
 import { MembersEyebrow } from "@/components/members/members-eyebrow";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { proposeInitiative } from "../actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/initiatives/new">): Promise<Metadata> {
@@ -29,7 +28,6 @@ export default async function NewInitiativePage({ params }: PageProps<"/[locale]
   const isAdmin = viewer.member.role === "admin";
   return (
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-3xl gap-8 px-4 pt-10 pb-20 sm:px-8 lg:pt-14">
         <header className="grid gap-3">
           <MembersEyebrow />

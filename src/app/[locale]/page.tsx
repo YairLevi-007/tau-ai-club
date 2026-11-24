@@ -14,9 +14,7 @@ import { SeasonSpeakers } from "@/components/events/season-speakers";
 import { ClubFounders } from "@/components/events/club-founders";
 import { ClubAbout } from "@/components/home/club-about";
 import { HeroFaces, seasonSpeakers } from "@/components/home/hero-faces";
-import { PageBackdrop } from "@/components/site/page-backdrop";
 import { HeroFilm, HeroFilmToggle } from "@/components/home/hero-film";
-import { PixelTrail } from "@/components/motion/pixel-trail";
 import { authEnabled } from "@/lib/supabase/config";
 
 // ISR: re-render at most every 5 minutes (see PUBLIC_REVALIDATE_SECONDS in config/site.ts;
@@ -59,9 +57,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   return (
     <div className="relative isolate">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(orgJsonLd)} />
-      <PageBackdrop />
       <HeroFilm />
-      <PixelTrail />
       {/* Before the hero paints: mark a member's browser, so their layout is there from the first paint (no jump). */}
       {!showSchedule && <script dangerouslySetInnerHTML={{ __html: MEMBER_HINT_SCRIPT }} />}
 
