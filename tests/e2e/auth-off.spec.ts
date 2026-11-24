@@ -127,7 +127,7 @@ test.describe("authEnabled() needs all three conditions", () => {
     for (const p of ["/login", "/admin", "/admin/events/new", "/members/x", "/members-only", "/profile", "/welcome", "/speaker/abc", "/lessons/abc"]) {
       expect(isAuthArea(p), p).toBe(true);
     }
-    for (const p of ["/", "/events/zero-to-hero-1", "/lectures", "/lectures/x", "/membership", "/administer", "/logins"]) {
+    for (const p of ["/", "/events/zero-to-hero-1", "/learn", "/lectures", "/lectures/x", "/workshops/x", "/membership", "/administer", "/logins"]) {
       expect(isAuthArea(p), p).toBe(false);
     }
   });

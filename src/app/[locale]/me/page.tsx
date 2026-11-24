@@ -222,8 +222,8 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
           <ul className="grid gap-3 sm:grid-cols-2">
             {(
               [
-                ["/lectures", tc("navLectures"), t("lecturesHint"), Presentation],
-                ["/workshops", tc("navWorkshops"), t("workshopsHint"), Wrench],
+                ["/learn#lectures", tc("navLectures"), t("lecturesHint"), Presentation],
+                ["/learn#workshops", tc("navWorkshops"), t("workshopsHint"), Wrench],
               ] as const
             ).map(([href, label, hint, Icon]) => (
               <li key={href}>

@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(authEnabled()
       ? []
       : [
-          { path: "/lectures", lastModified: latest },
+          { path: "/learn", lastModified: latest },
           ...events.filter((e) => contentKindOf(e.kind) === "lecture").map((e) => ({ path: `/lectures/${e.slug}`, lastModified: e.updated_at })),
         ]),
   ];

@@ -48,7 +48,7 @@ export default async function LessonPage({ params }: PageProps<"/[locale]/lesson
   const t = await getTranslations("content");
   const event = (Array.isArray(file.events) ? file.events[0] : file.events) as { slug: string; kind: string } | null;
   const title = (locale === "en" ? file.title_en : file.title_he) || file.title_he;
-  const back = event ? (contentKindOf(event.kind) === "workshop" ? `/workshops/${event.slug}` : `/lectures/${event.slug}`) : "/lectures";
+  const back = event ? (contentKindOf(event.kind) === "workshop" ? `/workshops/${event.slug}` : `/lectures/${event.slug}`) : "/learn";
   const Back = locale === "he" ? ChevronRight : ChevronLeft;
 
   return (

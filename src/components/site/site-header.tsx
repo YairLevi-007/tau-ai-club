@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { LockKeyhole } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { SOCIAL } from "@/config/site";
 import { authEnabled } from "@/lib/supabase/config";
@@ -22,8 +21,7 @@ export async function SiteHeader() {
   const sectionLinks = (className: string) =>
     authOn ? (
       <MemberSectionLinks
-        lectures={tc("navLectures")}
-        workshops={tc("navWorkshops")}
+        lessons={tc("navLessons")}
         initiatives={ti("nav")}
         className={className}
         linkClassName={navLinkClass}
@@ -31,15 +29,8 @@ export async function SiteHeader() {
     ) : (
       <ul className={className}>
         <li>
-          <Link href="/lectures" className={navLinkClass}>
-            {tc("navLectures")}
-          </Link>
-        </li>
-        <li>
-          <Link href="/workshops" className={navLinkClass}>
-            {tc("navWorkshops")}
-            <LockKeyhole aria-hidden className="size-3.5 text-fg-subtle" />
-            <span className="sr-only"> ({tc("navMembersOnly")})</span>
+          <Link href="/learn" className={navLinkClass}>
+            {tc("navLessons")}
           </Link>
         </li>
       </ul>
