@@ -1,7 +1,7 @@
 /**
  * Company logos for the badge on speaker and founder photos (docs/DECISIONS.md, 18.11).
  * Matched by a word in the company name, so "Rotate · Check Point" finds Check Point.
- * Files in public/companies/: Google, MongoDB and AWS from Simple Icons, the rest from each
+ * Files in public/companies/: Google is its official four-colour G; MongoDB and AWS from Simple Icons; the rest from each
  * company's own site icon. `bleed`: the icon already has its own square background.
  * "stealth" is drawn in code (the purple padlock from the Stealth Startup logo).
  */
