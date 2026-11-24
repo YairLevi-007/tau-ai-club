@@ -5,12 +5,30 @@ import { useTranslations } from "next-intl";
 import { FileSpreadsheet, LoaderCircle } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { readLumaCsv, type AttendanceRow, type LumaCsv } from "@/lib/attendance/luma-csv";
+import { readLumaPdfLines, textItemsToLines } from "@/lib/attendance/luma-pdf";
 import { importAttendance, type AttendanceResult } from "@/app/[locale]/admin/events/attendance-actions";
 import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
 import { AttendanceTag } from "./attendance-mark";
 
 const MAX_BYTES = 5 * 1024 * 1024;
+
+/** What was read from the file: the CSV's shape, plus the PDF's title and rows it couldn't read. */
+type Parsed = Omit<LumaCsv, "error"> & { title?: string; unreadable?: number };
+
+const isPdf = (file: File) => file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+
+/**
+ * Luma's attendee PDF (24.11), read here like the CSV: text only, with pdf.js in a worker. Returns
+ * null when it isn't a readable Luma attendee PDF. Only email + going + checked in come out.
+ */
+async function readPdf(file: File): Promise<Parsed | null> {
+  const bytes = await file.arrayBuffer();
+  if (new TextDecoder().decode(new Uint8Array(bytes, 0, Math.min(5, bytes.byteLength))) !== "%PDF-") return null;
+  const { pdfTextItems } = await import("@/lib/attendance/pdf-text");
+  const parsed = readLumaPdfLines(textItemsToLines(await pdfTextItems(bytes)));
+  return parsed.error || !parsed.rows.length ? null : parsed;
+}
 
 /**
  * "Attendance from Luma": the admin picks Luma's guest export; it's read here in the browser,
@@ -20,7 +38,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 export function AttendanceImport({ eventId }: { eventId: string }) {
   const t = useTranslations("attendance");
   const router = useRouter();
-  const [csv, setCsv] = useState<LumaCsv | null>(null);
+  const [csv, setCsv] = useState<Parsed | null>(null);
   const [preview, setPreview] = useState<AttendanceResult | null>(null);
   const [busy, setBusy] = useState<null | "reading" | "saving">(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,8 +59,16 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
     if (file.size > MAX_BYTES) return setError(t("errorSize"));
     setBusy("reading");
     try {
-      const parsed = readLumaCsv(await file.text());
-      if (parsed.error) return setError(t(parsed.error === "no_email" ? "errorNoEmail" : "errorEmpty"));
+      let parsed: Parsed;
+      if (isPdf(file)) {
+        const pdf = await readPdf(file).catch(() => null);
+        if (!pdf) return setError(t("errorPdf"));
+        parsed = pdf;
+      } else {
+        const fromCsv = readLumaCsv(await file.text());
+        if (fromCsv.error) return setError(t(fromCsv.error === "no_email" ? "errorNoEmail" : "errorEmpty"));
+        parsed = fromCsv;
+      }
       setCsv(parsed);
       setPreview(await run(parsed.rows, false));
     } catch {
@@ -75,7 +101,7 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
     <div className="grid gap-3" data-testid="attendance-import">
       <label className={labelClass}>
         {t("pick")}
-        <FilePicker accept=".csv,text/csv" onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="attendance-file" />
+        <FilePicker accept=".csv,text/csv,.pdf,application/pdf" onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="attendance-file" />
       </label>
       <p className={hintClass}>{t("pickHint")}</p>
       <p role="status" aria-live="polite" className="text-sm text-fg-muted">
@@ -96,6 +122,7 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
             <li data-testid="preview-registered">{t("countRegistered", { n: count("registered") })}</li>
             <li data-testid="preview-guests">{t("countGuests", { n: preview.guests_registered, in: preview.guests_checked_in })}</li>
             <li>{t("countIgnored", { n: preview.ignored, total: preview.rows_total })}</li>
+            {!!csv.unreadable && <li data-testid="preview-unreadable">{t("pdfUnreadable", { n: csv.unreadable })}</li>}
           </ul>
           {preview.members.length > 0 && (
             <ul className="grid gap-1.5 border-t border-border pt-3 text-sm" aria-label={t("matchedMembers")} data-testid="preview-members">
@@ -110,6 +137,14 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
           <details className="text-xs text-fg-subtle">
             <summary className="cursor-pointer">{t("columnsTitle")}</summary>
             <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1" data-testid="preview-columns">
+              {csv.title !== undefined && (
+                <div className="contents" data-testid="preview-pdf-title">
+                  <dt>{t("pdfTitle")}</dt>
+                  <dd>
+                    <bdi dir="ltr">{csv.title}</bdi>
+                  </dd>
+                </div>
+              )}
               {(["email", "status", "checkin"] as const).map((k) => (
                 <div key={k} className="contents">
                   <dt>{t(`column_${k}`)}</dt>
