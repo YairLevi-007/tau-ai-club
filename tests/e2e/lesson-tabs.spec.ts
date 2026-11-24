@@ -16,6 +16,10 @@ for (const L of [
       await expect(page.getByTestId("tab-lectures")).toHaveAttribute("aria-selected", "true");
       await expect(page.getByTestId("lecture-card").first()).toBeVisible();
       await expect(page.getByTestId("lessons-workshops")).toBeHidden();
+      // Each tab carries the home page's pixel glyph (a 9x9 grid), not a line icon.
+      for (const id of ["tab-lectures", "tab-workshops"]) {
+        await expect(page.getByTestId(id).locator('svg[viewBox="0 0 9 9"] rect').first()).toBeAttached();
+      }
       // Nothing sideways on a phone; the tabs fit.
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
     });

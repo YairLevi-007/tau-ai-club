@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { Presentation, TerminalSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PixelIcon } from "@/components/home/pixel-icon";
 
 export type LessonTab = "lectures" | "workshops";
 const TABS: LessonTab[] = ["lectures", "workshops"];
@@ -66,7 +66,8 @@ export function LessonTabs({
     e.preventDefault();
   }
 
-  const icon = { lectures: Presentation, workshops: TerminalSquare };
+  // The home page's pixel glyphs (DECISIONS 25.11).
+  const glyph = { lectures: "lecture", workshops: "build" } as const;
   // Selected look from the page mark, so it's right from the first paint.
   const selectedLook = {
     lectures:
@@ -83,7 +84,6 @@ export function LessonTabs({
         className="grid w-full grid-cols-2 gap-1 rounded-lg border border-border bg-bg-deep/60 p-1 sm:w-fit sm:min-w-[22rem]"
       >
         {TABS.map((id) => {
-          const Icon = icon[id];
           const selected = tab === id;
           return (
             <button
@@ -105,7 +105,7 @@ export function LessonTabs({
                 selectedLook[id],
               )}
             >
-              <Icon aria-hidden className="size-4 shrink-0" />
+              <PixelIcon glyph={glyph[id]} className="h-4 w-auto shrink-0" />
               {labels[id]}
             </button>
           );
