@@ -722,6 +722,7 @@
     "today": "Today",
     "lecturesHint": "Slides and recordings from the talks",
     "workshopsHint": "Zero to Hero steps, code and setup",
+    "membersHint": "Everyone in the cohort, each with a profile",
     "visibleToMembers": "Members see it",
     "onlyYou": "Only you",
     "icsHint": "Downloads an .ics file that opens in Google Calendar, Apple Calendar or Outlook. Times are Israel time."
@@ -1013,5 +1014,14 @@
     "view": "Open the initiative",
     "errorNote": "Write what should change.",
     "errorStale": "This proposal was already answered. Refresh the page."
+  },
+  "directory": {
+    "nav": "Members",
+    "title": "Club members",
+    "body": "Everyone in the cohort. Only signed-in members see this list. Tap a name to open their profile.",
+    "count": "{n, plural, one {<b>#</b> member} other {<b>#</b> members}}",
+    "you": "(you)",
+    "empty": "No members on the list yet.",
+    "error": "We couldn’t load the list. Try refreshing."
   }
 }

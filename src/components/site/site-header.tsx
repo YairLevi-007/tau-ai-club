@@ -13,6 +13,7 @@ export async function SiteHeader() {
   const meta = await getTranslations("meta");
   const tc = await getTranslations("content");
   const ti = await getTranslations("initiatives");
+  const td = await getTranslations("directory");
   const authOn = authEnabled();
   // Same HTML for everyone (public pages stay cacheable).
   // Members area on: Lectures and Workshops are members-only, so guests don't see them in the
@@ -22,6 +23,7 @@ export async function SiteHeader() {
     authOn ? (
       <MemberSectionLinks
         lessons={tc("navLessons")}
+        members={td("nav")}
         initiatives={ti("nav")}
         admin={t("admin")}
         className={className}

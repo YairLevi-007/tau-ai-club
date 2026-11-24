@@ -19,12 +19,15 @@ const useMemberHint = () => useSyncExternalStore(subscribe, isMember, () => fals
 
 export function MemberSectionLinks({
   lessons,
+  members,
   initiatives,
   admin,
   className,
   linkClassName,
 }: {
   lessons: string;
+  /** "חברים / Members": the members directory (DECISIONS 25.11); the page itself checks membership. */
+  members: string;
   initiatives: string;
   /** Label of the admins' own link (DECISIONS 25.11); shown only after the server says so. */
   admin: string;
@@ -38,6 +41,13 @@ export function MemberSectionLinks({
       <li>
         <Link href="/learn" className={linkClassName}>
           {lessons}
+        </Link>
+      </li>
+      <li>
+        {/* No prefetch: for a guest with a stale hint, prefetching /members (a redirect to log-in)
+            left the header's /me prefetches hanging (seen in the m3 run); a click loads it. */}
+        <Link href="/members" prefetch={false} className={linkClassName} data-testid="nav-members">
+          {members}
         </Link>
       </li>
       <li>
