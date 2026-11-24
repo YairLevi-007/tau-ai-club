@@ -1,7 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { viewerIsAdmin } from "./admin-nav-action";
 
 /**
  * The header is cached HTML, the same for everyone, so it can't know who is signed in.
@@ -18,11 +20,14 @@ const useMemberHint = () => useSyncExternalStore(subscribe, isMember, () => fals
 export function MemberSectionLinks({
   lessons,
   initiatives,
+  admin,
   className,
   linkClassName,
 }: {
   lessons: string;
   initiatives: string;
+  /** Label of the admins' own link (DECISIONS 25.11); shown only after the server says so. */
+  admin: string;
   className: string;
   linkClassName: string;
 }) {
@@ -40,7 +45,38 @@ export function MemberSectionLinks({
           {initiatives}
         </Link>
       </li>
+      <AdminNavItem label={admin} className={linkClassName} />
     </ul>
+  );
+}
+
+/**
+ * "ניהול / Admin", for admins only (DECISIONS 25.11). The member hint only decides whether to
+ * ask; the server answers from the database whether this viewer is an admin. Members, guests,
+ * a forged hint cookie, an error or no answer: no link. The header stays mounted across
+ * client-side navigation, so this asks once per page load.
+ */
+function AdminNavItem({ label, className }: { label: string; className: string }) {
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => {
+    let live = true;
+    viewerIsAdmin()
+      .then((yes) => {
+        if (live) setAdmin(yes === true);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (!admin) return null;
+  return (
+    <li>
+      <Link href="/admin" className={className} data-testid="nav-admin">
+        <ShieldCheck aria-hidden className="size-4 text-brand-purple-soft" />
+        {label}
+      </Link>
+    </li>
   );
 }
 

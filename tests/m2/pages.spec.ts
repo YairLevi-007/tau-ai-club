@@ -126,7 +126,7 @@ test("/members-only shows the closed-club text in both languages, no join flow",
 test("admin routes refuse guests (redirect to sign-in, never admin content)", async ({ request }) => {
   for (const p of ["/admin", "/admin/members", "/admin/speakers", "/en/admin", "/en/admin/members", "/en/admin/speakers"]) {
     let r = await get(request, p);
-    // /admin itself redirects to /admin/members; follow internal hops (max 3) to the final answer.
+    // /admin is the admin home (25.11) and guards itself; follow internal hops (max 3) to the final answer.
     for (let hop = 0; hop < 3 && [303, 307, 308].includes(r.status()) && /^\/(en\/)?admin/.test(r.headers()["location"] ?? ""); hop++) {
       r = await get(request, r.headers()["location"]!);
     }
