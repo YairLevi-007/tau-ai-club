@@ -16,8 +16,9 @@ const fromHash = (hash: string): LessonTab => (hash.replace(/^#/, "") === "works
 export const LESSON_TAB_SCRIPT = String.raw`(function(d){if(location.hash==="#workshops")d.setAttribute("data-lesson-tab","workshops");else d.removeAttribute("data-lesson-tab")})(document.documentElement)`;
 
 /**
- * "הרצאות | סדנאות" (DECISIONS 25.11): two tabs at the top of the Lessons page; one panel shows at
- * a time, on phones and on desktop. Both panels are rendered on the server (the page stays
+ * "הרצאות | סדנאות" (DECISIONS 25.11): below lg, two tabs at the top of the Lessons page and one
+ * panel at a time; from lg up, the two lists side by side in columns, with no tabs (user, 25.11).
+ * Both panels are rendered on the server (the page stays
  * cached and readable without JS); which one shows is CSS on <html data-lesson-tab>.
  * Linkable: #lectures / #workshops. Switching updates the hash without jumping the page.
  */
@@ -77,11 +78,11 @@ export function LessonTabs({
   };
 
   return (
-    <div className="grid gap-6" data-tab={tab} data-testid="lesson-tabs">
+    <div className="grid gap-6 lg:grid-cols-2 lg:items-start lg:gap-8" data-tab={tab} data-testid="lesson-tabs">
       <div
         role="tablist"
         aria-label={labels.list}
-        className="grid w-full grid-cols-2 gap-1 rounded-lg border border-border bg-bg-deep/60 p-1 sm:w-fit sm:min-w-[22rem]"
+        className="grid w-full grid-cols-2 gap-1 rounded-lg border border-border bg-bg-deep/60 p-1 sm:w-fit sm:min-w-[22rem] lg:hidden"
       >
         {TABS.map((id) => {
           const selected = tab === id;
@@ -116,7 +117,7 @@ export function LessonTabs({
         id="lectures"
         aria-labelledby="tab-lectures"
         tabIndex={0}
-        className="grid scroll-mt-24 gap-4 rounded-sm [:root[data-lesson-tab=workshops]_&]:hidden"
+        className="grid scroll-mt-24 gap-4 rounded-sm [:root[data-lesson-tab=workshops]_&]:hidden lg:[:root[data-lesson-tab=workshops]_&]:grid"
         data-testid="lessons-lectures"
       >
         {lectures}
@@ -126,7 +127,7 @@ export function LessonTabs({
         id="workshops"
         aria-labelledby="tab-workshops"
         tabIndex={0}
-        className="hidden scroll-mt-24 gap-4 rounded-sm [:root[data-lesson-tab=workshops]_&]:grid"
+        className="hidden scroll-mt-24 gap-4 rounded-sm [:root[data-lesson-tab=workshops]_&]:grid lg:grid"
         data-testid="lessons-workshops"
       >
         {workshops}

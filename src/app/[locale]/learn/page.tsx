@@ -10,7 +10,7 @@ import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { ContentIntro, Eyebrow, MembersOnlyMark, MembersSoon } from "@/components/content/content-bits";
 import { LectureCard, WorkshopCard } from "@/components/content/lesson-cards";
 import { LESSON_TAB_SCRIPT, LessonTabs } from "@/components/content/lesson-tabs";
-import { PageBackdrop } from "@/components/site/page-backdrop";
+import { PixelIcon } from "@/components/home/pixel-icon";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -69,12 +69,12 @@ export default async function LessonsPage({ params }: PageProps<"/[locale]/learn
     }
   }
 
+  const columnTitle = "sr-only lg:not-sr-only lg:flex lg:items-center lg:gap-2 lg:text-2xl lg:font-bold lg:text-fg";
   const tags = { past: te("past"), upcoming: t("upcoming"), next: te("next"), happeningNow: te("happeningNow") };
 
   return (
     // The personal area's look (user, 19.11): its backdrop and purple raised cards.
     <div className="relative isolate">
-      <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="lessons-page">
         <ContentIntro eyebrow={<Eyebrow he="מחזור 02" en="Cohort 02" />} title={t("lessonsTitle")} body={t("lessonsBody")} />
         {/* Before the tabs paint: the tab from the URL hash (#workshops), so there's no flash. */}
@@ -83,13 +83,15 @@ export default async function LessonsPage({ params }: PageProps<"/[locale]/learn
           labels={{ list: t("lessonsTabs"), lectures: t("tabLectures"), workshops: t("tabWorkshops") }}
           lectures={
             <>
-              <h2 id="lessons-lectures" className="sr-only">
+              {/* A column title from lg up (the two lists side by side); below lg the tab names it. */}
+              <h2 id="lessons-lectures" className={columnTitle}>
+                <PixelIcon glyph="lecture" className="h-5 w-auto shrink-0" />
                 {t("lessonsLectures")}
               </h2>
               {lectures.length === 0 ? (
                 <p className="text-fg-subtle">{t("lecturesEmpty")}</p>
               ) : (
-                <ul className="grid gap-4 lg:grid-cols-2">
+                <ul className="grid gap-4">
                   {lectures.map((e) => (
                     <li key={e.slug} className="grid">
                       <LectureCard
@@ -106,13 +108,15 @@ export default async function LessonsPage({ params }: PageProps<"/[locale]/learn
           }
           workshops={
             <>
-              <h2 id="lessons-workshops" className="sr-only">
+              {/* A column title from lg up (the two lists side by side); below lg the tab names it. */}
+              <h2 id="lessons-workshops" className={columnTitle}>
+                <PixelIcon glyph="build" className="h-5 w-auto shrink-0" />
                 {t("lessonsWorkshops")}
               </h2>
               {workshops.length === 0 ? (
                 <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
               ) : (
-                <ol className="grid gap-4 lg:grid-cols-2">
+                <ol className="grid gap-4">
                   {workshops.map((w, i) => (
                     <li key={w.slug} className="grid">
                       <WorkshopCard

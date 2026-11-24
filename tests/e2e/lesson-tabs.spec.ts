@@ -1,14 +1,18 @@
 import { expect, test } from "@playwright/test";
 
-// "שיעורים / Lessons" = two tabs at the top, "הרצאות | סדנאות" (DECISIONS 25.11): one shows at a
-// time on phones and on desktop; linkable as /learn#lectures and /learn#workshops; the old list
-// URLs open the matching tab. Runs in the launch setup (auth off: /learn is the public preview).
+// "שיעורים / Lessons" (DECISIONS 25.11, then the user on 25.11): on a phone, two tabs at the top,
+// "הרצאות | סדנאות", one list at a time; on desktop (lg up) the two lists side by side, no tabs.
+// Linkable as /learn#lectures and /learn#workshops; the old list URLs open the matching tab.
+// Runs in the launch setup (auth off: /learn is the public preview).
+
+const phoneOnly = () => test.skip(test.info().project.name === "desktop", "tabs are the phone layout");
 
 for (const L of [
   { prefix: "", lectures: "הרצאות", workshops: "סדנאות", next: "ArrowLeft" },
   { prefix: "/en", lectures: "Lectures", workshops: "Workshops", next: "ArrowRight" },
 ]) {
   test.describe(`lesson tabs ${L.prefix || "/he"}`, () => {
+    test.beforeEach(phoneOnly);
     test("two tabs; lectures by default; one panel at a time", async ({ page }) => {
       await page.goto(`${L.prefix}/learn`);
       const tabs = page.getByRole("tab");
@@ -77,3 +81,24 @@ for (const L of [
     });
   });
 }
+
+test.describe("lessons on desktop: two columns, no tabs", () => {
+  test.beforeEach(() => test.skip(test.info().project.name !== "desktop", "desktop layout"));
+  for (const prefix of ["", "/en"]) {
+    for (const path of ["/learn", "/learn#workshops", "/workshops", "/lectures"]) {
+      test(`${prefix}${path}: both lists side by side`, async ({ page }) => {
+        await page.goto(`${prefix}${path}`);
+        await expect(page.getByTestId("workshop-card").first()).toBeVisible();
+        await expect(page.getByTestId("lecture-card").first()).toBeVisible();
+        await expect(page.getByRole("tablist")).toBeHidden();
+        await expect(page.getByRole("heading", { level: 2, name: prefix ? "Lectures" : "הרצאות" })).toBeVisible();
+        const [a, b] = await Promise.all(
+          ["lessons-lectures", "lessons-workshops"].map((id) => page.getByTestId(id).boundingBox()),
+        );
+        expect(Math.abs(a!.y - b!.y)).toBeLessThan(4);
+        expect(Math.abs(a!.x - b!.x)).toBeGreaterThan(300);
+        if (path !== "/learn") await expect(page).toHaveURL(/\/learn#(workshops|lectures)$/);
+      });
+    }
+  }
+});
