@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 25.11 | **One site look on every page:** the home page's background and its pixel-dot cursor trail on all pages (public, members, admin). Season legend shows only Past / Next. Lessons: two columns on desktop, tabs on phones only. | Design | `src/components/site/`, `src/components/motion/pixel-trail.tsx` |
 | 25.11 | **Personal-area icons match the home page.** The icons on the members' pages (e.g. the Lectures / Workshops cards on /me) use the same pixel-style icons as the public home page, not the generic line icons in purple squares. | Design | `src/app/[locale]/me/` |
 | 25.11 | **Members directory tab.** A tab in the members' nav listing all club members, seen only by signed-in members (uses the existing members-only directory; no new personal fields exposed). | Members | `src/app/[locale]/members/` |
 | 25.11 | **Two Luma uploads per session.** Before the session: upload who registered (feeds the pAIr get-to-know game). After the session: upload again who actually came (attendance tracking). The admin attendance page gets a clear place for each, per session. | Attendance | `src/app/[locale]/admin/attendance/` |
