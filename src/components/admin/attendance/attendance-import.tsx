@@ -35,7 +35,7 @@ async function readPdf(file: File): Promise<Parsed | null> {
  * matched against the member list on the server (preview), and saved only when they confirm.
  * Only email + going + check-in time leave the browser. Re-importing replaces the event's data.
  */
-export function AttendanceImport({ eventId }: { eventId: string }) {
+export function AttendanceImport({ eventId, phase }: { eventId: string; /** Which of the session's two uploads this is (25.11); only the label changes. */ phase?: "before" | "after" }) {
   const t = useTranslations("attendance");
   const router = useRouter();
   const [csv, setCsv] = useState<Parsed | null>(null);
@@ -98,9 +98,9 @@ export function AttendanceImport({ eventId }: { eventId: string }) {
   const count = (s: string) => preview?.members.filter((m) => m.status === s).length ?? 0;
 
   return (
-    <div className="grid gap-3" data-testid="attendance-import">
+    <div className="grid gap-3" data-testid="attendance-import" data-phase={phase}>
       <label className={labelClass}>
-        {t("pick")}
+        {phase === "before" ? t("pickBefore") : phase === "after" ? t("pickAfter") : t("pick")}
         <FilePicker accept=".csv,text/csv,.pdf,application/pdf" onChange={(e) => onPick(e.target.files?.[0] ?? null)} data-testid="attendance-file" />
       </label>
       <p className={hintClass}>{t("pickHint")}</p>
