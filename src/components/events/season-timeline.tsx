@@ -114,12 +114,7 @@ export async function SeasonTimeline({
         <div data-reveal className="flex flex-wrap items-center gap-2" aria-label={t("legendLabel")} role="group">
           <Tag>{te("past")}</Tag>
           <Tag tone="next">{te("next")}</Tag>
-          <Tag tone="tentative">{te("tentative")}</Tag>
-          <Tag tone="tbd">{te("venueTbd")}</Tag>
-          <span className="tag border-transparent">
-            <span aria-hidden className="h-3 w-0.5 bg-brand-lilac" />
-            {t("now")}
-          </span>
+          {/* Past and Next only (user, 25.11); the events keep their own tentative / venue-TBD tags. */}
         </div>
       </div>
 
