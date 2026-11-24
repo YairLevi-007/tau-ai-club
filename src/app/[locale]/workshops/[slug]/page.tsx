@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { raisedPanelClass } from "@/components/admin/styles";
-import { FileLink } from "@/components/content/file-link";
+import { FileTiles } from "@/components/content/file-link";
 import { cn } from "@/lib/utils";
 import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -127,16 +127,7 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
 
         {content && content.files.length > 0 && (
           <SectionBlock section="files" title={t("files")} hebrewOnly={hebrewOnly}>
-            <ul className="mt-4 grid gap-2">
-              {content.files.map((f) => (
-                <li key={f.id}>
-                  <FileLink
-                    file={f}
-                    labels={{ download: t("download", { title: l === "en" ? f.title_en : f.title_he }), openLesson: t("openLesson", { title: l === "en" ? f.title_en : f.title_he }) }}
-                  />
-                </li>
-              ))}
-            </ul>
+            <FileTiles files={content.files} locale={l} t={(k, v) => t(k, v)} />
           </SectionBlock>
         )}
       </article>

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LockKeyhole } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { MembersContent } from "@/app/api/events/[slug]/content/route";
-import { FileLink } from "@/components/content/file-link";
+import { FileTiles } from "@/components/content/file-link";
 import { bodyFor, type ContentSection } from "@/lib/content/sections";
 import { SectionBlock } from "./section-block";
 
@@ -86,17 +86,8 @@ export function MembersContent({ slug, order, path }: { slug: string; order: rea
           <h2 id="section-files" className="text-2xl font-bold text-fg">
             {t("files")}
           </h2>
-          <ul className="mt-4 grid gap-2">
-            {data.files.map((f) => {
-              const title = locale === "en" ? f.title_en : f.title_he;
-              return (
-                <li key={f.id}>
-                  {/* A PDF is a plain link (the route answers with a short-lived signed URL); a lesson opens on the site. */}
-                  <FileLink file={f} labels={{ download: t("download", { title }), openLesson: t("openLesson", { title }) }} />
-                </li>
-              );
-            })}
-          </ul>
+          {/* A PDF is a plain link (the route answers with a short-lived signed URL); a lesson opens on the site. */}
+          <FileTiles files={data.files} locale={locale} t={(k, v) => t(k, v)} />
         </section>
       )}
     </div>
