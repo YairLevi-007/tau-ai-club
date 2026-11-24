@@ -5,7 +5,7 @@ import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
-import { contentKindOf, sectionsFor, type ContentRow, type EventFile } from "@/lib/content/sections";
+import { contentKindOf, editableSectionsFor, type ContentRow, type EventFile } from "@/lib/content/sections";
 import { formatEventDate, loc } from "@/lib/event-format";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { smallBtn } from "@/components/admin/styles";
@@ -14,7 +14,7 @@ import { FilesPanel } from "@/components/admin/content/files-panel";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** The write-up of one event, section by section, plus its members-only files. */
+/** One event's members-only files (PDF summaries, HTML lessons). Text sections only while TEXT_SECTIONS_ENABLED. */
 export default async function AdminContentEditPage({ params }: PageProps<"/[locale]/admin/content/[id]">) {
   const { locale: lc, id } = await params;
   const l = lc as Locale;
@@ -53,10 +53,11 @@ export default async function AdminContentEditPage({ params }: PageProps<"/[loca
           </Link>
         }
       />
-      {sectionsFor(kind).map((section) => (
+      {/* Files first and, while content is files only (DECISIONS 24.11), files only. */}
+      <FilesPanel eventId={event.id} files={(files ?? []) as Required<EventFile>[]} />
+      {editableSectionsFor(kind).map((section) => (
         <SectionEditor key={section} eventId={event.id} section={section} row={sections.find((s) => s.section === section) ?? null} />
       ))}
-      <FilesPanel eventId={event.id} files={(files ?? []) as Required<EventFile>[]} />
     </div>
   );
 }

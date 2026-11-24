@@ -12,7 +12,7 @@ import { requireMember } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getEventBySlug, getSeason } from "@/lib/events";
 import { getEventContent } from "@/lib/content/data";
-import { WORKSHOP_SECTIONS, bodyFor, hasBody } from "@/lib/content/sections";
+import { TEXT_SECTIONS_ENABLED, WORKSHOP_SECTIONS, bodyFor, hasBody } from "@/lib/content/sections";
 import { formatEventDate, formatTimeRange, isoAttr, loc } from "@/lib/event-format";
 import { Tag } from "@/components/events/event-bits";
 import { AdminEditBar, MembersSoon, SpeakerList } from "@/components/content/content-bits";
@@ -96,7 +96,15 @@ export default async function WorkshopPage({ params }: PageProps<"/[locale]/work
         {authOn && filled.map(({ section, row }) => (
           <SectionBlock key={section} section={section} title={t(`section_${section}`)} body={bodyFor(row, l)} hebrewOnly={hebrewOnly} />
         ))}
-        {authOn && empty.length > 0 && (
+        {/* Content is files only (DECISIONS 24.11): empty sections are left out, so no permanent
+            "coming soon" rows. One quiet line while the workshop has nothing yet. */}
+        {authOn && !TEXT_SECTIONS_ENABLED && filled.length === 0 && !content?.files.length && (
+          <p className="inline-flex items-start gap-2 text-fg-muted" data-testid="files-coming">
+            <Clock aria-hidden className="mt-1 size-4 shrink-0 text-brand-purple-soft" />
+            {t("filesComingWorkshop")}
+          </p>
+        )}
+        {authOn && TEXT_SECTIONS_ENABLED && empty.length > 0 && (
           <div className={cn(raisedPanelClass, "grid gap-4 p-5 shadow-[var(--highlight-top)] sm:p-6")} data-testid="coming-later">
             <p className="inline-flex items-start gap-2 text-fg-muted">
               <Clock aria-hidden className="mt-1 size-4 shrink-0 text-brand-purple-soft" />

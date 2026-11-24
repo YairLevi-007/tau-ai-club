@@ -99,7 +99,9 @@ export async function uploadEventFile(_: ActionState, fd: FormData): Promise<Act
     console.error("[content] upload failed", up.error.message);
     return { ok: false, message: t("errorFailed") };
   }
-  const title = (k: string) => str(fd, k).slice(0, 200) || file.name.slice(0, 200);
+  // One "title" field (24.11: one simple upload form), used for both languages. The older per-language
+  // fields still win when a form sends them.
+  const title = (k: string) => (str(fd, k) || str(fd, "title")).slice(0, 200) || file.name.slice(0, 200);
   const { error } = await supabase
     .from("event_files")
     .upsert({ event_id: eventId, path, title_he: title("title_he"), title_en: title("title_en"), status: "published" }, { onConflict: "path" });

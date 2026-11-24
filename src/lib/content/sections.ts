@@ -40,3 +40,15 @@ export function bodyFor(row: Pick<ContentRow, "body_he" | "body_en">, locale: st
 }
 
 export const hasBody = (row: Pick<ContentRow, "body_he" | "body_en">) => Boolean(row.body_he.trim() || row.body_en?.trim());
+
+/**
+ * Event content is files only (DECISIONS 24.11): admins upload PDF summaries and HTML lessons, and the
+ * text-section editors are hidden. Text already published still shows on the pages; sections with no
+ * text are left out instead of standing as "coming soon" rows. Set this to true to bring the editors
+ * (and the per-section placeholders) back; no data was removed.
+ */
+export const TEXT_SECTIONS_ENABLED = false;
+
+/** The text sections the admin editor shows for an event: none while content is files only. */
+export const editableSectionsFor = (kind: ContentKind, enabled: boolean = TEXT_SECTIONS_ENABLED): readonly ContentSection[] =>
+  enabled ? sectionsFor(kind) : [];

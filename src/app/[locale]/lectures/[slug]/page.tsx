@@ -10,7 +10,7 @@ import { PageBackdrop } from "@/components/site/page-backdrop";
 import { cn } from "@/lib/utils";
 import { getEventBySlug, getSeason } from "@/lib/events";
 import { getPublicSections } from "@/lib/content/data";
-import { LECTURE_SECTIONS, bodyFor, contentKindOf } from "@/lib/content/sections";
+import { LECTURE_SECTIONS, TEXT_SECTIONS_ENABLED, bodyFor, contentKindOf } from "@/lib/content/sections";
 import { markdownToText } from "@/lib/content/markdown";
 import { formatEventDate, formatTimeRange, isoAttr, loc, speakerNames } from "@/lib/event-format";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
@@ -130,7 +130,8 @@ export default async function LecturePage({ params }: PageProps<"/[locale]/lectu
             hebrewOnly={{ label: t("hebrewOnly"), hint: t("hebrewOnlyHint") }}
           />
         ) : (
-          <p className="text-fg-subtle">{t("summaryComing")}</p>
+          // Content is files only (DECISIONS 24.11): no blurb, no placeholder; the members part below says it once.
+          TEXT_SECTIONS_ENABLED && <p className="text-fg-subtle">{t("summaryComing")}</p>
         )}
 
         <div className="grid gap-6 border-t border-border pt-10">
