@@ -13,6 +13,7 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 24.11 | **Luma events stay Private (unlisted).** No automatic Luma sync (the public iCal feed would need Public events, which shows them to anyone on Luma). Luma links are pasted per event in /admin/events (or sent to the manager). | Luma | `events.luma_url` |
 | 24.11 | **Attendance import also takes the Luma attendee PDF** the club gets from its Instinct automation (columns: #, name, email, status Checked In / Going / Not Going, date, other sessions), next to Luma's CSV. Free path only; no Luma API / Luma Plus for now. Same privacy rule: only email + going + check-in leave the file. | Attendance | `src/lib/attendance/` |
 | 24.11 | **Lectures and workshops together under "שיעורים".** One nav item replaces the two; its page shows lectures on one side and the Claude Code workshops on the other (stacked on phone). Existing lecture/workshop URLs keep working. | Nav | |
 | 24.11 | **Event content = files only.** The admin event editor leads with uploading files (PDF summary, HTML lesson); the text sections (summary, key commands, exercises, etc.) are hidden from the editor, and empty ones no longer show as "בקרוב" on lecture/workshop pages. Existing text data is kept, not deleted (user: "רק שיהיה לו אופציה להעלות מסמכים"). | Content | `/admin/content/<id>` |
