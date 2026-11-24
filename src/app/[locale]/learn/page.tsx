@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Presentation, TerminalSquare } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { getSeason } from "@/lib/events";
 import { getPublicSections } from "@/lib/content/data";
@@ -10,6 +9,7 @@ import { contentKindOf, hasBody } from "@/lib/content/sections";
 import { alternatesFor, shareMetadata } from "@/lib/seo";
 import { ContentIntro, Eyebrow, MembersOnlyMark, MembersSoon } from "@/components/content/content-bits";
 import { LectureCard, WorkshopCard } from "@/components/content/lesson-cards";
+import { LESSON_TAB_SCRIPT, LessonTabs } from "@/components/content/lesson-tabs";
 import { PageBackdrop } from "@/components/site/page-backdrop";
 import { authEnabled } from "@/lib/supabase/config";
 import { requireMember } from "@/lib/auth/viewer";
@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/learn">)
 }
 
 /**
- * "שיעורים / Lessons" (DECISIONS 24.11): lectures on one side, the Claude Code workshops on the
- * other; side by side on wide screens, stacked on phones (lectures first). The cards are the
- * ones the old /lectures and /workshops lists had; those URLs now land here.
+ * "שיעורים / Lessons" (DECISIONS 24.11): lectures and the Claude Code workshops. Two tabs at the
+ * top, "הרצאות | סדנאות", one showing at a time on every screen (DECISIONS 25.11); linkable as
+ * #lectures / #workshops. The cards are the ones the old /lectures and /workshops lists had;
+ * those URLs land on the matching tab.
  * Members only once the members area is on. While it's off: a public (cached) preview.
  */
 export default async function LessonsPage({ params }: PageProps<"/[locale]/learn">) {
@@ -69,7 +70,6 @@ export default async function LessonsPage({ params }: PageProps<"/[locale]/learn
   }
 
   const tags = { past: te("past"), upcoming: t("upcoming"), next: te("next"), happeningNow: te("happeningNow") };
-  const columnTitle = "flex items-center gap-2 text-xl font-bold text-fg sm:text-2xl";
 
   return (
     // The personal area's look (user, 19.11): its backdrop and purple raised cards.
@@ -77,55 +77,60 @@ export default async function LessonsPage({ params }: PageProps<"/[locale]/learn
       <PageBackdrop />
       <div className="mx-auto grid max-w-site gap-10 px-4 pt-10 pb-20 sm:px-8 lg:pt-14" data-testid="lessons-page">
         <ContentIntro eyebrow={<Eyebrow he="מחזור 02" en="Cohort 02" />} title={t("lessonsTitle")} body={t("lessonsBody")} />
-        <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-8">
-          <section id="lectures" aria-labelledby="lessons-lectures" className="grid scroll-mt-24 gap-4" data-testid="lessons-lectures">
-            <h2 id="lessons-lectures" className={columnTitle}>
-              <Presentation aria-hidden className="size-5 shrink-0 text-brand-purple-soft" />
-              {t("lessonsLectures")}
-            </h2>
-            {lectures.length === 0 ? (
-              <p className="text-fg-subtle">{t("lecturesEmpty")}</p>
-            ) : (
-              <ul className="grid gap-4">
-                {lectures.map((e) => (
-                  <li key={e.slug}>
-                    <LectureCard
-                      event={e}
-                      locale={l}
-                      blurb={sections[e.slug]?.blurb}
-                      labels={{ ...tags, summaryComing: t("summaryComing"), readLecture: t("readLecture") }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-          <section id="workshops" aria-labelledby="lessons-workshops" className="grid scroll-mt-24 gap-4" data-testid="lessons-workshops">
-            <h2 id="lessons-workshops" className={columnTitle}>
-              <TerminalSquare aria-hidden className="size-5 shrink-0 text-brand-purple-soft" />
-              {t("lessonsWorkshops")}
-            </h2>
-            {workshops.length === 0 ? (
-              <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
-            ) : (
-              <ol className="grid gap-4">
-                {workshops.map((w, i) => (
-                  <li key={w.slug}>
-                    <WorkshopCard
-                      event={w}
-                      locale={l}
-                      numberLabel={t("workshopNo", { n: w.series_no ?? i + 1, total: workshops.length })}
-                      prepReady={prepReady.has(w.slug)}
-                      labels={{ ...tags, prepReady: t("prepReady"), open: t("openWorkshop") }}
-                    />
-                  </li>
-                ))}
-              </ol>
-            )}
-            {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
-            <MembersOnlyMark label={t("membersOnlyBadge")} />
-          </section>
-        </div>
+        {/* Before the tabs paint: the tab from the URL hash (#workshops), so there's no flash. */}
+        <script dangerouslySetInnerHTML={{ __html: LESSON_TAB_SCRIPT }} />
+        <LessonTabs
+          labels={{ list: t("lessonsTabs"), lectures: t("tabLectures"), workshops: t("tabWorkshops") }}
+          lectures={
+            <>
+              <h2 id="lessons-lectures" className="sr-only">
+                {t("lessonsLectures")}
+              </h2>
+              {lectures.length === 0 ? (
+                <p className="text-fg-subtle">{t("lecturesEmpty")}</p>
+              ) : (
+                <ul className="grid gap-4 lg:grid-cols-2">
+                  {lectures.map((e) => (
+                    <li key={e.slug} className="grid">
+                      <LectureCard
+                        event={e}
+                        locale={l}
+                        blurb={sections[e.slug]?.blurb}
+                        labels={{ ...tags, summaryComing: t("summaryComing"), readLecture: t("readLecture") }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          }
+          workshops={
+            <>
+              <h2 id="lessons-workshops" className="sr-only">
+                {t("lessonsWorkshops")}
+              </h2>
+              {workshops.length === 0 ? (
+                <p className="text-fg-subtle">{t("workshopsEmpty")}</p>
+              ) : (
+                <ol className="grid gap-4 lg:grid-cols-2">
+                  {workshops.map((w, i) => (
+                    <li key={w.slug} className="grid">
+                      <WorkshopCard
+                        event={w}
+                        locale={l}
+                        numberLabel={t("workshopNo", { n: w.series_no ?? i + 1, total: workshops.length })}
+                        prepReady={prepReady.has(w.slug)}
+                        labels={{ ...tags, prepReady: t("prepReady"), open: t("openWorkshop") }}
+                      />
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {!authOn && <MembersSoon title={t("soonTitle")} body={t("soonBodyWorkshop")} />}
+              <MembersOnlyMark label={t("membersOnlyBadge")} />
+            </>
+          }
+        />
       </div>
     </div>
   );
