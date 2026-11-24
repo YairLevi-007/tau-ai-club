@@ -4,7 +4,7 @@ import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { requireAdmin } from "@/lib/auth/viewer";
 import { createClient } from "@/lib/supabase/server";
-import { contentKindOf, sectionsFor } from "@/lib/content/sections";
+import { TEXT_SECTIONS_ENABLED, contentKindOf, sectionsFor } from "@/lib/content/sections";
 import { formatEventDate, loc } from "@/lib/event-format";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { panelClass } from "@/components/admin/styles";
@@ -19,9 +19,10 @@ type Row = {
   starts_at: string;
   status: string;
   event_content: { section: string; status: string }[];
+  event_files: { status: string }[];
 };
 
-/** Every event with how much of its write-up is published; pick one to edit. */
+/** Every event with how many of its files are published (or, with text sections on, sections); pick one to edit. */
 export default async function AdminContentPage({ params }: PageProps<"/[locale]/admin/content">) {
   const { locale: lc } = await params;
   const l = lc as Locale;
@@ -32,7 +33,7 @@ export default async function AdminContentPage({ params }: PageProps<"/[locale]/
   const { data } = supabase
     ? await supabase
         .from("events")
-        .select("id, slug, kind, title_he, title_en, starts_at, status, event_content(section, status)")
+        .select("id, slug, kind, title_he, title_en, starts_at, status, event_content(section, status), event_files(status)")
         .order("starts_at", { ascending: true })
     : { data: [] };
   const events = (data ?? []) as Row[];
@@ -49,7 +50,7 @@ export default async function AdminContentPage({ params }: PageProps<"/[locale]/
         <ul className={cn(panelClass, "divide-y divide-border")}>
           {list.map((e) => {
             const expected = sectionsFor(kind);
-            const published = e.event_content.filter((c) => c.status === "published" && (expected as readonly string[]).includes(c.section)).length;
+            const published = (e.event_content ?? []).filter((c) => c.status === "published" && (expected as readonly string[]).includes(c.section)).length;
             return (
               <li key={e.id}>
                 <Link
@@ -62,7 +63,9 @@ export default async function AdminContentPage({ params }: PageProps<"/[locale]/
                     <span className="text-sm text-fg-subtle">{formatEventDate(e.starts_at, l)}</span>
                   </span>
                   <span className="inline-flex items-center gap-2 text-sm text-fg-muted">
-                    {t("adminCount", { published, total: expected.length })}
+                    {TEXT_SECTIONS_ENABLED
+                      ? t("adminCount", { published, total: expected.length })
+                      : t("adminFilesCount", { n: (e.event_files ?? []).filter((f) => f.status === "published").length })}
                     <Forward aria-hidden className="size-4" />
                   </span>
                 </Link>

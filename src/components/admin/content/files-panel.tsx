@@ -10,7 +10,7 @@ import { deleteEventFile, setFileStatus, uploadEventFile } from "@/app/[locale]/
 import type { EventFile } from "@/lib/content/sections";
 import { cn } from "@/lib/utils";
 
-/** The event's files in the private bucket (PDFs and interactive HTML lessons): upload, publish/unpublish, delete. */
+/** The event's files in the private bucket (PDFs and interactive HTML lessons): upload one at a time, then show/hide or delete. */
 export function FilesPanel({ eventId, files }: { eventId: string; files: Required<EventFile>[] }) {
   const t = useTranslations("content");
   return (
@@ -22,72 +22,73 @@ export function FilesPanel({ eventId, files }: { eventId: string; files: Require
         <p className={hintClass}>{t("filesBody")}</p>
       </div>
 
-      {files.length === 0 ? (
-        <p className="text-sm text-fg-subtle">{t("fileNone")}</p>
-      ) : (
-        <ul className="grid gap-2">
-          {files.map((f) => (
-            <li key={f.id} data-testid="event-file" data-kind={f.kind} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
-              <span className="flex min-w-0 items-center gap-2">
-                {f.kind === "lesson" ? (
-                  <MonitorPlay aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
-                ) : (
-                  <FileText aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
-                )}
-                <span className="grid min-w-0">
-                  <span className="truncate text-fg">{f.title_he}</span>
-                  <bdi dir="ltr" className="truncate font-mono text-xs text-fg-subtle">
-                    {f.path}
-                  </bdi>
-                </span>
-                <Tag>{t(f.kind === "lesson" ? "fileKindLesson" : "fileKindPdf")}</Tag>
-                <Tag tone={f.status === "published" ? "next" : "neutral"}>{t(f.status === "published" ? "statusPublished" : "statusDraft")}</Tag>
-              </span>
-              <span className="flex flex-wrap gap-2">
-                {f.kind === "lesson" && f.status === "published" && (
-                  <Link href={`/lessons/${f.id}`} className={smallBtn} data-testid="lesson-preview">
-                    {t("filePreview")}
-                  </Link>
-                )}
-                <ActionForm action={setFileStatus}>
-                  <input type="hidden" name="id" value={f.id} />
-                  <input type="hidden" name="event_id" value={eventId} />
-                  <input type="hidden" name="status" value={f.status === "published" ? "draft" : "published"} />
-                  <button type="submit" className={smallBtn}>
-                    {t(f.status === "published" ? "fileUnpublish" : "filePublish")}
-                  </button>
-                </ActionForm>
-                <ActionForm action={deleteEventFile} confirmText={t("fileDeleteConfirm")}>
-                  <input type="hidden" name="id" value={f.id} />
-                  <input type="hidden" name="event_id" value={eventId} />
-                  <button type="submit" className={dangerBtn}>
-                    {t("fileDelete")}
-                  </button>
-                </ActionForm>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <ActionForm action={uploadEventFile} resetOnSuccess className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+      {/* One simple form, used once per file (24.11): pick a PDF or an HTML lesson, give it a title, upload. */}
+      <ActionForm action={uploadEventFile} resetOnSuccess className="grid gap-3">
         <input type="hidden" name="event_id" value={eventId} />
         <label className={labelClass}>
-          {t("fileTitleHe")}
-          <input name="title_he" dir="rtl" maxLength={200} className={inputClass} />
-        </label>
-        <label className={labelClass}>
-          {t("fileTitleEn")}
-          <input name="title_en" dir="ltr" maxLength={200} className={inputClass} />
-        </label>
-        <label className={cn(labelClass, "sm:col-span-2")}>
           {t("fileChoose")}
           <FilePicker name="file" accept="application/pdf,.pdf,text/html,.html,.htm" required />
         </label>
-        <button type="submit" className="btn btn-primary h-10 w-fit px-4 text-sm">
+        <label className={labelClass}>
+          {t("fileTitle")}
+          <input name="title" dir="auto" maxLength={200} className={inputClass} />
+          <span className={hintClass}>{t("fileTitleHint")}</span>
+        </label>
+        <button type="submit" className="btn btn-primary h-11 w-full px-4 sm:w-fit">
           {t("fileUpload")}
         </button>
       </ActionForm>
+
+      <div className="grid gap-2 border-t border-border pt-4">
+        <h3 className="text-sm font-semibold text-fg">{t("filesUploaded")}</h3>
+        {files.length === 0 ? (
+          <p className="text-sm text-fg-subtle">{t("fileNone")}</p>
+        ) : (
+          <ul className="grid gap-2">
+            {files.map((f) => (
+              <li key={f.id} data-testid="event-file" data-kind={f.kind} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border p-3">
+                <span className="flex min-w-0 items-center gap-2">
+                  {f.kind === "lesson" ? (
+                    <MonitorPlay aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                  ) : (
+                    <FileText aria-hidden className="size-4 shrink-0 text-brand-purple-soft" />
+                  )}
+                  <span className="grid min-w-0">
+                    <span className="truncate text-fg">{f.title_he}</span>
+                    <bdi dir="ltr" className="truncate font-mono text-xs text-fg-subtle">
+                      {f.path}
+                    </bdi>
+                  </span>
+                  <Tag>{t(f.kind === "lesson" ? "fileKindLesson" : "fileKindPdf")}</Tag>
+                  <Tag tone={f.status === "published" ? "next" : "neutral"}>{t(f.status === "published" ? "fileShown" : "fileHidden")}</Tag>
+                </span>
+                <span className="flex flex-wrap gap-2">
+                  {f.kind === "lesson" && f.status === "published" && (
+                    <Link href={`/lessons/${f.id}`} className={smallBtn} data-testid="lesson-preview">
+                      {t("filePreview")}
+                    </Link>
+                  )}
+                  <ActionForm action={setFileStatus}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="event_id" value={eventId} />
+                    <input type="hidden" name="status" value={f.status === "published" ? "draft" : "published"} />
+                    <button type="submit" className={smallBtn}>
+                      {t(f.status === "published" ? "fileUnpublish" : "filePublish")}
+                    </button>
+                  </ActionForm>
+                  <ActionForm action={deleteEventFile} confirmText={t("fileDeleteConfirm")}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="event_id" value={eventId} />
+                    <button type="submit" className={dangerBtn}>
+                      {t("fileDelete")}
+                    </button>
+                  </ActionForm>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { TEXT_SECTIONS_ENABLED } from "../../src/lib/content/sections";
 
 // Lectures and workshops as a GUEST, with the members area ON (fake Supabase URL: everyone is a
 // guest, data from the seed fixtures). Both are members only. Members-only text must never reach a guest: not in the HTML, not in the
@@ -162,10 +163,14 @@ test.describe("as a member", () => {
     await expect(download).toHaveAttribute("href", /^\/api\/files\/[0-9a-f-]{36}$/);
   });
 
-  test("workshops: the prep checklist, placeholders for the rest", async ({ page }) => {
+  test("workshops: published text still shows; empty sections are left out (files only, 24.11)", async ({ page }) => {
     await page.goto("/en/workshops/zero-to-hero-1");
     await expect(page.getByTestId("section-prep")).toContainText("Pro plan");
-    await expect(page.getByTestId("section-commands").getByTestId("coming-soon")).toBeVisible();
+    if (TEXT_SECTIONS_ENABLED) await expect(page.getByTestId("section-commands").getByTestId("coming-soon")).toBeVisible();
+    else {
+      await expect(page.getByTestId("coming-soon")).toHaveCount(0);
+      await expect(page.getByTestId("section-commands")).toHaveCount(0);
+    }
   });
 });
 
@@ -173,7 +178,20 @@ test.describe("as an admin", () => {
   test.skip(!process.env.E2E_ADMIN_STATE, "needs E2E_ADMIN_STATE (admin storageState) and a dev Supabase");
   test.use({ storageState: process.env.E2E_ADMIN_STATE });
 
+  test("the editor shows files only (24.11)", async ({ page }) => {
+    test.skip(TEXT_SECTIONS_ENABLED, "text sections are switched back on");
+    await page.goto("/en/admin/content");
+    await page.getByTestId("content-event").first().click();
+    await expect(page.getByTestId("files-panel")).toBeVisible();
+    await expect(page.locator('[data-testid^="editor-"]')).toHaveCount(0);
+    const panel = page.getByTestId("files-panel");
+    await expect(panel.locator('input[name="title"]')).toHaveCount(1);
+    await expect(panel.locator('input[name="file"]')).toHaveCount(1);
+    await expect(panel.locator('input[name="title_he"], input[name="title_en"], textarea, select')).toHaveCount(0);
+  });
+
   test("edit a section with a live preview (raw HTML shows as text)", async ({ page }) => {
+    test.skip(!TEXT_SECTIONS_ENABLED, "content is files only (24.11); kept for when text sections come back");
     await page.goto("/en/admin/content");
     await page.getByTestId("content-event").first().click();
     const editor = page.getByTestId("editor-summary");
