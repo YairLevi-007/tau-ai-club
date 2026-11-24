@@ -13,6 +13,8 @@ Open questions (not decided yet) live in `docs/OPEN-QUESTIONS.md`.
 
 | Date | Decision | Area | Where it lives |
 |---|---|---|---|
+| 25.11 | **Personal-area icons match the home page.** The icons on the members' pages (e.g. the Lectures / Workshops cards on /me) use the same pixel-style icons as the public home page, not the generic line icons in purple squares. | Design | `src/app/[locale]/me/` |
+| 25.11 | **Members directory tab.** A tab in the members' nav listing all club members, seen only by signed-in members (uses the existing members-only directory; no new personal fields exposed). | Members | `src/app/[locale]/members/` |
 | 25.11 | **Two Luma uploads per session.** Before the session: upload who registered (feeds the pAIr get-to-know game). After the session: upload again who actually came (attendance tracking). The admin attendance page gets a clear place for each, per session. | Attendance | `src/app/[locale]/admin/attendance/` |
 | 25.11 | **Lessons page = two tabs at the top: Lectures | Workshops.** One shows at a time, each with its own material; no single long list. | Lessons | `src/app/[locale]/learn/` |
 | 25.11 | **Admins get a visible way into their own area.** An admin-only entry in the site header/menu, and an admin home page with the tracking at a glance (members, attendance per session, what needs attention). Only admins see it. | Admin | `src/app/[locale]/admin/` |
