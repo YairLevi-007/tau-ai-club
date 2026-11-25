@@ -8,7 +8,8 @@ import { FileTiles, type FileKey } from "../../src/components/content/file-tiles
 // The member files as tiles with a tab (DECISIONS 25.11, files-look option A). Lecture and workshop
 // pages need a signed-in member, which this suite has no Supabase for, so the tiles are rendered
 // on their own and placed into a real page of the production build: its real CSS and fonts, at
-// phone and desktop width. The real pages pass the locale-aware Link (file-link.tsx).
+// phone and desktop width, with the page's scripts blocked. The real pages pass the locale-aware
+// Link (file-link.tsx).
 
 const FILES = [
   { id: "11111111-1111-4111-8111-111111111111", title_he: "סיכום הרצאה", title_en: "Talk summary", kind: "pdf" as const },
@@ -24,7 +25,11 @@ function markup(locale: "he" | "en") {
 
 for (const locale of ["he", "en"] as const) {
   test(`${locale}: a summary to download and a game to play, each a single link with a tab`, async ({ page }) => {
+    // No scripts: React never hydrates, so nothing can redraw <main> over the injected tiles (that
+    // race made this spec flaky). The server HTML still brings the real CSS and fonts.
+    await page.route("**/*", (r) => (r.request().resourceType() === "script" ? r.abort() : r.continue()));
     await page.goto(locale === "he" ? "/" : "/en");
+    await expect(page.locator("main")).toBeAttached();
     await page.evaluate((html) => {
       const main = document.querySelector("main")!;
       main.innerHTML = `<section style="padding:2rem 1rem;max-width:52rem;margin:auto">${html}</section>`;
