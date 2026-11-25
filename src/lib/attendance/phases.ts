@@ -18,3 +18,31 @@ export function uploadTimes(info: Times | null, event: Ends): { before: string |
   return { before: after ? null : info.imported_at, after: after ? info.imported_at : null };
 }
 
+
+/** What each upload brought in (migration 20261125120000): counts only, stamped per phase. */
+export type BeforeCounts = { rows: number; members: number; guests: number };
+export type AfterCounts = { rows: number; membersIn: number; guestsIn: number; noShows: number };
+type Counts = {
+  before_rows_total?: number | null;
+  before_members?: number | null;
+  before_guests?: number | null;
+  after_rows_total?: number | null;
+  after_members_checked_in?: number | null;
+  after_no_shows?: number | null;
+  after_guests_checked_in?: number | null;
+};
+
+/** Each upload's counts, or null when it wasn't done (or was done before the counts were kept). */
+export function uploadCounts(info: Counts | null): { before: BeforeCounts | null; after: AfterCounts | null } {
+  const n = (v: number | null | undefined) => (typeof v === "number" ? v : 0);
+  return {
+    before:
+      typeof info?.before_rows_total === "number"
+        ? { rows: info.before_rows_total, members: n(info.before_members), guests: n(info.before_guests) }
+        : null,
+    after:
+      typeof info?.after_rows_total === "number"
+        ? { rows: info.after_rows_total, membersIn: n(info.after_members_checked_in), guestsIn: n(info.after_guests_checked_in), noShows: n(info.after_no_shows) }
+        : null,
+  };
+}

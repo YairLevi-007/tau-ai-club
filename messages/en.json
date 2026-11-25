@@ -572,7 +572,14 @@
     "memberRate": "Came to {came} of {total} meetups ({pct}%).",
     "memberNoData": "No meetups imported yet this season.",
     "backToSeason": "All members",
-    "legendTitle": "Legend"
+    "legendTitle": "Legend",
+    "countsLabel": "What the upload brought in",
+    "countFile": "{n, plural, one {<num>#</num> person in the file} other {<num>#</num> people in the file}}",
+    "countMembersRegistered": "{n, plural, one {<num>#</num> member registered} other {<num>#</num> members registered}}",
+    "countGuestsGoing": "{n, plural, one {<num>#</num> guest} other {<num>#</num> guests}}",
+    "countMembersIn": "{n, plural, one {<num>#</num> member came} other {<num>#</num> members came}}",
+    "countGuestsIn": "{n, plural, one {<num>#</num> guest came} other {<num>#</num> guests came}}",
+    "countNoShows": "{n, plural, one {<num>#</num> no-show} other {<num>#</num> no-shows}}"
   },
   "content": {
     "navLabel": "Sections",

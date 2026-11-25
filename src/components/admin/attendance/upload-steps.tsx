@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { CircleCheck, CircleDashed, Clock } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { TIME_ZONE } from "@/i18n/routing";
-import type { UploadPhase } from "@/lib/attendance/data";
+import type { AfterCounts, BeforeCounts, UploadPhase } from "@/lib/attendance/data";
 import { formatShortDate } from "@/lib/event-format";
 import { cn } from "@/lib/utils";
 
@@ -17,16 +17,34 @@ export async function UploadSteps({
   after,
   phase,
   endsAt,
+  counts,
   className,
 }: {
   before: string | null;
   after: string | null;
   phase: UploadPhase;
   endsAt: string;
+  /** What each upload brought in, to check against Luma (25.11). Counts only. */
+  counts?: { before: BeforeCounts | null; after: AfterCounts | null };
   className?: string;
 }) {
   const [t, locale] = await Promise.all([getTranslations("attendance"), getLocale() as Promise<Locale>]);
   const when = (iso: string) => ({ date: formatShortDate(iso, locale), time: hhmm(iso) });
+  // "41 in the file, 29 members registered, 12 guests": each number isolated so it never reorders.
+  const num = (chunks: React.ReactNode) => <bdi className="font-semibold text-fg">{chunks}</bdi>;
+  const b = counts?.before;
+  const a = counts?.after;
+  const figures = {
+    before: b ? [t.rich("countFile", { n: b.rows, num }), t.rich("countMembersRegistered", { n: b.members, num }), t.rich("countGuestsGoing", { n: b.guests, num })] : null,
+    after: a
+      ? [
+          t.rich("countFile", { n: a.rows, num }),
+          t.rich("countMembersIn", { n: a.membersIn, num }),
+          t.rich("countGuestsIn", { n: a.guestsIn, num }),
+          t.rich("countNoShows", { n: a.noShows, num }),
+        ]
+      : null,
+  };
 
   const steps = [
     {
@@ -76,6 +94,15 @@ export async function UploadSteps({
                   s.waiting
                 )}
               </span>
+              {s.done && figures[s.key] && (
+                <ul className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-fg-muted" aria-label={t("countsLabel")} data-testid={`upload-${s.key}-counts`}>
+                  {figures[s.key]!.map((f, i) => (
+                    <li key={i} className="after:ms-2 after:text-fg-subtle after:content-['·'] last:after:content-none">
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </span>
           </li>
         );

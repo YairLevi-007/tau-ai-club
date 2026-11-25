@@ -3,7 +3,7 @@ import { UsersRound } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getEventAttendance, uploadPhase, uploadTimes } from "@/lib/attendance/data";
+import { getEventAttendance, uploadCounts, uploadPhase, uploadTimes } from "@/lib/attendance/data";
 import { getNow } from "@/lib/events";
 import { formatShortDate } from "@/lib/event-format";
 import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
@@ -35,7 +35,7 @@ export async function AttendancePanel({ supabase, eventId, endsAt }: { supabase:
         <p className={hintClass}>{t("body")}</p>
       </div>
 
-      <UploadSteps before={times.before} after={times.after} phase={phase} endsAt={endsAt} />
+      <UploadSteps before={times.before} after={times.after} phase={phase} endsAt={endsAt} counts={uploadCounts(info)} />
 
       {info ? (
         <div className="grid gap-3">

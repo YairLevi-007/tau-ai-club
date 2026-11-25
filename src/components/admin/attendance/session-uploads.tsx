@@ -2,7 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Upload } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
-import type { SessionUploads } from "@/lib/attendance/data";
+import { uploadCounts, type SessionUploads } from "@/lib/attendance/data";
 import { formatShortDate, loc } from "@/lib/event-format";
 import { BidiText } from "@/components/events/bidi-text";
 import { hintClass, panelClass, panelTitle, smallBtn } from "@/components/admin/styles";
@@ -55,7 +55,7 @@ export async function SessionUploadsList({ sessions }: { sessions: SessionUpload
                   <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-fg-subtle">{t("sessionPast")}</span>
                 )}
               </div>
-              <UploadSteps before={s.before} after={s.after} phase={s.phase} endsAt={s.event.ends_at} />
+              <UploadSteps before={s.before} after={s.after} phase={s.phase} endsAt={s.event.ends_at} counts={uploadCounts(s.info)} />
               <details className="group" data-testid="upload-details">
                 <summary className={cn(smallBtn, "w-fit cursor-pointer list-none [&::-webkit-details-marker]:hidden")} data-testid="upload-open">
                   <Upload aria-hidden />
