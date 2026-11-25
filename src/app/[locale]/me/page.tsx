@@ -10,7 +10,7 @@ import { ICS_PATH, calendarFeedLinks } from "@/lib/ics";
 import { calendarFeedKey } from "@/lib/calendar-access";
 import { createClient } from "@/lib/supabase/server";
 import { signPhotos } from "@/lib/members/photos";
-import { getMemberProfile, getMyContact } from "@/lib/members/profile";
+import { getMemberProfile, getMyContact, getMyLumaEmails } from "@/lib/members/profile";
 import { getMyMatches } from "@/lib/pair/data";
 import { hintClass, panelTitle, raisedPanelClass, smallBtn } from "@/components/admin/styles";
 import { SeasonTimeline } from "@/components/events/season-timeline";
@@ -49,9 +49,9 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
     getSeason(),
     createClient(),
   ]);
-  const [profile, contact, pairMatches] = supabase
-    ? await Promise.all([getMemberProfile(supabase, viewer.member.id), getMyContact(supabase), getMyMatches(supabase)])
-    : [null, null, []];
+  const [profile, contact, pairMatches, lumaEmails] = supabase
+    ? await Promise.all([getMemberProfile(supabase, viewer.member.id), getMyContact(supabase), getMyMatches(supabase), getMyLumaEmails(supabase)])
+    : [null, null, [], []];
   // One signing call for my photo and my pAIr partners' photos.
   const photos =
     supabase && (profile || pairMatches.length)
@@ -154,7 +154,7 @@ export default async function MePage({ params }: PageProps<"/[locale]/me">) {
             </h1>
             <p className="max-w-[60ch] text-[1.0625rem] text-fg-muted">{t("detailsBody")}</p>
           </header>
-          <ProfileEditor memberId={viewer.member.id} name={name} profile={profile} contact={contact} photoSrc={photoSrc} />
+          <ProfileEditor memberId={viewer.member.id} name={name} profile={profile} contact={contact} photoSrc={photoSrc} lumaEmails={lumaEmails} />
         </div>
 
         {todays.length > 0 && (

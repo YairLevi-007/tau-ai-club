@@ -26,13 +26,15 @@ const OTHER_SESSION = /\bS\d+\s*:\s*(?:Checked In|Not Going|Going)\b/gi;
 const TITLE = /AI Club\b.*\bSession\s*#\s*\d+/i;
 
 export function readLumaPdfLines(lines: string[]): LumaPdf {
-  const clean = lines.map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  // NFKC first: pdf.js hands over ligatures as single characters ("ﬁ" in "inﬁnity73737@gmail.com").
+  const clean = lines.map((l) => l.normalize("NFKC").replace(/\s+/g, " ").trim()).filter(Boolean);
   const title = clean.find((l) => TITLE.test(l)) ?? "";
   const base: LumaPdf = {
     rows: [],
     columns: { email: "", name: "", status: "", checkin: "" },
     statuses: {},
     total: 0,
+    labels: {},
     title,
     unreadable: 0,
     error: null,
@@ -42,6 +44,7 @@ export function readLumaPdfLines(lines: string[]): LumaPdf {
 
   const rows: AttendanceRow[] = [];
   const statuses: Record<string, number> = {};
+  const labels: Record<string, string> = {};
   let unreadable = 0;
   let total = 0;
   for (const line of clean) {
@@ -55,6 +58,8 @@ export function readLumaPdfLines(lines: string[]): LumaPdf {
     }
     const status = found[0].toLowerCase();
     statuses[status] = (statuses[status] ?? 0) + 1;
+    const label = pdfLabel(line);
+    if (label) labels[emails[0].toLowerCase()] = label;
     rows.push({
       email: emails[0].toLowerCase(),
       going: status !== "not going",
@@ -69,9 +74,26 @@ export function readLumaPdfLines(lines: string[]): LumaPdf {
     rows,
     statuses,
     total,
+    labels,
     unreadable,
     columns: { email: "Email", name: "", status: "Status", checkin: "Status (Checked In)" },
   };
+}
+
+/**
+ * The guest's name on a table line, for the admin's unmatched list (browser only): the line
+ * without its row number, email, statuses, dates and the other-sessions cells.
+ */
+export function pdfLabel(line: string): string {
+  return line
+    .replace(OTHER_SESSION, " ")
+    .replace(EMAIL, " ")
+    .replace(STATUS, " ")
+    .replace(/\b\d{1,2}[./-]\d{1,2}(?:[./-]\d{2,4})?\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.? \d{1,2}(?:, \d{4})?\b|\b\d{1,2}:\d{2}\s*(?:AM|PM)?\b/gi, " ")
+    .replace(/(^|\s)#?\d+(?=\s|$)/g, " ")
+    .replace(/(^|\s)[-;,|]+(?=\s|$)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /** A piece of text on a PDF page, where pdf.js put it (x grows rightwards, y grows upwards). */

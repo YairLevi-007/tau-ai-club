@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FileSpreadsheet, LoaderCircle } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
@@ -11,6 +11,7 @@ import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
 import { StalePageNotice, isStalePage } from "@/components/admin/stale-page";
 import { AttendanceTag } from "./attendance-mark";
+import { UnmatchedList } from "./unmatched-list";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -46,6 +47,12 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
   const [saved, setSaved] = useState(false);
   // The page is from an older deployment (25.11, session 3): only a reload helps, then the file again.
   const [stale, setStale] = useState(false);
+  // The upload's unmatched emails (25.11), with the file's rows and names they came from, kept
+  // in this page's memory only (also after saving) so the admin can link them to members.
+  const [held, setHeld] = useState<{ rows: AttendanceRow[]; labels: Record<string, string> } | null>(null);
+  const [unmatched, setUnmatched] = useState<string[]>([]);
+  const [committed, setCommitted] = useState(false);
+  const onStale = useCallback(() => setStale(true), []);
 
   async function run(rows: AttendanceRow[], commit: boolean) {
     const res = await importAttendance(eventId, rows, commit);
@@ -59,6 +66,9 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
     setCsv(null);
     setSaved(false);
     setStale(false);
+    setHeld(null);
+    setUnmatched([]);
+    setCommitted(false);
     if (!file) return;
     if (file.size > MAX_BYTES) return setError(t("errorSize"));
     setBusy("reading");
@@ -74,7 +84,10 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
         parsed = fromCsv;
       }
       setCsv(parsed);
-      setPreview(await run(parsed.rows, false));
+      const result = await run(parsed.rows, false);
+      setPreview(result);
+      setHeld({ rows: parsed.rows, labels: parsed.labels ?? {} });
+      setUnmatched(result.unmatched ?? []);
     } catch (e) {
       if (isStalePage(e)) {
         setCsv(null);
@@ -91,7 +104,9 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
     setBusy("saving");
     setError(null);
     try {
-      await run(csv.rows, true);
+      const result = await run(csv.rows, true);
+      setUnmatched(result.unmatched ?? []);
+      setCommitted(true);
       setSaved(true);
       setPreview(null);
       setCsv(null);
@@ -121,6 +136,23 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
         {busy === "reading" ? t("reading") : busy === "saving" ? t("saving") : saved ? t("saved") : ""}
       </p>
       {stale && <StalePageNotice file />}
+      {held && !stale && unmatched.length > 0 && (
+        <UnmatchedList
+          eventId={eventId}
+          phase={phase}
+          emails={unmatched}
+          labels={held.labels}
+          rows={held.rows}
+          committed={committed}
+          onStale={onStale}
+          onLinked={(email, result) => {
+            if (!result) return setUnmatched((u) => u.filter((e) => e !== email));
+            setUnmatched(result.unmatched ?? []);
+            if (result.committed) router.refresh();
+            else setPreview(result);
+          }}
+        />
+      )}
       {error && (
         <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive" data-testid="attendance-error">
           {error}

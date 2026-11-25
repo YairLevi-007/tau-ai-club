@@ -169,6 +169,99 @@ export async function runAttendanceChecks(db, check) {
   check(empty(await as("alice", "select before_members from public.attendance_imports")), "[member] cannot read the upload counts");
   await db.query("delete from public.events where id = $1", [sess]);
 
+  // ---- 19d. Luma emails matched to the right member (25.11) ------------------------
+  const key = async (e) => (await db.query("select public.email_match_key($1) as k", [e])).rows[0].k;
+  check(await key("  Gal.Shani77@Gmail.com ") === "galshani77@gmail.com", "match key: case, spaces and Gmail dots");
+  check(await key("galshani77+luma@googlemail.com") === "galshani77@gmail.com", "match key: Gmail +tag and googlemail.com");
+  check(await key("inﬁnity73737@gmail.com") === "infinity73737@gmail.com", "match key: NFKC turns the PDF's 'ﬁ' ligature back into 'fi'");
+  check(await key("a.b+c@club.test") === "a.b+c@club.test", "match key: dots and +tags stay on other domains");
+
+  const lm = await mkEvent("att-luma", "now() + interval '1 day'");
+  await db.query("insert into public.member_emails (email, member_id, is_primary) values ('bob.smith@gmail.com', $1, false)", [bob]);
+  const lumaRows = [
+    { email: "BobSmith+luma@googlemail.com", going: true }, // bob's Gmail, another spelling
+    { email: "alice.private@example.test", going: true }, // alice, an address the site doesn't know
+    { email: "guest.one@example.test", going: true },
+  ];
+  const l1 = (await run("admin", lm, lumaRows, false)).rows?.[0]?.out;
+  check(byId(l1, bob)?.status === "registered", "a Gmail dot/+tag/googlemail variant of a member's email matches the member");
+  check(
+    JSON.stringify([...(l1?.unmatched ?? [])].sort()) === JSON.stringify(["alice.private@example.test", "guest.one@example.test"]),
+    "the import lists the upload's unmatched emails back to the admin",
+  );
+  check(!byId(l1, alice) && l1?.guests_registered === 2, "an unknown address is still a guest (statuses and counts unchanged)");
+
+  // Linking: admins only, and only for matching (never for sign-in).
+  const link = (who, email, memberId) => as(who, "insert into public.member_luma_emails (email, member_id) values ($1, $2)", [email, memberId]);
+  check(denied(await link("alice", "x1@example.test", alice)), "[member] cannot link a Luma email");
+  check(denied(await link("outsider", "x2@example.test", alice)), "[outsider] cannot link a Luma email");
+  check(denied(await link("guest", "x3@example.test", alice)), "[guest] cannot link a Luma email");
+  check(!denied(await link("admin", "alice.private@example.test", alice)), "[admin] links a Luma email to a member");
+  check(denied(await link("admin", "alice.private@example.test", bob)), "one Luma email belongs to one member only");
+  check(denied(await link("admin", "not-an-email", alice)), "a linked Luma email must look like an email");
+  const l2 = (await run("admin", lm, lumaRows, true)).rows?.[0]?.out;
+  check(byId(l2, alice)?.status === "registered" && JSON.stringify(l2?.unmatched) === '["guest.one@example.test"]', "after linking, the next import matches that member");
+  check(
+    (await db.query("select linked_by from public.member_luma_emails where email = 'alice.private@example.test'")).rows[0]?.linked_by === adminMember,
+    "a link records which admin made it",
+  );
+  check(empty(await as("alice", "select * from public.member_luma_emails")), "[member] cannot read linked Luma emails");
+  check(empty(await as("outsider", "select * from public.member_luma_emails")) || denied(await as("outsider", "select * from public.member_luma_emails")), "[outsider] cannot read linked Luma emails");
+  const gl = await as("guest", "select * from public.member_luma_emails");
+  check(denied(gl) || empty(gl), "[guest] cannot read linked Luma emails");
+  check(
+    (await db.query("select public.email_on_club_list('alice.private@example.test') as ok")).rows[0].ok === false,
+    "a linked Luma email is not a sign-in email (not on the club list)",
+  );
+  const lumaDump = JSON.stringify([
+    ...(await db.query("select * from public.attendance")).rows,
+    ...(await db.query("select * from public.attendance_imports")).rows,
+    ...(await db.query("select * from public.member_luma_emails")).rows,
+  ]);
+  check(!/guest\.one/.test(lumaDump), "an unmatched (non-member) email is still stored nowhere");
+  // ---- 19e. a member adds their own Luma address (personal area) ------------------
+  const addMine = async (who, email) => {
+    const r = await as(who, "select public.add_my_luma_email($1) as out", [email]);
+    return r.error ? `error:${r.error}` : r.rows[0].out;
+  };
+  const mine = async (who) => {
+    const r = await as(who, "select email from public.my_luma_emails()");
+    return r.error ? null : r.rows.map((x) => x.email);
+  };
+  check(await addMine("bob", " Bob.Luma@Example.test ") === "added", "[member] adds their own Luma email");
+  check(JSON.stringify(await mine("bob")) === '["bob.luma@example.test"]', "[member] sees their own Luma emails (trimmed, lower case)");
+  check(JSON.stringify(await mine("alice")) === '["alice.private@example.test"]', "[member] sees the one an admin linked for them, and only their own");
+  check(await addMine("bob", "bob.luma@example.test") === "exists", "adding the same one again changes nothing");
+  check(await addMine("bob", "Bob@Club.test") === "own", "their own sign-in email is not added (it matches anyway)");
+  check(/taken/.test(await addMine("bob", "alice.private@example.test")), "another member's linked Luma email is refused");
+  check(/taken/.test(await addMine("bob", "alice@club.test")), "another member's sign-in email is refused");
+  check(/taken/.test(await addMine("alice", "b.o.b.s.m.i.t.h+x@googlemail.com")), "another member's email is refused by match key too (Gmail variant)");
+  check(/invalid/.test(await addMine("bob", "not-an-email")), "a self-added Luma email must look like an email");
+  check(/members only/.test(await addMine("outsider", "out@example.test")), "[outsider] cannot add a Luma email");
+  check(denied(await as("guest", "select public.add_my_luma_email('g@example.test')")), "[guest] cannot add a Luma email");
+  check(denied(await as("guest", "select * from public.my_luma_emails()")), "[guest] cannot list Luma emails");
+  check(denied(await as("bob", "insert into public.member_luma_emails (email, member_id) values ('direct@example.test', $1)", [bob])), "[member] still cannot write the table directly");
+  check(await addMine("bob", "b2@example.test") === "added" && await addMine("bob", "b3@example.test") === "added", "a member may add up to 3");
+  check(/limit/.test(await addMine("bob", "b4@example.test")), "a 4th Luma email is refused");
+  check(
+    (await db.query("select linked_by from public.member_luma_emails where email = 'bob.luma@example.test'")).rows[0]?.linked_by === bob,
+    "a self-added Luma email records the member as the one who linked it",
+  );
+  check(
+    (await db.query("select public.email_on_club_list('bob.luma@example.test') as ok")).rows[0].ok === false,
+    "a self-added Luma email is not a sign-in email (not on the club list)",
+  );
+  const self = (await run("admin", lm, [{ email: "BOB.LUMA@example.test", going: true }], false)).rows?.[0]?.out;
+  check(byId(self, bob)?.status === "registered" && JSON.stringify(self?.unmatched) === "[]", "an upload then matches the member by their self-added email");
+  const rmOther = await as("bob", "select public.remove_my_luma_email('alice.private@example.test') as out");
+  check(rmOther.rows?.[0]?.out === false && (await mine("alice")).length === 1, "[member] cannot remove another member's Luma email");
+  check((await as("bob", "select public.remove_my_luma_email(' Bob.Luma@example.test') as out")).rows?.[0]?.out === true, "[member] removes their own Luma email");
+  check(!(await mine("bob")).includes("bob.luma@example.test"), "a removed Luma email is gone");
+  check(denied(await as("guest", "select public.remove_my_luma_email('b2@example.test')")), "[guest] cannot remove a Luma email");
+  await db.query("delete from public.member_luma_emails");
+  await db.query("delete from public.member_emails where email = 'bob.smith@gmail.com'");
+  await db.query("delete from public.events where id = $1", [lm]);
+
   // ---- 20. who reads what ------------------------------------------------------
   const read = (who) => as(who, "select member_id, event_id from public.attendance");
   const a = await read("alice");

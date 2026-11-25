@@ -17,6 +17,11 @@ export type LumaCsv = {
   statuses: Record<string, number>;
   /** Number of guest rows in the file (not counting blank lines). */
   total: number;
+  /**
+   * Each email's name in the file, for the admin to recognise an unmatched guest (25.11). Stays in
+   * the browser: it is never part of `rows`, which is all the server gets.
+   */
+  labels: Record<string, string>;
   error: null | "empty" | "no_email";
 };
 
@@ -90,8 +95,9 @@ export function parseCheckinTime(v: string): string | null {
 }
 
 export function readLumaCsv(text: string): LumaCsv {
-  const table = parseCsv(text);
-  const empty: LumaCsv = { rows: [], columns: { email: "", name: "", status: "", checkin: "" }, statuses: {}, total: 0, error: "empty" };
+  // NFKC: ligatures and full-width characters as plain letters (a PDF once turned "fi" into "ﬁ").
+  const table = parseCsv(text.normalize("NFKC"));
+  const empty: LumaCsv = { rows: [], columns: { email: "", name: "", status: "", checkin: "" }, statuses: {}, total: 0, labels: {}, error: "empty" };
   if (table.length < 2) return empty;
   const headers = table[0];
   const keys = headers.map(key);
@@ -113,21 +119,25 @@ export function readLumaCsv(text: string): LumaCsv {
   if (col.email < 0) return { ...empty, columns, total: body.length, error: "no_email" };
 
   const statuses: Record<string, number> = {};
+  const labels: Record<string, string> = {};
   const rows: AttendanceRow[] = body.map((r) => {
     const status = col.status >= 0 ? (r[col.status] ?? "").trim().toLowerCase() : "";
     if (col.status >= 0) statuses[status || "—"] = (statuses[status || "—"] ?? 0) + 1;
     const cell = col.checkin >= 0 ? (r[col.checkin] ?? "").trim() : "";
     const at = cell ? parseCheckinTime(cell) : null;
     const checked_in = !!at || (cell !== "" && YES.has(cell.toLowerCase()));
+    const email = (r[col.email] ?? "").trim().toLowerCase();
+    const name = col.name >= 0 ? (r[col.name] ?? "").trim() : "";
+    if (email && name) labels[email] = name;
     return {
-      email: (r[col.email] ?? "").trim().toLowerCase(),
+      email,
       // No status column: everyone on the list registered.
       going: col.status < 0 || GOING.has(status.replace(/\s+/g, "_")),
       checked_in,
       checked_in_at: at,
     };
   });
-  return { rows: rows.filter((r) => r.email), columns, statuses, total: body.length, error: null };
+  return { rows: rows.filter((r) => r.email), columns, statuses, total: body.length, labels, error: null };
 }
 
 /** Quote a value for CSV (and defuse spreadsheet formulas). */

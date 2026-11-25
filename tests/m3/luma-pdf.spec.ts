@@ -110,6 +110,24 @@ test.describe("Luma attendee PDF", () => {
     expect(res.rows.map((r) => r.email)).toEqual(["c@example.test"]);
   });
 
+  // 25.11: a PDF turned "fi" into the ligature "ﬁ" in a member's address, so they never matched.
+  test("NFKC: a ligature in an email reads as plain letters", () => {
+    const res = readLumaPdfLines(["AI Club Cohort B - Session #3 (Dec 16)", "- Nov 2, 2026 Going inﬁnity73737@gmail.com Lig Ature 1"]);
+    expect(res.rows.map((r) => r.email)).toEqual(["infinity73737@gmail.com"]);
+  });
+
+  test("each guest's name stays beside the rows (browser only), for the unmatched list", async () => {
+    const res = readLumaPdfLines(await pdfLines(makePdf(FAKE)));
+    expect(res.labels).toEqual({
+      "dana@example.test": "Dana Demo",
+      "noa@example.test": "Noa Demo",
+      "yuval@example.test": "Yuval Demo",
+      "maya@example.test": "Maya Demo",
+      "omer@example.test": "Omer Demo",
+      "tamar@example.test": "Tamar Demo",
+    });
+  });
+
   test("text items group into lines by baseline, read left to right, top to bottom", () => {
     expect(
       textItemsToLines([

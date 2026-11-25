@@ -144,3 +144,30 @@ export async function removePhoto(): Promise<ActionState> {
   revalidateProfile(member.id);
   return { ok: true, message: t("photoRemoved") };
 }
+
+/**
+ * "The email I use on Luma" (25.11): an extra address that only matches Luma uploads to me.
+ * add_my_luma_email() refuses another member's address and never makes it a sign-in email.
+ */
+export async function addLumaEmail(_: ActionState, fd: FormData): Promise<ActionState> {
+  const { supabase, member } = await memberClient();
+  const t = await getTranslations("profile");
+  const email = str(fd, "luma_email").normalize("NFKC").toLowerCase();
+  if (!email || email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, message: t("lumaErrorInvalid") };
+  const { data, error } = await supabase.rpc("add_my_luma_email", { p_email: email });
+  if (error) {
+    const key = /taken/.test(error.message) ? "lumaErrorTaken" : /limit/.test(error.message) ? "lumaErrorLimit" : /invalid/.test(error.message) ? "lumaErrorInvalid" : "errorGeneric";
+    return { ok: false, message: t(key) };
+  }
+  revalidateProfile(member.id);
+  return { ok: true, message: t(data === "own" ? "lumaOwn" : data === "exists" ? "lumaExists" : "lumaAdded") };
+}
+
+export async function removeLumaEmail(_: ActionState, fd: FormData): Promise<ActionState> {
+  const { supabase, member } = await memberClient();
+  const t = await getTranslations("profile");
+  const { error } = await supabase.rpc("remove_my_luma_email", { p_email: str(fd, "luma_email") });
+  if (error) return { ok: false, message: t("errorGeneric") };
+  revalidateProfile(member.id);
+  return { ok: true, message: t("lumaRemoved") };
+}

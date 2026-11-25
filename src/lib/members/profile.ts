@@ -46,3 +46,13 @@ export async function getMemberContact(supabase: SupabaseClient, memberId: strin
   const row = (Array.isArray(data) ? data[0] : null) as { phone: string | null; contact_email: string | null } | null;
   return row && (row.phone || row.contact_email) ? row : null;
 }
+
+/**
+ * The signed-in member's extra Luma addresses (my_luma_emails()): used only to match Luma
+ * uploads to them, never to sign in. Their own rows only, including ones an admin linked.
+ */
+export async function getMyLumaEmails(supabase: SupabaseClient): Promise<string[]> {
+  const { data, error } = await supabase.rpc("my_luma_emails");
+  if (error || !Array.isArray(data)) return [];
+  return (data as { email: string }[]).map((r) => r.email);
+}

@@ -1,0 +1,6 @@
+﻿guest_id,name,first_name,last_name,email,phone_number,created_at,approval_status,checked_in_at,qr_code_url,amount,currency,ticket_name
+gst-1,Tal Example,Tal,Example,tal.private@gmail.com,,2026-11-20T08:00:00.000Z,approved,,https://luma.com/check-in/evt-Fake?pk=gst-1,$0.00,usd,Standard
+gst-2,נועה לוי,נועה,לוי,k7f2x9q4mz@privaterelay.appleid.com,,2026-11-20T08:00:00.000Z,approved,,https://luma.com/check-in/evt-Fake?pk=gst-2,$0.00,usd,Standard
+gst-3,Uri Bdika,Uri,Bdika,uri@maul.tau.ac.il,,2026-11-20T08:00:00.000Z,approved,,https://luma.com/check-in/evt-Fake?pk=gst-3,$0.00,usd,Standard
+gst-4,Dana Cohen,Dana,Cohen,admin@example.test,,2026-11-20T08:00:00.000Z,approved,,https://luma.com/check-in/evt-Fake?pk=gst-4,$0.00,usd,Standard
+gst-5,Lig Ature,Lig,Ature,inﬁnity73737@gmail.com,,2026-11-20T08:00:00.000Z,approved,,https://luma.com/check-in/evt-Fake?pk=gst-5,$0.00,usd,Standard

@@ -10,6 +10,7 @@ import { ProfileSubline } from "@/components/members/profile-subline";
 import { SignOutButton } from "@/components/auth/auth-buttons";
 import { cn } from "@/lib/utils";
 import { ProfileEditorShell } from "@/components/members/profile-editor-shell";
+import { LumaEmails } from "@/components/members/luma-emails";
 import { removePhoto, saveProfile, uploadPhoto } from "@/app/[locale]/profile/actions";
 
 const textareaClass = inputClass.replace("h-10", "min-h-28 py-2 leading-relaxed");
@@ -24,12 +25,14 @@ export async function ProfileEditor({
   profile,
   contact,
   photoSrc,
+  lumaEmails = [],
 }: {
   memberId: string;
   name: string;
   profile: MemberProfile | null;
   contact: MyContact | null;
   photoSrc: string | null;
+  lumaEmails?: string[];
 }) {
   const t = await getTranslations("profile");
   const links = profile?.links ?? {};
@@ -204,6 +207,9 @@ export async function ProfileEditor({
             </button>
           </div>
         </ActionForm>
+        <div className="mt-6">
+          <LumaEmails emails={lumaEmails} />
+        </div>
       </section>
     </div>
   );

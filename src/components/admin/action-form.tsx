@@ -26,6 +26,7 @@ export function ActionForm({
   confirmText,
   className,
   resetOnSuccess = false,
+  stayOpen = false,
   render,
 }: {
   action: FormAction;
@@ -33,6 +34,8 @@ export function ActionForm({
   confirmText?: string;
   className?: string;
   resetOnSuccess?: boolean;
+  /** Don't tell a wrapper about the success (the personal area keeps its form open for these). */
+  stayOpen?: boolean;
   /** Extra output after the status line, e.g. a one-time link. */
   render?: (state: ActionState) => React.ReactNode;
 }) {
@@ -48,8 +51,8 @@ export function ActionForm({
   useEffect(() => {
     if (state?.ok && resetOnSuccess) ref.current?.reset();
     // Lets a wrapper react to a successful save (e.g. the personal area folds the form away).
-    if (state?.ok) ref.current?.dispatchEvent(new CustomEvent("tau:action-ok", { bubbles: true, detail: state.message }));
-  }, [state, resetOnSuccess]);
+    if (state?.ok && !stayOpen) ref.current?.dispatchEvent(new CustomEvent("tau:action-ok", { bubbles: true, detail: state.message }));
+  }, [state, resetOnSuccess, stayOpen]);
 
   return (
     <form

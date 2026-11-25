@@ -55,6 +55,23 @@ test.describe("reading Luma's guest export", () => {
     expect(JSON.stringify(csv.rows)).not.toMatch(/[֐-׿]|luma\.com|\$0/);
   });
 
+  // 25.11: unmatched rows are shown with their Luma name, which stays in the browser.
+  test("names stay beside the rows, never in them; NFKC undoes ligatures", () => {
+    const csv = readLumaCsv(readFileSync(path.join(__dirname, "fixtures", "attendance-unmatched.csv"), "utf8"));
+    expect(csv.error).toBeNull();
+    expect(csv.rows.map((r) => r.email)).toEqual([
+      "tal.private@gmail.com",
+      "k7f2x9q4mz@privaterelay.appleid.com",
+      "uri@maul.tau.ac.il",
+      "admin@example.test",
+      "infinity73737@gmail.com", // "inﬁnity…" in the file
+    ]);
+    expect(csv.labels["tal.private@gmail.com"]).toBe("Tal Example");
+    expect(csv.labels["k7f2x9q4mz@privaterelay.appleid.com"]).toBe("נועה לוי");
+    expect(csv.labels["infinity73737@gmail.com"]).toBe("Lig Ature");
+    expect(JSON.stringify(csv.rows)).not.toMatch(/Tal Example|נועה|Ature/);
+  });
+
   test("other header spellings, a yes/no check-in column, no status column", () => {
     const a = readLumaCsv("Name,Email Address,Registration Status,Check-in Time\nA,a@x.test,Going,2026-11-11 18:05\nB,b@x.test,Not Going,\n");
     expect(a.columns).toEqual({ email: "Email Address", name: "Name", status: "Registration Status", checkin: "Check-in Time" });

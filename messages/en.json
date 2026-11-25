@@ -494,7 +494,21 @@
     "backToMe": "Back to my area",
     "switchOff": "Off: hidden from members",
     "switchOn": "On: members see it",
-    "privacyNote": "Other members see only what you choose to share."
+    "privacyNote": "Other members see only what you choose to share.",
+    "lumaTitle": "The email I use on Luma",
+    "lumaBody": "Register for sessions on Luma with a different email than the one on this site? Add it here so your attendance counts. It's only used to match your registrations and can't be used to sign in.",
+    "lumaAdd": "Another email I use on Luma",
+    "lumaAddButton": "Add",
+    "lumaHint": "Only an address of your own. Another club member's address won't be accepted.",
+    "lumaRemove": "Remove",
+    "lumaMax": "You can add up to {n} addresses. Remove one to add another.",
+    "lumaAdded": "Email added. Your next Luma registrations will count for you.",
+    "lumaExists": "This email is already on your list.",
+    "lumaOwn": "That's the email you sign in with, so it already matches. No need to add it.",
+    "lumaRemoved": "Email removed.",
+    "lumaErrorInvalid": "That doesn't look like a valid email address.",
+    "lumaErrorTaken": "This email already belongs to another club member. If it's yours, contact the team.",
+    "lumaErrorLimit": "You can add up to 3 addresses. Remove one to add another."
   },
   "attendance": {
     "title": "Attendance from Luma",
@@ -579,7 +593,19 @@
     "countGuestsGoing": "{n, plural, one {<num>#</num> guest} other {<num>#</num> guests}}",
     "countMembersIn": "{n, plural, one {<num>#</num> member came} other {<num>#</num> members came}}",
     "countGuestsIn": "{n, plural, one {<num>#</num> guest came} other {<num>#</num> guests came}}",
-    "countNoShows": "{n, plural, one {<num>#</num> no-show} other {<num>#</num> no-shows}}"
+    "countNoShows": "{n, plural, one {<num>#</num> no-show} other {<num>#</num> no-shows}}",
+    "unmatchedTitle": "{n, plural, one {1 row didn't match a member} other {# rows didn't match a member}}",
+    "unmatchedBody": "Only club members come to sessions, so each row here is most likely a member who registered on Luma with another email. Picking the member saves that email with them, for matching attendance only and not for signing in, and every later upload recognises them. This list isn't saved: it's gone when you leave the page.",
+    "unmatchedPick": "Who is this?",
+    "unmatchedChoose": "Choose a member",
+    "unmatchedLink": "Link",
+    "unmatchedNotMember": "Not a member",
+    "unmatchedNoName": "(no name in the file)",
+    "unmatchedLinked": "Linked: {name}. The session's attendance is updated.",
+    "unmatchedLinkedLater": "Linked: {name}. The session has ended since, so the after upload will include them.",
+    "unmatchedTaken": "That email already belongs to another member.",
+    "unmatchedFailed": "Linking didn't work. Try again.",
+    "unmatchedAllDone": "Every row is matched."
   },
   "content": {
     "navLabel": "Sections",
