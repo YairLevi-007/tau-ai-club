@@ -8,6 +8,7 @@ import { captionChips, guessPerson, type PersonFields } from "@/lib/flyer/people
 import { uploadSpeakerPhoto } from "@/app/[locale]/admin/speaker-profiles/actions";
 import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
+import { StalePageNotice, isStalePage } from "@/components/admin/stale-page";
 import { cn } from "@/lib/utils";
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
@@ -31,6 +32,8 @@ export function SpeakerFromFlyer() {
   const [busy, setBusy] = useState<null | "reading" | "using">(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  /** The page is from an older deployment: only a reload helps, then the flyer again. */
+  const [stale, setStale] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [picture, setPicture] = useState<{ url: string; img: HTMLImageElement } | null>(null);
   const [people, setPeople] = useState<(FlyerPerson & { chips: string[] })[] | null>(null);
@@ -96,7 +99,8 @@ export function SpeakerFromFlyer() {
       const res = blob ? await uploadSpeakerPhoto(fd) : { ok: false as const };
       if (res.ok) setField("photo_url", res.url);
       setDone(res.ok ? t("speakerFlyerFilled") : t("flyerErrorPhoto"));
-    } catch {
+    } catch (e) {
+      if (isStalePage(e)) return setStale(true);
       setError(t("flyerErrorPhoto"));
     } finally {
       setBusy(null);
@@ -127,6 +131,7 @@ export function SpeakerFromFlyer() {
         <p role="status" aria-live="polite" className="text-sm text-fg-muted">
           {busy === "using" ? t("speakerFlyerUsing") : (done ?? "")}
         </p>
+        {stale && <StalePageNotice file />}
         {error && (
           <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}

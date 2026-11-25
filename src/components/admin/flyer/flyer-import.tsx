@@ -15,6 +15,7 @@ import type { LumaResponse } from "@/app/api/admin/luma/route";
 import { applyFlyer, type SpeakerChoice } from "@/app/[locale]/admin/events/flyer-actions";
 import { hintClass, inputClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
+import { StalePageNotice, isStalePage } from "@/components/admin/stale-page";
 import { CropEditor } from "./crop-editor";
 import { cropToJpeg, type Square } from "./face-detect";
 import { readFlyer, type FlyerReading } from "./read-flyer";
@@ -77,6 +78,8 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
   const [busy, setBusy] = useState<null | "luma" | "reading" | "applying">(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  /** The page is from an older deployment: only a reload helps, then the flyer again. */
+  const [stale, setStale] = useState(false);
   const [review, setReview] = useState<Review | null>(null);
   const objectUrl = useRef<string | null>(null);
 
@@ -228,7 +231,8 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
       if (!result.ok) return setError(t(result.error === "photo" ? "flyerErrorPhoto" : result.error === "speaker" ? "flyerErrorSpeaker" : "flyerErrorFailed"));
       router.push({ pathname: "/admin/events/new", query: { prefill: result.prefill } });
       router.refresh();
-    } catch {
+    } catch (e) {
+      if (isStalePage(e)) return setStale(true);
       setError(t("flyerErrorFailed"));
     } finally {
       setBusy(null);
@@ -307,6 +311,7 @@ export function FlyerImport({ speakers, venues }: { speakers: SpeakerOption[]; v
       <p role="status" aria-live="polite" className="sr-only">
         {busy === "luma" ? t("lumaImporting") : busy === "reading" ? t("flyerReading", { percent: progress }) : busy === "applying" ? t("flyerApplying") : review ? t("importDone") : ""}
       </p>
+      {stale && <StalePageNotice file />}
       {error && (
         <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 px-3.5 py-2.5 text-sm text-fg" data-testid="flyer-error">
           {error}

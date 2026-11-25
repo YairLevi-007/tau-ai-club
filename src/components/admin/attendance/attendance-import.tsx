@@ -9,6 +9,7 @@ import { readLumaPdfLines, textItemsToLines } from "@/lib/attendance/luma-pdf";
 import { importAttendance, type AttendanceResult } from "@/app/[locale]/admin/events/attendance-actions";
 import { hintClass, labelClass, smallBtn } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
+import { StalePageNotice, isStalePage } from "@/components/admin/stale-page";
 import { AttendanceTag } from "./attendance-mark";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -43,6 +44,8 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
   const [busy, setBusy] = useState<null | "reading" | "saving">(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  // The page is from an older deployment (25.11, session 3): only a reload helps, then the file again.
+  const [stale, setStale] = useState(false);
 
   async function run(rows: AttendanceRow[], commit: boolean) {
     const res = await importAttendance(eventId, rows, commit);
@@ -55,6 +58,7 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
     setPreview(null);
     setCsv(null);
     setSaved(false);
+    setStale(false);
     if (!file) return;
     if (file.size > MAX_BYTES) return setError(t("errorSize"));
     setBusy("reading");
@@ -71,7 +75,11 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
       }
       setCsv(parsed);
       setPreview(await run(parsed.rows, false));
-    } catch {
+    } catch (e) {
+      if (isStalePage(e)) {
+        setCsv(null);
+        return setStale(true);
+      }
       setError(t("errorFailed"));
     } finally {
       setBusy(null);
@@ -88,7 +96,12 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
       setPreview(null);
       setCsv(null);
       router.refresh();
-    } catch {
+    } catch (e) {
+      if (isStalePage(e)) {
+        setPreview(null);
+        setCsv(null);
+        return setStale(true);
+      }
       setError(t("errorFailed"));
     } finally {
       setBusy(null);
@@ -107,6 +120,7 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
       <p role="status" aria-live="polite" className="text-sm text-fg-muted">
         {busy === "reading" ? t("reading") : busy === "saving" ? t("saving") : saved ? t("saved") : ""}
       </p>
+      {stale && <StalePageNotice file />}
       {error && (
         <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive" data-testid="attendance-error">
           {error}

@@ -38,6 +38,23 @@ test.describe("reading Luma's guest export", () => {
     expect(Object.keys(csv.rows[0]).sort()).toEqual(["checked_in", "checked_in_at", "email", "going"]);
   });
 
+  // 25.11: the shape of Luma's current Guests export (35 columns), exported before the session:
+  // everyone "approved", no check-ins yet, Hebrew names, Apple private-relay emails, one row
+  // without amount/currency. Synthetic copy of the shape only; no real guest is in it.
+  test("Luma's 35-column Guests export, exported before the session", () => {
+    const csv = readLumaCsv(readFileSync(path.join(__dirname, "fixtures", "attendance-approved-before.csv"), "utf8"));
+    expect(csv.error).toBeNull();
+    expect(csv.columns).toEqual({ email: "email", name: "name", status: "approval_status", checkin: "checked_in_at" });
+    expect(csv.total).toBe(41);
+    expect(csv.rows).toHaveLength(41);
+    expect(csv.statuses).toEqual({ approved: 41 });
+    expect(csv.rows.every((r) => r.going && !r.checked_in && r.checked_in_at === null)).toBe(true);
+    expect(csv.rows.every((r) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email))).toBe(true);
+    expect(csv.rows.filter((r) => r.email.endsWith("@privaterelay.appleid.com")).length).toBeGreaterThan(0);
+    expect(csv.rows[1].email).toBe("bob@club.test"); // lower-cased
+    expect(JSON.stringify(csv.rows)).not.toMatch(/[֐-׿]|luma\.com|\$0/);
+  });
+
   test("other header spellings, a yes/no check-in column, no status column", () => {
     const a = readLumaCsv("Name,Email Address,Registration Status,Check-in Time\nA,a@x.test,Going,2026-11-11 18:05\nB,b@x.test,Not Going,\n");
     expect(a.columns).toEqual({ email: "Email Address", name: "Name", status: "Registration Status", checkin: "Check-in Time" });
