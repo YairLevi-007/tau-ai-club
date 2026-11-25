@@ -176,6 +176,11 @@ export function AttendanceImport({ eventId, phase }: { eventId: string; /** Whic
                 <li key={m.member_id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span className="font-medium text-fg">{m.full_name}</span>
                   <AttendanceTag status={m.status} label={t(`status_${m.status}`)} />
+                  {m.self_added && (
+                    <span className="text-xs text-brand-purple-soft" data-testid="preview-self-added">
+                      {t("matchedSelfAdded")}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

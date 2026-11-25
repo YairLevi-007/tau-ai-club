@@ -155,10 +155,11 @@ export async function addLumaEmail(_: ActionState, fd: FormData): Promise<Action
   const email = str(fd, "luma_email").normalize("NFKC").toLowerCase();
   if (!email || email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, message: t("lumaErrorInvalid") };
   const { data, error } = await supabase.rpc("add_my_luma_email", { p_email: email });
-  if (error) {
-    const key = /taken/.test(error.message) ? "lumaErrorTaken" : /limit/.test(error.message) ? "lumaErrorLimit" : /invalid/.test(error.message) ? "lumaErrorInvalid" : "errorGeneric";
-    return { ok: false, message: t(key) };
-  }
+  if (error) return { ok: false, message: t("errorGeneric") };
+  // add_my_luma_email() answers with one word (refusals too, so every try is counted).
+  const refused = { taken: "lumaErrorTaken", limit: "lumaErrorLimit", invalid: "lumaErrorInvalid", tries: "lumaErrorTries" } as const;
+  if (data in refused) return { ok: false, message: t(refused[data as keyof typeof refused]) };
+  if (!["added", "exists", "own"].includes(data)) return { ok: false, message: t("errorGeneric") };
   revalidateProfile(member.id);
   return { ok: true, message: t(data === "own" ? "lumaOwn" : data === "exists" ? "lumaExists" : "lumaAdded") };
 }

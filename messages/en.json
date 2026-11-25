@@ -404,7 +404,10 @@
     "sessionNoData": "Who came isn't uploaded yet",
     "goUploads": "To the session uploads",
     "goMembers": "To the member list",
-    "goAttendance": "To the attendance grid"
+    "goAttendance": "To the attendance grid",
+    "lumaEmails": "Luma emails (attendance matching only)",
+    "lumaSelfAdded": "added by the member",
+    "lumaAdminLinked": "linked by an admin"
   },
   "speakerForm": {
     "eyebrow": "Contact details",
@@ -508,7 +511,8 @@
     "lumaRemoved": "Email removed.",
     "lumaErrorInvalid": "That doesn't look like a valid email address.",
     "lumaErrorTaken": "This email already belongs to another club member. If it's yours, contact the team.",
-    "lumaErrorLimit": "You can add up to 3 addresses. Remove one to add another."
+    "lumaErrorLimit": "You can add up to 3 addresses. Remove one to add another.",
+    "lumaErrorTries": "Too many tries today. Try again tomorrow, or contact the team."
   },
   "attendance": {
     "title": "Attendance from Luma",
@@ -605,7 +609,8 @@
     "unmatchedLinkedLater": "Linked: {name}. The session has ended since, so the after upload will include them.",
     "unmatchedTaken": "That email already belongs to another member.",
     "unmatchedFailed": "Linking didn't work. Try again.",
-    "unmatchedAllDone": "Every row is matched."
+    "unmatchedAllDone": "Every row is matched.",
+    "matchedSelfAdded": "via a Luma email the member added"
   },
   "content": {
     "navLabel": "Sections",

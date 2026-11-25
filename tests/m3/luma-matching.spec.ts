@@ -36,6 +36,7 @@ test.describe("matching Luma emails to members", () => {
     const link = action.slice(action.indexOf("export async function linkLumaEmail"));
     expect(link).toMatch(/await adminClient\(\)/);
     expect(link).toMatch(/\.from\("member_luma_emails"\)\.insert\(/);
+    expect(link).toMatch(/rpc\("admin_email_owner"/); // by match key, not the exact address
     expect(link).not.toMatch(/\.from\("member_emails"\)\.(insert|upsert|update)/);
     // The session updates through the same import, unchanged, and only in the same phase.
     expect(link).toMatch(/uploadPhase\(.*\) !== input\.phase/);
@@ -76,11 +77,34 @@ test.describe("matching Luma emails to members", () => {
 
   // A member adds "the email I use on Luma" in the personal area: match only, never sign-in,
   // and never another member's address. The refusals themselves are checked in db:check (19e).
+  test("admins see self-added addresses and which matches came through them (F2, F3)", () => {
+    const page = src("src/app/[locale]/admin/members/page.tsx");
+    expect(page).toMatch(/\.from\("member_luma_emails"\)\.select\("email, member_id, linked_by"\)/);
+    expect(page).toMatch(/e\.linked_by === m\.id \? t\("lumaSelfAdded"\) : t\("lumaAdminLinked"\)/);
+    expect(src("src/components/admin/attendance/attendance-import.tsx")).toMatch(/m\.self_added && \(/);
+    const sql = src("supabase/migrations/20261126000000_attendance_email_matching.sql");
+    expect(sql).toMatch(/'self_added', a\.self_added/);
+    for (const loc of ["he", "en"]) {
+      const m = JSON.parse(readFileSync(resolve(ROOT, `messages/${loc}.json`), "utf8"));
+      for (const k of ["lumaEmails", "lumaSelfAdded", "lumaAdminLinked"]) expect(m.admin[k], `${loc} ${k}`).toBeTruthy();
+      expect(m.attendance.matchedSelfAdded).toBeTruthy();
+    }
+  });
+
   test("self-added Luma emails: own rows only, through the three functions, never sign-in", () => {
     const sql = src("supabase/migrations/20261126000000_attendance_email_matching.sql").replace(/^\s*--.*$/gm, "");
     const fns = sql.slice(sql.indexOf("create or replace function public.my_luma_emails"));
     expect(fns).toMatch(/v_member uuid := public\.current_member_id\(\)/);
-    expect(fns).toMatch(/raise exception 'taken'/);
+    expect(fns).toMatch(/return 'taken'/);
+    // tau-security F1: every try is counted (refusals return a word instead of raising, so the
+    // count isn't rolled back), 10 a day, and remove_my_luma_email() never touches the count.
+    expect(fns).toMatch(/create table public\.member_luma_email_tries/);
+    expect(fns).toMatch(/revoke all on public\.member_luma_email_tries from public, anon, authenticated/);
+    expect(fns).toMatch(/if v_tries > 10 then\s+return 'tries'/);
+    expect(fns.indexOf("returning t.n into v_tries")).toBeLessThan(fns.indexOf("return 'invalid'"));
+    expect(fns).not.toMatch(/raise exception '(taken|invalid|limit)'/);
+    const remove = fns.slice(fns.indexOf("create or replace function public.remove_my_luma_email"));
+    expect(remove.slice(0, remove.indexOf("$$;"))).not.toMatch(/member_luma_email_tries/);
     expect(fns).toMatch(/e\.member_id <> v_member/);
     expect(fns).toMatch(/l\.member_id <> v_member/);
     expect(fns).toMatch(/where l\.member_id = v_member and/); // remove: only my rows
@@ -99,7 +123,7 @@ test.describe("matching Luma emails to members", () => {
 
     const he = JSON.parse(readFileSync(resolve(ROOT, "messages/he.json"), "utf8")).profile;
     const en = JSON.parse(readFileSync(resolve(ROOT, "messages/en.json"), "utf8")).profile;
-    for (const k of ["lumaTitle", "lumaBody", "lumaAdd", "lumaAddButton", "lumaHint", "lumaRemove", "lumaMax", "lumaAdded", "lumaExists", "lumaOwn", "lumaRemoved", "lumaErrorInvalid", "lumaErrorTaken", "lumaErrorLimit"]) {
+    for (const k of ["lumaTitle", "lumaBody", "lumaAdd", "lumaAddButton", "lumaHint", "lumaRemove", "lumaMax", "lumaAdded", "lumaExists", "lumaOwn", "lumaRemoved", "lumaErrorInvalid", "lumaErrorTaken", "lumaErrorLimit", "lumaErrorTries"]) {
       expect(he[k], k).toBeTruthy();
       expect(en[k], k).toBeTruthy();
     }

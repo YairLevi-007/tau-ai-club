@@ -67,6 +67,13 @@ export async function removeEmail(_: ActionState, fd: FormData): Promise<ActionS
   return error ? fail(error) : done("removed");
 }
 
+/** A Luma address linked to a member (by an admin, or added by the member): match only. */
+export async function removeLumaEmail(_: ActionState, fd: FormData): Promise<ActionState> {
+  const supabase = await adminClient();
+  const { error } = await supabase.from("member_luma_emails").delete().eq("email", str(fd, "email"));
+  return error ? fail(error) : done("removed");
+}
+
 const MAX_CSV_BYTES = 256 * 1024;
 
 export async function importCsv(_: ActionState, fd: FormData): Promise<ActionState> {

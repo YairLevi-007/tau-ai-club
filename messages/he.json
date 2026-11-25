@@ -404,7 +404,10 @@
     "sessionNoData": "עוד לא הועלתה רשימת המגיעים",
     "goUploads": "להעלאות של המפגשים",
     "goMembers": "לרשימת החברים",
-    "goAttendance": "לטבלת הנוכחות"
+    "goAttendance": "לטבלת הנוכחות",
+    "lumaEmails": "אימיילים ב-Luma (רק להתאמת נוכחות)",
+    "lumaSelfAdded": "נוסף ע״י החבר/ה",
+    "lumaAdminLinked": "קושר ע״י מנהל/ת"
   },
   "speakerForm": {
     "eyebrow": "פרטי קשר",
@@ -508,7 +511,8 @@
     "lumaRemoved": "האימייל הוסר.",
     "lumaErrorInvalid": "זו לא נראית כתובת אימייל תקינה.",
     "lumaErrorTaken": "האימייל הזה כבר שייך לחבר/ה אחר/ת במועדון. אם הוא שלכם, פנו לצוות.",
-    "lumaErrorLimit": "אפשר עד 3 כתובות. הסירו אחת כדי להוסיף אחרת."
+    "lumaErrorLimit": "אפשר עד 3 כתובות. הסירו אחת כדי להוסיף אחרת.",
+    "lumaErrorTries": "היו יותר מדי ניסיונות היום. נסו שוב מחר, או פנו לצוות."
   },
   "attendance": {
     "title": "נוכחות מ-Luma",
@@ -605,7 +609,8 @@
     "unmatchedLinkedLater": "הקישור נשמר: {name}. המפגש נגמר בינתיים, אז ההעלאה של אחרי המפגש תכלול אותם.",
     "unmatchedTaken": "המייל הזה כבר שייך לחבר/ה אחר/ת.",
     "unmatchedFailed": "הקישור לא הצליח. כדאי לנסות שוב.",
-    "unmatchedAllDone": "כל השורות זוהו."
+    "unmatchedAllDone": "כל השורות זוהו.",
+    "matchedSelfAdded": "דרך אימייל Luma שהחבר/ה הוסיפ/ה"
   },
   "content": {
     "navLabel": "מדורים",

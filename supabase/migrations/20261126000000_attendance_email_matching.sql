@@ -87,7 +87,8 @@ begin
   end if;
 
   create temporary table if not exists pg_temp.att_rows (
-    email extensions.citext, going boolean, checked_in boolean, checked_in_at timestamptz, member_id uuid
+    email extensions.citext, going boolean, checked_in boolean, checked_in_at timestamptz, member_id uuid,
+    self_added boolean not null default false
   ) on commit drop;
   truncate pg_temp.att_rows;
 
@@ -103,13 +104,15 @@ begin
   v_ignored := v_total - (select count(*) from pg_temp.att_rows);
 
   -- A member's sign-in emails and the Luma addresses linked to them, matched by mailbox key.
-  update pg_temp.att_rows r set member_id = k.member_id
+  -- self_added: the match came through an address the member added themselves (shown to the
+  -- admin in the preview, tau-security F3).
+  update pg_temp.att_rows r set member_id = k.member_id, self_added = k.self_added
   from (
-    select public.email_match_key(me.email::text) as key, me.member_id
+    select public.email_match_key(me.email::text) as key, me.member_id, false as self_added
     from public.member_emails me
     join public.members m on m.id = me.member_id and m.status = 'active'
     union
-    select public.email_match_key(le.email::text), le.member_id
+    select public.email_match_key(le.email::text), le.member_id, le.linked_by is not distinct from le.member_id
     from public.member_luma_emails le
     join public.members m on m.id = le.member_id and m.status = 'active'
   ) k
@@ -126,7 +129,7 @@ begin
 
   -- One row per member, even if they registered with two of their emails.
   create temporary table if not exists pg_temp.att_members (
-    member_id uuid primary key, status public.attendance_status, checked_in_at timestamptz
+    member_id uuid primary key, status public.attendance_status, checked_in_at timestamptz, self_added boolean
   ) on commit drop;
   truncate pg_temp.att_members;
   insert into pg_temp.att_members
@@ -134,12 +137,14 @@ begin
          case when bool_or(r.checked_in) then 'checked_in'
               when v_ends < now() then 'no_show'
               else 'registered' end::public.attendance_status,
-         min(r.checked_in_at)
+         min(r.checked_in_at),
+         bool_or(r.self_added)
   from pg_temp.att_rows r where r.member_id is not null
   group by r.member_id;
 
   select coalesce(jsonb_agg(jsonb_build_object(
-           'member_id', a.member_id, 'full_name', m.full_name, 'status', a.status, 'checked_in_at', a.checked_in_at)
+           'member_id', a.member_id, 'full_name', m.full_name, 'status', a.status, 'checked_in_at', a.checked_in_at,
+           'self_added', a.self_added)
          order by a.status, m.full_name), '[]'::jsonb)
     into v_members
   from pg_temp.att_members a join public.members m on m.id = a.member_id;
@@ -168,12 +173,34 @@ $$;
 revoke all on function public.admin_import_attendance(uuid, jsonb, boolean) from public, anon, authenticated;
 grant execute on function public.admin_import_attendance(uuid, jsonb, boolean) to authenticated;
 
+-- Which member already owns this mailbox (by match key, sign-in or Luma address), for the admin
+-- link action: so a Gmail dot variant of another member's email is refused there too.
+create or replace function public.admin_email_owner(p_email text)
+returns uuid
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_key text := public.email_match_key(p_email);
+begin
+  perform public.assert_admin();
+  return coalesce(
+    (select e.member_id from public.member_emails e where public.email_match_key(e.email::text) = v_key limit 1),
+    (select l.member_id from public.member_luma_emails l where public.email_match_key(l.email::text) = v_key limit 1));
+end;
+$$;
+
+revoke all on function public.admin_email_owner(text) from public, anon, authenticated;
+grant execute on function public.admin_email_owner(text) to authenticated;
+
 -- ---- 4. a member adds their own Luma address (personal area) -------------------------------
 -- The club asks members to register on Luma with their site email. A member who knows they use
 -- another one can add it here, so their uploads match without an admin. Same table, same rule:
 -- match only, never sign-in (email_on_club_list() and current_member_id() read member_emails
 -- only). Refused when the address (by match key) already belongs to ANOTHER member, in either
--- table. At most 3 per member. A member sees and removes only their own rows (also the ones an
+-- table. At most 3 per member, 10 tries a day. A member sees and removes only their own rows (also the ones an
 -- admin linked for them). No direct table access: these three functions are the only way in.
 create or replace function public.my_luma_emails()
 returns table (email text, created_at timestamptz)
@@ -188,8 +215,23 @@ as $$
   order by l.created_at, l.email
 $$;
 
--- Returns 'added', 'exists' (already one of mine) or 'own' (my sign-in email, which matches
--- anyway). Raises 'taken' (another member's address), 'invalid' or 'limit'.
+-- Tries per member per Israeli day (tau-security F1): "added" vs "taken" tells whether an
+-- address is some member's, so without a cap a script could test thousands of addresses against
+-- the club list. Every call counts, refusals included, and removing an address frees nothing.
+-- No one reads it directly (RLS on, no policy, no grants); add_my_luma_email() writes it.
+create table public.member_luma_email_tries (
+  member_id uuid not null references public.members (id) on delete cascade,
+  day       date not null,
+  n         int  not null default 0,
+  primary key (member_id, day)
+);
+revoke all on public.member_luma_email_tries from public, anon, authenticated;
+alter table public.member_luma_email_tries enable row level security;
+
+-- Returns one word, never raises for a refusal (so the try is still counted; a raise would roll
+-- it back): 'added'; 'exists' (already one of mine); 'own' (my sign-in email, which matches
+-- anyway); 'taken' (another member's address); 'invalid'; 'limit' (3 already); 'tries' (10
+-- tries today). Raises only for non-members.
 create or replace function public.add_my_luma_email(p_email text)
 returns text
 language plpgsql
@@ -200,13 +242,25 @@ as $$
 declare
   v_member uuid := public.current_member_id();
   v_email  text := lower(btrim(normalize(coalesce(p_email, ''), NFKC)));
+  v_day    date := (now() at time zone 'Asia/Jerusalem')::date;
+  v_tries  int;
   v_key    text;
 begin
   if v_member is null then
     raise exception 'members only' using errcode = '42501';
   end if;
+
+  -- Count this try first; refuse once today's 10 are used. Older days are dropped.
+  delete from public.member_luma_email_tries t where t.member_id = v_member and t.day < v_day;
+  insert into public.member_luma_email_tries as t (member_id, day, n) values (v_member, v_day, 1)
+    on conflict (member_id, day) do update set n = t.n + 1
+    returning t.n into v_tries;
+  if v_tries > 10 then
+    return 'tries';
+  end if;
+
   if char_length(v_email) > 254 or v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
-    raise exception 'invalid' using errcode = '22023';
+    return 'invalid';
   end if;
   v_key := public.email_match_key(v_email);
 
@@ -215,7 +269,7 @@ begin
   perform pg_advisory_xact_lock(hashtext('member_luma_emails:' || v_key));
   if exists (select 1 from public.member_emails e where public.email_match_key(e.email::text) = v_key and e.member_id <> v_member)
      or exists (select 1 from public.member_luma_emails l where public.email_match_key(l.email::text) = v_key and l.member_id <> v_member) then
-    raise exception 'taken' using errcode = '23505';
+    return 'taken';
   end if;
   if exists (select 1 from public.member_emails e where public.email_match_key(e.email::text) = v_key) then
     return 'own';
@@ -224,7 +278,7 @@ begin
     return 'exists';
   end if;
   if (select count(*) from public.member_luma_emails l where l.member_id = v_member) >= 3 then
-    raise exception 'limit' using errcode = '54000';
+    return 'limit';
   end if;
 
   insert into public.member_luma_emails (email, member_id, linked_by)

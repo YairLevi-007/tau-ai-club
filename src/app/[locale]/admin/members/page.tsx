@@ -17,7 +17,7 @@ import {
 } from "@/components/admin/styles";
 import { FilePicker } from "@/components/admin/file-picker";
 import { cn } from "@/lib/utils";
-import { addEmail, addMember, importCsv, removeEmail, removeMember, setRole } from "./actions";
+import { addEmail, addMember, importCsv, removeEmail, removeLumaEmail, removeMember, setRole } from "./actions";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/members">): Promise<Metadata> {
   const { locale } = await params;
@@ -30,6 +30,7 @@ type MemberRow = {
   full_name: string;
   role: "member" | "admin";
   member_emails: { email: string; is_primary: boolean }[];
+  /** Addresses used only to match Luma uploads; linked_by = the member themselves when self-added. */
   profiles: { welcomed_at: string | null } | null;
 };
 
@@ -48,6 +49,12 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
         .order("full_name")
     : { data: [], error: null };
   const members = (data ?? []) as unknown as MemberRow[];
+  // Read apart from the members query, so this page still loads if that table isn't there yet.
+  const { data: lumaData } = supabase ? await supabase.from("member_luma_emails").select("email, member_id, linked_by").order("email") : { data: [] };
+  const lumaOf = new Map<string, { email: string; linked_by: string | null }[]>();
+  for (const r of (lumaData ?? []) as { email: string; member_id: string; linked_by: string | null }[]) {
+    lumaOf.set(r.member_id, [...(lumaOf.get(r.member_id) ?? []), r]);
+  }
 
   return (
     <div className="grid gap-8">
@@ -135,6 +142,35 @@ export default async function AdminMembersPage({ params }: PageProps<"/[locale]/
                     </li>
                   ))}
                 </ul>
+
+                {/* Luma addresses (tau-security F2): match only, never sign-in. Shows who added each. */}
+                {!!lumaOf.get(m.id)?.length && (
+                  <ul aria-label={t("lumaEmails")} className="flex flex-wrap gap-2" data-testid="member-luma-emails">
+                    {lumaOf.get(m.id)!.map((e) => (
+                      <li
+                        key={e.email}
+                        className="flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-md border border-dashed border-border bg-bg-deep/30 py-1 ps-2.5 pe-1.5 text-sm"
+                      >
+                        <span className="text-xs text-fg-subtle">Luma</span>
+                        <bdi dir="ltr" className="block min-w-0 truncate font-mono text-[0.8125rem] text-fg">
+                          {e.email}
+                        </bdi>
+                        <span className="text-xs text-brand-purple-soft" data-testid="luma-added-by">
+                          {e.linked_by === m.id ? t("lumaSelfAdded") : t("lumaAdminLinked")}
+                        </span>
+                        <ActionForm action={removeLumaEmail} className="contents">
+                          <input type="hidden" name="email" value={e.email} />
+                          <button
+                            type="submit"
+                            className="rounded px-1.5 py-0.5 text-xs text-fg-subtle underline underline-offset-4 hover:text-fg"
+                          >
+                            {t("removeEmail")}
+                          </button>
+                        </ActionForm>
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 {/* The tools fold away: a short row per member, "Edit" opens role, extra email and
                     remove. With 40 members, a full form on every row made a very long page

@@ -8,7 +8,7 @@ import { getNow } from "@/lib/events";
 
 export type AttendanceStatus = "registered" | "checked_in" | "no_show";
 export type AttendanceResult = {
-  members: { member_id: string; full_name: string; status: AttendanceStatus; checked_in_at: string | null }[];
+  members: { member_id: string; full_name: string; status: AttendanceStatus; checked_in_at: string | null; self_added?: boolean }[];
   rows_total: number;
   ignored: number;
   guests_registered: number;
@@ -92,13 +92,14 @@ export async function linkLumaEmail(input: {
   if (!EMAIL.test(email) || email.length > 254 || !UUID.test(String(memberId)) || !UUID.test(String(eventId)) || !Array.isArray(rows) || rows.length > 5000) {
     return { ok: false, error: "invalid" };
   }
-  // Already somebody's sign-in email, or linked before: fine if it's the same member.
-  const [{ data: signIn }, { data: linked }] = await Promise.all([
-    supabase.from("member_emails").select("member_id").eq("email", email).maybeSingle(),
-    supabase.from("member_luma_emails").select("member_id").eq("email", email).maybeSingle(),
-  ]);
-  const owner = (signIn ?? linked) as { member_id: string } | null;
-  if (owner && owner.member_id !== memberId) return { ok: false, error: "taken" };
+  // Already somebody's sign-in email, or linked before (by match key, so a Gmail dot variant
+  // counts): fine if it's the same member.
+  const { data: owner, error: ownerError } = await supabase.rpc("admin_email_owner", { p_email: email });
+  if (ownerError) {
+    console.error("[attendance] owner check failed", ownerError.code);
+    return { ok: false, error: "failed" };
+  }
+  if (owner && owner !== memberId) return { ok: false, error: "taken" };
   if (!owner) {
     const { error } = await supabase.from("member_luma_emails").insert({ email, member_id: memberId });
     if (error) {

@@ -199,8 +199,18 @@ export async function runAttendanceChecks(db, check) {
   check(!denied(await link("admin", "alice.private@example.test", alice)), "[admin] links a Luma email to a member");
   check(denied(await link("admin", "alice.private@example.test", bob)), "one Luma email belongs to one member only");
   check(denied(await link("admin", "not-an-email", alice)), "a linked Luma email must look like an email");
+  const owner = async (who, e) => {
+    const r = await as(who, "select public.admin_email_owner($1) as id", [e]);
+    return r.error ? "denied" : r.rows[0].id;
+  };
+  check(await owner("admin", "B.o.b.Smith+z@googlemail.com") === bob, "admin link check: a Gmail variant of a member's sign-in email finds that member (by key)");
+  check(await owner("admin", "ALICE.private@example.test") === alice, "admin link check: finds the member of a linked Luma email");
+  check(await owner("admin", "nobody@example.test") === null, "admin link check: an unknown address has no owner");
+  check(await owner("alice", "bob.smith@gmail.com") === "denied", "[member] cannot ask who owns an address");
+  check(await owner("guest", "bob.smith@gmail.com") === "denied", "[guest] cannot ask who owns an address");
   const l2 = (await run("admin", lm, lumaRows, true)).rows?.[0]?.out;
   check(byId(l2, alice)?.status === "registered" && JSON.stringify(l2?.unmatched) === '["guest.one@example.test"]', "after linking, the next import matches that member");
+  check(byId(l2, alice)?.self_added === false && byId(l2, bob)?.self_added === false, "a match through an admin link or a sign-in email is not marked self-added");
   check(
     (await db.query("select linked_by from public.member_luma_emails where email = 'alice.private@example.test'")).rows[0]?.linked_by === adminMember,
     "a link records which admin made it",
@@ -253,10 +263,26 @@ export async function runAttendanceChecks(db, check) {
   );
   const self = (await run("admin", lm, [{ email: "BOB.LUMA@example.test", going: true }], false)).rows?.[0]?.out;
   check(byId(self, bob)?.status === "registered" && JSON.stringify(self?.unmatched) === "[]", "an upload then matches the member by their self-added email");
+  check(byId(self, bob)?.self_added === true, "the preview marks a match that came through a self-added address (F3)");
   const rmOther = await as("bob", "select public.remove_my_luma_email('alice.private@example.test') as out");
   check(rmOther.rows?.[0]?.out === false && (await mine("alice")).length === 1, "[member] cannot remove another member's Luma email");
   check((await as("bob", "select public.remove_my_luma_email(' Bob.Luma@example.test') as out")).rows?.[0]?.out === true, "[member] removes their own Luma email");
   check(!(await mine("bob")).includes("bob.luma@example.test"), "a removed Luma email is gone");
+  // F1: 10 tries per member per day, refusals included; removing frees nothing. Bob has used 9.
+  const tries = async () => (await db.query("select n from public.member_luma_email_tries where member_id = $1", [bob])).rows[0]?.n;
+  check(await tries() === 9, "every try counts, refusals included (taken, invalid, own, exists, limit)");
+  check(await addMine("bob", "b5@example.test") === "added", "the 10th try of the day still works");
+  check(await addMine("bob", "b6@example.test") === "tries", "the 11th try of the day is refused");
+  check(await addMine("bob", "alice@club.test") === "tries", "after the cap, another member's address gets the same answer (no probing)");
+  await as("bob", "select public.remove_my_luma_email('b5@example.test')");
+  check(await addMine("bob", "b7@example.test") === "tries", "removing an address doesn't free a try");
+  check(await addMine("alice", "a9@example.test") === "added", "the cap is per member");
+  await db.query("update public.member_luma_email_tries set day = day - 1 where member_id = $1", [bob]);
+  check(await addMine("bob", "b8@example.test") === "added", "the next day the tries start over");
+  check(await tries() === 1, "older days are dropped");
+  const tr = await as("bob", "select * from public.member_luma_email_tries");
+  check(denied(tr) || empty(tr), "[member] cannot read or reset the tries");
+  check(denied(await as("bob", "delete from public.member_luma_email_tries")) || (await tries()) === 1, "[member] cannot delete the tries");
   check(denied(await as("guest", "select public.remove_my_luma_email('b2@example.test')")), "[guest] cannot remove a Luma email");
   await db.query("delete from public.member_luma_emails");
   await db.query("delete from public.member_emails where email = 'bob.smith@gmail.com'");
