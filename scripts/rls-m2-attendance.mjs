@@ -128,6 +128,47 @@ export async function runAttendanceChecks(db, check) {
   check(denied(await as("admin", "select public.attendance_imports_phase()")), "the trigger function cannot be called directly");
   await db.query("delete from public.events where id = $1", [both]);
 
+  // ---- 19c. what each upload brought in, kept per phase (25.11) -------------------
+  const counts = async (id) =>
+    (
+      await db.query(
+        `select before_rows_total, before_members, before_guests,
+                after_rows_total, after_members_checked_in, after_no_shows, after_guests_checked_in
+         from public.attendance_imports where event_id = $1`,
+        [id],
+      )
+    ).rows[0];
+  const sess = await mkEvent("att-counts", "now() + interval '1 day'");
+  await run("admin", sess, [
+    { email: "alice@club.test", going: true },
+    { email: "bob@club.test", going: true },
+    { email: "g1@example.test", going: true },
+    { email: "g2@example.test", going: true },
+    { email: "declined@example.test", going: false },
+  ], true);
+  const c1 = await counts(sess);
+  check(
+    c1?.before_rows_total === 5 && c1.before_members === 2 && c1.before_guests === 2 && c1.after_rows_total === null,
+    "the before upload stores its counts: 5 in the file, 2 members registered, 2 guests",
+  );
+  await db.query("update public.events set starts_at = now() - interval '3 hours', ends_at = now() - interval '1 hour' where id = $1", [sess]);
+  await run("admin", sess, [
+    { email: "alice@club.test", going: true, checked_in: true },
+    { email: "bob@club.test", going: true },
+    { email: "g1@example.test", going: true, checked_in: true },
+    { email: "g2@example.test", going: true },
+  ], true);
+  const c2 = await counts(sess);
+  check(
+    c2?.after_rows_total === 4 && c2.after_members_checked_in === 1 && c2.after_no_shows === 1 && c2.after_guests_checked_in === 1,
+    "the after upload stores its counts: 4 in the file, 1 member in, 1 no-show, 1 guest in",
+  );
+  check(c2?.before_rows_total === 5 && c2.before_members === 2 && c2.before_guests === 2, "the before counts survive the after upload");
+  const forgeCount = await as("admin", "update public.attendance_imports set before_members = 99 where event_id = $1", [sess]);
+  check(denied(forgeCount) || forgeCount.affected === 0, "even an admin cannot write the counts directly");
+  check(empty(await as("alice", "select before_members from public.attendance_imports")), "[member] cannot read the upload counts");
+  await db.query("delete from public.events where id = $1", [sess]);
+
   // ---- 20. who reads what ------------------------------------------------------
   const read = (who) => as(who, "select member_id, event_id from public.attendance");
   const a = await read("alice");

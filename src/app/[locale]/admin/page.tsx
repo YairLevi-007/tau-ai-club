@@ -11,6 +11,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { hintClass, panelClass, panelTitle } from "@/components/admin/styles";
 import { RateBar } from "@/components/admin/attendance/attendance-mark";
 import { UploadSteps } from "@/components/admin/attendance/upload-steps";
+import { uploadCounts } from "@/lib/attendance/phases";
 import { BidiText } from "@/components/events/bidi-text";
 import { cn } from "@/lib/utils";
 
@@ -109,7 +110,7 @@ export default async function AdminHome({ params }: PageProps<"/[locale]/admin">
                       <BidiText text={title(o.next)} />
                     </Link>
                   </p>
-                  <UploadSteps before={o.next.before} after={o.next.after} phase={o.next.phase} endsAt={o.next.event.ends_at} />
+                  <UploadSteps before={o.next.before} after={o.next.after} phase={o.next.phase} endsAt={o.next.event.ends_at} counts={uploadCounts(o.next.info)} />
                   <Link href="/admin/attendance#uploads" className={more}>
                     {t("goUploads")}
                     <Arrow aria-hidden className="size-4" />

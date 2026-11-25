@@ -572,7 +572,14 @@
     "memberRate": "הגיע/ה ל-{came} מתוך {total} מפגשים ({pct}%).",
     "memberNoData": "עוד לא יובאו מפגשים העונה.",
     "backToSeason": "כל החברים",
-    "legendTitle": "מקרא"
+    "legendTitle": "מקרא",
+    "countsLabel": "מה נכנס מההעלאה",
+    "countFile": "<num>{n}</num> בקובץ",
+    "countMembersRegistered": "{n, plural, one {<num>חבר אחד</num> נרשם} other {<num>#</num> חברים נרשמו}}",
+    "countGuestsGoing": "{n, plural, one {<num>אורח אחד</num>} other {<num>#</num> אורחים}}",
+    "countMembersIn": "{n, plural, one {<num>חבר אחד</num> הגיע} other {<num>#</num> חברים הגיעו}}",
+    "countGuestsIn": "{n, plural, one {<num>אורח אחד</num> הגיע} other {<num>#</num> אורחים הגיעו}}",
+    "countNoShows": "{n, plural, one {<num>אחד</num> נרשם ולא הגיע} other {<num>#</num> נרשמו ולא הגיעו}}"
   },
   "content": {
     "navLabel": "מדורים",

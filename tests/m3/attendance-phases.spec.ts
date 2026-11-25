@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { uploadPhase, uploadTimes } from "../../src/lib/attendance/phases";
+import { uploadCounts, uploadPhase, uploadTimes } from "../../src/lib/attendance/phases";
 
 // Two Luma uploads per session (DECISIONS 25.11): "before: who registered" (feeds pAIr) and
 // "after: who came" (attendance). A better place to upload, not new logic. The database side
@@ -52,10 +52,41 @@ test.describe("attendance: before and after uploads", () => {
     expect(src("src/app/[locale]/admin/attendance/page.tsx")).toMatch(/await requireAdmin\("\/admin\/attendance"\)/);
   });
 
+  // 25.11: each upload's numbers, to check against Luma (session 3's before upload: 41 / 29 / 12).
+  test("each upload's counts come from its own phase; none until it's done", () => {
+    expect(uploadCounts(null)).toEqual({ before: null, after: null });
+    // Before the migration: no count columns, so nothing is shown (not zeros).
+    expect(uploadCounts({})).toEqual({ before: null, after: null });
+    expect(uploadCounts({ before_rows_total: 41, before_members: 29, before_guests: 12, after_rows_total: null })).toEqual({
+      before: { rows: 41, members: 29, guests: 12 },
+      after: null,
+    });
+    expect(
+      uploadCounts({ before_rows_total: 41, before_members: 29, before_guests: 12, after_rows_total: 38, after_members_checked_in: 24, after_guests_checked_in: 9, after_no_shows: 5 }),
+    ).toEqual({ before: { rows: 41, members: 29, guests: 12 }, after: { rows: 38, membersIn: 24, guestsIn: 9, noShows: 5 } });
+  });
+
+  test("the counts: a trigger stamps them per phase, admins see them on all three pages, counts only", () => {
+    const sql = src("supabase/migrations/20261125120000_attendance_phase_counts.sql").replace(/^\s*--.*$/gm, "");
+    // The import function, its statuses and pAIr are untouched; no grants (admins read the table through its RLS).
+    expect(sql).not.toMatch(/admin_import_attendance|pair_|create type|\bgrant\b|create policy|security definer/i);
+    for (const c of ["before_rows_total", "before_members", "before_guests", "after_rows_total", "after_members_checked_in", "after_no_shows", "after_guests_checked_in"]) {
+      expect(sql).toMatch(new RegExp(`add column ${c}\\s+int`));
+    }
+    expect(sql).toMatch(/revoke all on function public\.attendance_imports_phase\(\) from public, anon, authenticated/);
+    // Numbers only: no email or name column is read into them.
+    expect(sql).not.toMatch(/email|full_name/);
+    // The step cards show them wherever the steps are: the uploads list, the event page, the admin home.
+    expect(src("src/components/admin/attendance/session-uploads.tsx")).toContain("counts={uploadCounts(s.info)}");
+    expect(src("src/components/admin/attendance/attendance-panel.tsx")).toContain("counts={uploadCounts(info)}");
+    expect(src("src/app/[locale]/admin/page.tsx")).toContain("counts={uploadCounts(o.next.info)}");
+    expect(src("src/app/[locale]/admin/page.tsx")).toMatch(/await requireAdmin\("\/admin"\)/);
+  });
+
   test("the new texts exist in both languages", () => {
     const he = JSON.parse(src("messages/he.json")).attendance;
     const en = JSON.parse(src("messages/en.json")).attendance;
-    for (const k of ["pickBefore", "pickAfter", "uploadsTitle", "uploadsBody", "stepBefore", "stepAfter", "stepDone", "stepNotYet", "stepMissed", "stepOpensAfter", "uploadBefore", "uploadAfter", "nextSession"]) {
+    for (const k of ["pickBefore", "pickAfter", "uploadsTitle", "uploadsBody", "stepBefore", "stepAfter", "stepDone", "stepNotYet", "stepMissed", "stepOpensAfter", "uploadBefore", "uploadAfter", "nextSession", "countsLabel", "countFile", "countMembersRegistered", "countGuestsGoing", "countMembersIn", "countGuestsIn", "countNoShows"]) {
       expect(he[k], k).toBeTruthy();
       expect(en[k], k).toBeTruthy();
     }

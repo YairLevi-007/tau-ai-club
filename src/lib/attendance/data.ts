@@ -17,6 +17,14 @@ export type ImportInfo = {
   /** The session's two uploads (DECISIONS 25.11; migration 20261125000000). */
   before_imported_at?: string | null;
   after_imported_at?: string | null;
+  /** What each upload brought in (migration 20261125120000); null until that upload is done. */
+  before_rows_total?: number | null;
+  before_members?: number | null;
+  before_guests?: number | null;
+  after_rows_total?: number | null;
+  after_members_checked_in?: number | null;
+  after_no_shows?: number | null;
+  after_guests_checked_in?: number | null;
 };
 export type AttendanceCell = { event_id: string; member_id: string; status: AttendanceStatus; checked_in_at: string | null };
 export type SeasonCohort = { id: string; slug: string; name_he: string; name_en: string; starts_on: string };
@@ -84,8 +92,8 @@ export async function getMemberAttendance(supabase: Client, memberId: string, co
 // itself is unchanged; the database stamps each upload "before" or "after" by the session's end,
 // the same rule that makes going-but-not-checked-in "registered" before and "no-show" after.
 
-import { uploadPhase, uploadTimes, type UploadPhase } from "./phases";
-export { uploadPhase, uploadTimes, type UploadPhase };
+import { uploadCounts, uploadPhase, uploadTimes, type AfterCounts, type BeforeCounts, type UploadPhase } from "./phases";
+export { uploadCounts, uploadPhase, uploadTimes, type AfterCounts, type BeforeCounts, type UploadPhase };
 
 export type SessionUploads = { event: SeasonEvent; info: ImportInfo | null; phase: UploadPhase; next: boolean; before: string | null; after: string | null };
 
