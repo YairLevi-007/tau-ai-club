@@ -1029,5 +1029,11 @@
     "you": "(you)",
     "empty": "No members on the list yet.",
     "error": "We couldn’t load the list. Try refreshing."
+  },
+  "stalePage": {
+    "title": "This page is out of date.",
+    "body": "The site was updated after you opened it. Refresh and try again.",
+    "bodyFile": "The site was updated after you opened it. Refresh, choose the file again and try again.",
+    "refresh": "Refresh the page"
   }
 }
